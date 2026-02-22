@@ -1,0 +1,13 @@
+# GitHub Linguist configuration for Quantum language
+# This file helps GitHub detect and properly categorize Quantum language files
+
+# Define the Quantum language for GitHub's language detection
+languages:
+  Quantum:
+    type: programming
+    color: "#0033CC"  # Dark blue color as requested
+    extensions:
+      - ".sa"
+    tm_scope: source.quantum
+    ace_mode: text
+    language_id: 999999

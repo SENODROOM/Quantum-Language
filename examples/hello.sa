@@ -3,7 +3,7 @@
 
 print("Hello, Quantum World! 🚀")
 
-let name = "Hacker"
+let name = "Chuchu"
 let version = 1.0
 
 print("Welcome,", name, "| Quantum v" + str(version))

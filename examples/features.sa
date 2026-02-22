@@ -14,6 +14,7 @@ print("x:", x, "| pi:", pi, "| name:", name, "| active:", active)
 # ── Constants ──────────────────────────────────────────────────────────────
 const MAX_RETRIES = 3
 const APP_NAME = "QuantumSec"
+print("=== Constants ===")
 print("App:", APP_NAME, "| Max retries:", MAX_RETRIES)
 
 # ── Functions (JS-style declaration) ──────────────────────────────────────
