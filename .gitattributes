@@ -1,6 +1,6 @@
 # Quantum language detection for GitHub
-# Using OpenQASM as base since it's a quantum programming language
-*.sa linguist-language=OpenQASM
+# Once PR is merged, this will use official Quantum language
+*.sa linguist-language=Quantum
 *.sa linguist-detectable
 
 # Ensure C++ files are still detected properly
@@ -9,5 +9,5 @@
 *.hpp linguist-language=C++
 
 # Override any potential conflicts
-examples/*.sa linguist-language=OpenQASM
-src/*.sa linguist-language=OpenQASM
+examples/*.sa linguist-language=Quantum
+src/*.sa linguist-language=Quantum
