@@ -1,2 +1,8 @@
+# Quantum language detection for GitHub
 *.sa linguist-language=Quantum
 *.sa linguist-detectable
+
+# Ensure C++ files are still detected properly
+*.cpp linguist-language=C++
+*.h linguist-language=C++
+*.hpp linguist-language=C++
