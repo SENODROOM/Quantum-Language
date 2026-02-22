@@ -1,0 +1,9 @@
+# hello.sa — Your first Quantum program
+# Run: quantum hello.sa
+
+print("Hello, Quantum World! 🚀")
+
+let name = "Hacker"
+let version = 1.0
+
+print("Welcome,", name, "| Quantum v" + str(version))
