@@ -6,3 +6,7 @@
 *.cpp linguist-language=C++
 *.h linguist-language=C++
 *.hpp linguist-language=C++
+
+# Override any potential conflicts
+examples/*.sa linguist-language=Quantum
+src/*.sa linguist-language=Quantum

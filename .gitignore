@@ -1,0 +1,32 @@
+# Build directories
+build/
+build_ninja/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Compiler output
+compile_error.txt
+compile_errors.txt
+error.log
+gpp_log.txt
+method1_error.txt
+method2_error.txt
+method3_error.txt
+output.txt
+
+# IDE files
+.vscode/
+*.vcxproj*
+*.sln
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
