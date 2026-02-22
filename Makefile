@@ -1,38 +1,34 @@
-CXX      = g++
-CXXFLAGS = -std=c++17 -O2 -Wall -Iinclude
 TARGET   = quantum
 SRCS     = src/main.cpp src/Token.cpp src/Lexer.cpp src/Parser.cpp src/Value.cpp src/Interpreter.cpp
-OBJS     = $(SRCS:.cpp=.o)
+INCLUDES = -Iinclude
 
-.PHONY: all clean install uninstall test
+# Prefer MSYS2 MinGW g++ on Windows for a portable build
+ifeq ($(OS),Windows_NT)
+	CXX      = C:/msys64/mingw64/bin/g++.exe
+else
+	CXX      = g++
+endif
+
+CXXFLAGS = -std=c++17 -O2 -Wall $(INCLUDES)
+
+.PHONY: all clean test
 
 all: $(TARGET)
 
 $(TARGET): $(SRCS)
-	@echo "  Building Quantum Language..."
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread
-	@echo "  ✓ Built: ./quantum"
-
-install: $(TARGET)
-	@echo "  Installing to /usr/local/bin/quantum..."
-	install -m 755 $(TARGET) /usr/local/bin/$(TARGET)
-	@echo "  ✓ Installed! Run: quantum <file.sa>"
-
-uninstall:
-	rm -f /usr/local/bin/$(TARGET)
-	@echo "  ✓ Uninstalled"
+	@echo Building Quantum Language...
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRCS)
+	@echo Built: ./$(TARGET)
 
 test: $(TARGET)
-	@echo "  Running tests..."
+	@echo Running examples...
 	./$(TARGET) examples/hello.sa
 	./$(TARGET) examples/features.sa
 	./$(TARGET) examples/cybersec.sa
 	./$(TARGET) examples/advanced.sa
-	@echo "  ✓ All tests passed!"
+	@echo Done.
 
 clean:
-	rm -f $(TARGET) src/*.o
-	@echo "  ✓ Cleaned"
-
-debug: CXXFLAGS = -std=c++17 -g -Wall -Wextra -Iinclude
-debug: $(TARGET)
+	@echo Cleaning...
+	-@rm -f $(TARGET) src/*.o
+	@echo Cleaned.

@@ -11,6 +11,925 @@ events:
   -
     kind: "find-v1"
     backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeNinjaFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Program used to build from build.ninja files."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ninja-build"
+      - "ninja"
+      - "samu"
+    candidate_directories:
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
+      - "C:/Windows/System32/"
+      - "C:/Windows/"
+      - "C:/Windows/System32/wbem/"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/"
+      - "C:/Windows/System32/OpenSSH/"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "C:/Program Files/Git/cmd/"
+      - "C:/Program Files/nodejs/"
+      - "C:/Program Files/PostgreSQL/16/bin/"
+      - "C:/Program Files/cursor/resources/app/bin/"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
+      - "C:/Program Files/Docker/Docker/resources/bin/"
+      - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "C:/msys64/ucrt64/bin/"
+      - "C:/Users/saada/AppData/Roaming/npm/"
+      - "C:/SFML-3.0.2/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Antigravity/bin/"
+      - "C:/Program Files (x86)/MongoDB CLI/"
+      - "C:/Users/saada/AppData/Local/Programs/mongosh/"
+      - "C:/Users/saada/AppData/Local/GitHubDesktop/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Kiro/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Windsurf/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Qoder/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Zed/bin/"
+    searched_directories:
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja-build.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja-build.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja-build"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/ninja"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/samu.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/samu.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/samu"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja-build.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja-build.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja-build"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/ninja"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/samu.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/samu.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/samu"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja-build.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja-build.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja-build"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/ninja"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/samu.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/samu.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/samu"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja-build.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja-build.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja-build"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/ninja"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/samu.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/samu.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/samu"
+      - "C:/Windows/System32/ninja-build.com"
+      - "C:/Windows/System32/ninja-build.exe"
+      - "C:/Windows/System32/ninja-build"
+      - "C:/Windows/System32/ninja.com"
+      - "C:/Windows/System32/ninja.exe"
+      - "C:/Windows/System32/ninja"
+      - "C:/Windows/System32/samu.com"
+      - "C:/Windows/System32/samu.exe"
+      - "C:/Windows/System32/samu"
+      - "C:/Windows/ninja-build.com"
+      - "C:/Windows/ninja-build.exe"
+      - "C:/Windows/ninja-build"
+      - "C:/Windows/ninja.com"
+      - "C:/Windows/ninja.exe"
+      - "C:/Windows/ninja"
+      - "C:/Windows/samu.com"
+      - "C:/Windows/samu.exe"
+      - "C:/Windows/samu"
+      - "C:/Windows/System32/wbem/ninja-build.com"
+      - "C:/Windows/System32/wbem/ninja-build.exe"
+      - "C:/Windows/System32/wbem/ninja-build"
+      - "C:/Windows/System32/wbem/ninja.com"
+      - "C:/Windows/System32/wbem/ninja.exe"
+      - "C:/Windows/System32/wbem/ninja"
+      - "C:/Windows/System32/wbem/samu.com"
+      - "C:/Windows/System32/wbem/samu.exe"
+      - "C:/Windows/System32/wbem/samu"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja-build.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja-build.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja-build"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/ninja"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/samu.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/samu.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/samu"
+      - "C:/Windows/System32/OpenSSH/ninja-build.com"
+      - "C:/Windows/System32/OpenSSH/ninja-build.exe"
+      - "C:/Windows/System32/OpenSSH/ninja-build"
+      - "C:/Windows/System32/OpenSSH/ninja.com"
+      - "C:/Windows/System32/OpenSSH/ninja.exe"
+      - "C:/Windows/System32/OpenSSH/ninja"
+      - "C:/Windows/System32/OpenSSH/samu.com"
+      - "C:/Windows/System32/OpenSSH/samu.exe"
+      - "C:/Windows/System32/OpenSSH/samu"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja-build.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja-build.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja-build"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/ninja"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/samu.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/samu.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/samu"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja-build.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja-build.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja-build"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/ninja"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/samu.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/samu.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/samu"
+      - "C:/Program Files/Git/cmd/ninja-build.com"
+      - "C:/Program Files/Git/cmd/ninja-build.exe"
+      - "C:/Program Files/Git/cmd/ninja-build"
+      - "C:/Program Files/Git/cmd/ninja.com"
+      - "C:/Program Files/Git/cmd/ninja.exe"
+      - "C:/Program Files/Git/cmd/ninja"
+      - "C:/Program Files/Git/cmd/samu.com"
+      - "C:/Program Files/Git/cmd/samu.exe"
+      - "C:/Program Files/Git/cmd/samu"
+      - "C:/Program Files/nodejs/ninja-build.com"
+      - "C:/Program Files/nodejs/ninja-build.exe"
+      - "C:/Program Files/nodejs/ninja-build"
+      - "C:/Program Files/nodejs/ninja.com"
+      - "C:/Program Files/nodejs/ninja.exe"
+      - "C:/Program Files/nodejs/ninja"
+      - "C:/Program Files/nodejs/samu.com"
+      - "C:/Program Files/nodejs/samu.exe"
+      - "C:/Program Files/nodejs/samu"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja-build.com"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja-build.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja-build"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja.com"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/ninja"
+      - "C:/Program Files/PostgreSQL/16/bin/samu.com"
+      - "C:/Program Files/PostgreSQL/16/bin/samu.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/samu"
+      - "C:/Program Files/cursor/resources/app/bin/ninja-build.com"
+      - "C:/Program Files/cursor/resources/app/bin/ninja-build.exe"
+      - "C:/Program Files/cursor/resources/app/bin/ninja-build"
+      - "C:/Program Files/cursor/resources/app/bin/ninja.com"
+      - "C:/Program Files/cursor/resources/app/bin/ninja.exe"
+      - "C:/Program Files/cursor/resources/app/bin/ninja"
+      - "C:/Program Files/cursor/resources/app/bin/samu.com"
+      - "C:/Program Files/cursor/resources/app/bin/samu.exe"
+      - "C:/Program Files/cursor/resources/app/bin/samu"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja-build.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja-build.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja-build"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/ninja"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/samu.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/samu.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/samu"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja-build.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja-build.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja-build"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/ninja"
+      - "C:/Program Files/Docker/Docker/resources/bin/samu.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/samu.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/samu"
+      - "C:/Program Files/GitHub CLI/ninja-build.com"
+      - "C:/Program Files/GitHub CLI/ninja-build.exe"
+      - "C:/Program Files/GitHub CLI/ninja-build"
+      - "C:/Program Files/GitHub CLI/ninja.com"
+      - "C:/Program Files/GitHub CLI/ninja.exe"
+      - "C:/Program Files/GitHub CLI/ninja"
+      - "C:/Program Files/GitHub CLI/samu.com"
+      - "C:/Program Files/GitHub CLI/samu.exe"
+      - "C:/Program Files/GitHub CLI/samu"
+      - "C:/Program Files/CMake/bin/ninja-build.com"
+      - "C:/Program Files/CMake/bin/ninja-build.exe"
+      - "C:/Program Files/CMake/bin/ninja-build"
+      - "C:/Program Files/CMake/bin/ninja.com"
+      - "C:/Program Files/CMake/bin/ninja.exe"
+      - "C:/Program Files/CMake/bin/ninja"
+      - "C:/Program Files/CMake/bin/samu.com"
+      - "C:/Program Files/CMake/bin/samu.exe"
+      - "C:/Program Files/CMake/bin/samu"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja-build"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/ninja"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/samu.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/samu.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/samu"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja-build"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/ninja"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/samu.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/samu.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/samu"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja-build"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/ninja"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/samu.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/samu.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/samu"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja-build"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/ninja"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/samu.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/samu.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/samu"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja-build.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja-build.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja-build"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/ninja"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/samu.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/samu.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/samu"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja-build"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/ninja"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/samu.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/samu.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/samu"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja-build.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja-build.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja-build"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/ninja"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/samu.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/samu.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/samu"
+      - "C:/msys64/ucrt64/bin/ninja-build.com"
+      - "C:/msys64/ucrt64/bin/ninja-build.exe"
+      - "C:/msys64/ucrt64/bin/ninja-build"
+      - "C:/msys64/ucrt64/bin/ninja.com"
+    found: "C:/msys64/ucrt64/bin/ninja.exe"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompiler.cmake:63 (find_program)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:69 (_cmake_find_compiler)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER"
+    description: "CXX compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: false
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "c++"
+      - "g++"
+      - "cl"
+      - "bcc"
+      - "icx"
+      - "clang++"
+    candidate_directories:
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
+      - "C:/Windows/System32/"
+      - "C:/Windows/"
+      - "C:/Windows/System32/wbem/"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/"
+      - "C:/Windows/System32/OpenSSH/"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "C:/Program Files/Git/cmd/"
+      - "C:/Program Files/nodejs/"
+      - "C:/Program Files/PostgreSQL/16/bin/"
+      - "C:/Program Files/cursor/resources/app/bin/"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
+      - "C:/Program Files/Docker/Docker/resources/bin/"
+      - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "C:/msys64/ucrt64/bin/"
+      - "C:/Users/saada/AppData/Roaming/npm/"
+      - "C:/SFML-3.0.2/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Antigravity/bin/"
+      - "C:/Program Files (x86)/MongoDB CLI/"
+      - "C:/Users/saada/AppData/Local/Programs/mongosh/"
+      - "C:/Users/saada/AppData/Local/GitHubDesktop/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Kiro/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Windsurf/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Qoder/bin/"
+      - "C:/Users/saada/AppData/Local/Programs/Zed/bin/"
+    searched_directories:
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/c++.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/c++.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/c++"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/g++.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/g++.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/g++"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/cl.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/cl.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/cl"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/bcc.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/bcc.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/bcc"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/icx.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/icx.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/icx"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/clang++.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/clang++.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/clang++"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/c++.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/c++.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/c++"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/g++.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/g++.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/g++"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/cl.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/cl.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/cl"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/bcc.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/bcc.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/bcc"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/icx.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/icx.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/icx"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/clang++.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/clang++.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/clang++"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/c++.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/c++.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/c++"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/g++.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/g++.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/g++"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/cl.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/cl.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/cl"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/bcc.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/bcc.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/bcc"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/icx.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/icx.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/icx"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/clang++.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/clang++.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/clang++"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/c++.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/c++.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/c++"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/g++.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/g++.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/g++"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/cl.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/cl.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/cl"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/bcc.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/bcc.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/bcc"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/icx.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/icx.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/icx"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/clang++.com"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/clang++.exe"
+      - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/clang++"
+      - "C:/Windows/System32/c++.com"
+      - "C:/Windows/System32/c++.exe"
+      - "C:/Windows/System32/c++"
+      - "C:/Windows/System32/g++.com"
+      - "C:/Windows/System32/g++.exe"
+      - "C:/Windows/System32/g++"
+      - "C:/Windows/System32/cl.com"
+      - "C:/Windows/System32/cl.exe"
+      - "C:/Windows/System32/cl"
+      - "C:/Windows/System32/bcc.com"
+      - "C:/Windows/System32/bcc.exe"
+      - "C:/Windows/System32/bcc"
+      - "C:/Windows/System32/icx.com"
+      - "C:/Windows/System32/icx.exe"
+      - "C:/Windows/System32/icx"
+      - "C:/Windows/System32/clang++.com"
+      - "C:/Windows/System32/clang++.exe"
+      - "C:/Windows/System32/clang++"
+      - "C:/Windows/c++.com"
+      - "C:/Windows/c++.exe"
+      - "C:/Windows/c++"
+      - "C:/Windows/g++.com"
+      - "C:/Windows/g++.exe"
+      - "C:/Windows/g++"
+      - "C:/Windows/cl.com"
+      - "C:/Windows/cl.exe"
+      - "C:/Windows/cl"
+      - "C:/Windows/bcc.com"
+      - "C:/Windows/bcc.exe"
+      - "C:/Windows/bcc"
+      - "C:/Windows/icx.com"
+      - "C:/Windows/icx.exe"
+      - "C:/Windows/icx"
+      - "C:/Windows/clang++.com"
+      - "C:/Windows/clang++.exe"
+      - "C:/Windows/clang++"
+      - "C:/Windows/System32/wbem/c++.com"
+      - "C:/Windows/System32/wbem/c++.exe"
+      - "C:/Windows/System32/wbem/c++"
+      - "C:/Windows/System32/wbem/g++.com"
+      - "C:/Windows/System32/wbem/g++.exe"
+      - "C:/Windows/System32/wbem/g++"
+      - "C:/Windows/System32/wbem/cl.com"
+      - "C:/Windows/System32/wbem/cl.exe"
+      - "C:/Windows/System32/wbem/cl"
+      - "C:/Windows/System32/wbem/bcc.com"
+      - "C:/Windows/System32/wbem/bcc.exe"
+      - "C:/Windows/System32/wbem/bcc"
+      - "C:/Windows/System32/wbem/icx.com"
+      - "C:/Windows/System32/wbem/icx.exe"
+      - "C:/Windows/System32/wbem/icx"
+      - "C:/Windows/System32/wbem/clang++.com"
+      - "C:/Windows/System32/wbem/clang++.exe"
+      - "C:/Windows/System32/wbem/clang++"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/c++.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/c++.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/c++"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/g++.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/g++.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/g++"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/cl.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/cl.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/cl"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/bcc.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/bcc.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/bcc"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/icx.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/icx.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/icx"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang++.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang++.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang++"
+      - "C:/Windows/System32/OpenSSH/c++.com"
+      - "C:/Windows/System32/OpenSSH/c++.exe"
+      - "C:/Windows/System32/OpenSSH/c++"
+      - "C:/Windows/System32/OpenSSH/g++.com"
+      - "C:/Windows/System32/OpenSSH/g++.exe"
+      - "C:/Windows/System32/OpenSSH/g++"
+      - "C:/Windows/System32/OpenSSH/cl.com"
+      - "C:/Windows/System32/OpenSSH/cl.exe"
+      - "C:/Windows/System32/OpenSSH/cl"
+      - "C:/Windows/System32/OpenSSH/bcc.com"
+      - "C:/Windows/System32/OpenSSH/bcc.exe"
+      - "C:/Windows/System32/OpenSSH/bcc"
+      - "C:/Windows/System32/OpenSSH/icx.com"
+      - "C:/Windows/System32/OpenSSH/icx.exe"
+      - "C:/Windows/System32/OpenSSH/icx"
+      - "C:/Windows/System32/OpenSSH/clang++.com"
+      - "C:/Windows/System32/OpenSSH/clang++.exe"
+      - "C:/Windows/System32/OpenSSH/clang++"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/c++.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/c++.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/c++"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/g++.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/g++.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/g++"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/cl.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/cl.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/cl"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/bcc.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/bcc.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/bcc"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/icx.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/icx.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/icx"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/clang++.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/clang++.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/clang++"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/c++.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/c++.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/c++"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/g++.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/g++.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/g++"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/cl.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/cl.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/cl"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/bcc.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/bcc.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/bcc"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/icx.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/icx.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/icx"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/clang++.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/clang++.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/clang++"
+      - "C:/Program Files/Git/cmd/c++.com"
+      - "C:/Program Files/Git/cmd/c++.exe"
+      - "C:/Program Files/Git/cmd/c++"
+      - "C:/Program Files/Git/cmd/g++.com"
+      - "C:/Program Files/Git/cmd/g++.exe"
+      - "C:/Program Files/Git/cmd/g++"
+      - "C:/Program Files/Git/cmd/cl.com"
+      - "C:/Program Files/Git/cmd/cl.exe"
+      - "C:/Program Files/Git/cmd/cl"
+      - "C:/Program Files/Git/cmd/bcc.com"
+      - "C:/Program Files/Git/cmd/bcc.exe"
+      - "C:/Program Files/Git/cmd/bcc"
+      - "C:/Program Files/Git/cmd/icx.com"
+      - "C:/Program Files/Git/cmd/icx.exe"
+      - "C:/Program Files/Git/cmd/icx"
+      - "C:/Program Files/Git/cmd/clang++.com"
+      - "C:/Program Files/Git/cmd/clang++.exe"
+      - "C:/Program Files/Git/cmd/clang++"
+      - "C:/Program Files/nodejs/c++.com"
+      - "C:/Program Files/nodejs/c++.exe"
+      - "C:/Program Files/nodejs/c++"
+      - "C:/Program Files/nodejs/g++.com"
+      - "C:/Program Files/nodejs/g++.exe"
+      - "C:/Program Files/nodejs/g++"
+      - "C:/Program Files/nodejs/cl.com"
+      - "C:/Program Files/nodejs/cl.exe"
+      - "C:/Program Files/nodejs/cl"
+      - "C:/Program Files/nodejs/bcc.com"
+      - "C:/Program Files/nodejs/bcc.exe"
+      - "C:/Program Files/nodejs/bcc"
+      - "C:/Program Files/nodejs/icx.com"
+      - "C:/Program Files/nodejs/icx.exe"
+      - "C:/Program Files/nodejs/icx"
+      - "C:/Program Files/nodejs/clang++.com"
+      - "C:/Program Files/nodejs/clang++.exe"
+      - "C:/Program Files/nodejs/clang++"
+      - "C:/Program Files/PostgreSQL/16/bin/c++.com"
+      - "C:/Program Files/PostgreSQL/16/bin/c++.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/c++"
+      - "C:/Program Files/PostgreSQL/16/bin/g++.com"
+      - "C:/Program Files/PostgreSQL/16/bin/g++.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/g++"
+      - "C:/Program Files/PostgreSQL/16/bin/cl.com"
+      - "C:/Program Files/PostgreSQL/16/bin/cl.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/cl"
+      - "C:/Program Files/PostgreSQL/16/bin/bcc.com"
+      - "C:/Program Files/PostgreSQL/16/bin/bcc.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/bcc"
+      - "C:/Program Files/PostgreSQL/16/bin/icx.com"
+      - "C:/Program Files/PostgreSQL/16/bin/icx.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/icx"
+      - "C:/Program Files/PostgreSQL/16/bin/clang++.com"
+      - "C:/Program Files/PostgreSQL/16/bin/clang++.exe"
+      - "C:/Program Files/PostgreSQL/16/bin/clang++"
+      - "C:/Program Files/cursor/resources/app/bin/c++.com"
+      - "C:/Program Files/cursor/resources/app/bin/c++.exe"
+      - "C:/Program Files/cursor/resources/app/bin/c++"
+      - "C:/Program Files/cursor/resources/app/bin/g++.com"
+      - "C:/Program Files/cursor/resources/app/bin/g++.exe"
+      - "C:/Program Files/cursor/resources/app/bin/g++"
+      - "C:/Program Files/cursor/resources/app/bin/cl.com"
+      - "C:/Program Files/cursor/resources/app/bin/cl.exe"
+      - "C:/Program Files/cursor/resources/app/bin/cl"
+      - "C:/Program Files/cursor/resources/app/bin/bcc.com"
+      - "C:/Program Files/cursor/resources/app/bin/bcc.exe"
+      - "C:/Program Files/cursor/resources/app/bin/bcc"
+      - "C:/Program Files/cursor/resources/app/bin/icx.com"
+      - "C:/Program Files/cursor/resources/app/bin/icx.exe"
+      - "C:/Program Files/cursor/resources/app/bin/icx"
+      - "C:/Program Files/cursor/resources/app/bin/clang++.com"
+      - "C:/Program Files/cursor/resources/app/bin/clang++.exe"
+      - "C:/Program Files/cursor/resources/app/bin/clang++"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/c++.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/c++.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/c++"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/g++.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/g++.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/g++"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/cl.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/cl.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/cl"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/bcc.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/bcc.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/bcc"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/icx.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/icx.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/icx"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/clang++.com"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/clang++.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/clang++"
+      - "C:/Program Files/Docker/Docker/resources/bin/c++.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/c++.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/c++"
+      - "C:/Program Files/Docker/Docker/resources/bin/g++.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/g++.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/g++"
+      - "C:/Program Files/Docker/Docker/resources/bin/cl.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/cl.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/cl"
+      - "C:/Program Files/Docker/Docker/resources/bin/bcc.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/bcc.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/bcc"
+      - "C:/Program Files/Docker/Docker/resources/bin/icx.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/icx.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/icx"
+      - "C:/Program Files/Docker/Docker/resources/bin/clang++.com"
+      - "C:/Program Files/Docker/Docker/resources/bin/clang++.exe"
+      - "C:/Program Files/Docker/Docker/resources/bin/clang++"
+      - "C:/Program Files/GitHub CLI/c++.com"
+      - "C:/Program Files/GitHub CLI/c++.exe"
+      - "C:/Program Files/GitHub CLI/c++"
+      - "C:/Program Files/GitHub CLI/g++.com"
+      - "C:/Program Files/GitHub CLI/g++.exe"
+      - "C:/Program Files/GitHub CLI/g++"
+      - "C:/Program Files/GitHub CLI/cl.com"
+      - "C:/Program Files/GitHub CLI/cl.exe"
+      - "C:/Program Files/GitHub CLI/cl"
+      - "C:/Program Files/GitHub CLI/bcc.com"
+      - "C:/Program Files/GitHub CLI/bcc.exe"
+      - "C:/Program Files/GitHub CLI/bcc"
+      - "C:/Program Files/GitHub CLI/icx.com"
+      - "C:/Program Files/GitHub CLI/icx.exe"
+      - "C:/Program Files/GitHub CLI/icx"
+      - "C:/Program Files/GitHub CLI/clang++.com"
+      - "C:/Program Files/GitHub CLI/clang++.exe"
+      - "C:/Program Files/GitHub CLI/clang++"
+      - "C:/Program Files/CMake/bin/c++.com"
+      - "C:/Program Files/CMake/bin/c++.exe"
+      - "C:/Program Files/CMake/bin/c++"
+      - "C:/Program Files/CMake/bin/g++.com"
+      - "C:/Program Files/CMake/bin/g++.exe"
+      - "C:/Program Files/CMake/bin/g++"
+      - "C:/Program Files/CMake/bin/cl.com"
+      - "C:/Program Files/CMake/bin/cl.exe"
+      - "C:/Program Files/CMake/bin/cl"
+      - "C:/Program Files/CMake/bin/bcc.com"
+      - "C:/Program Files/CMake/bin/bcc.exe"
+      - "C:/Program Files/CMake/bin/bcc"
+      - "C:/Program Files/CMake/bin/icx.com"
+      - "C:/Program Files/CMake/bin/icx.exe"
+      - "C:/Program Files/CMake/bin/icx"
+      - "C:/Program Files/CMake/bin/clang++.com"
+      - "C:/Program Files/CMake/bin/clang++.exe"
+      - "C:/Program Files/CMake/bin/clang++"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/c++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/c++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/c++"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/g++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/g++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/g++"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/cl.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/cl.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/cl"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/bcc.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/bcc"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/icx.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/icx.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/icx"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/clang++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Trae/bin/clang++"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/c++.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/c++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/c++"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/g++.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/g++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/g++"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/cl.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/cl.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/cl"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/bcc.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/bcc"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/icx.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/icx.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/icx"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/clang++.com"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/clang++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/c++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/c++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/c++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/g++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/g++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/g++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/cl.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/cl.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/cl"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/bcc.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/bcc"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/icx.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/icx.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/icx"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/clang++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/clang++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/c++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/c++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/c++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/g++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/g++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/g++"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/cl.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/cl.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/cl"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/bcc.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/bcc"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/icx.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/icx.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/icx"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/clang++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Python/Python312/clang++"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/c++.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/c++.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/c++"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/g++.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/g++.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/g++"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/cl.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/cl.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/cl"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/bcc.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/bcc.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/bcc"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/icx.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/icx.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/icx"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/clang++.com"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/clang++.exe"
+      - "C:/Program Files/MySQL/MySQL Shell 8.0/bin/clang++"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/c++.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/c++.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/c++"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/g++.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/g++.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/g++"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/cl.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/cl.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/cl"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/bcc.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/bcc"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/icx.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/icx.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/icx"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/clang++.com"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Microsoft/WindowsApps/clang++"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/c++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/c++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/c++"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/g++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/g++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/g++"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/cl.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/cl.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/cl"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/bcc.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/bcc.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/bcc"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/icx.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/icx.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/icx"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/clang++.com"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/clang++.exe"
+      - "C:/Users/saada/AppData/Local/Programs/Microsoft VS Code/bin/clang++"
+      - "C:/msys64/ucrt64/bin/c++.com"
+    found: "C:/msys64/ucrt64/bin/c++.exe"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+  -
+    kind: "find-v1"
+    backtrace:
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
@@ -35,8 +954,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -49,10 +972,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -81,7 +1004,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags:  
       
@@ -116,8 +1039,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -130,10 +1057,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -162,7 +1089,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -197,8 +1124,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -211,10 +1142,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -243,13 +1174,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --c++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--c++'
+      c++.exe: error: unrecognized command-line option '--c++'
       
       
   -
@@ -279,8 +1210,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -293,10 +1228,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -325,13 +1260,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --ec++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      c++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
       
       
   -
@@ -361,8 +1296,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -375,10 +1314,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -407,14 +1346,14 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
       The output was:
       1
-      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
-      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      c++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      c++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
       
       
   -
@@ -444,8 +1383,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -458,10 +1401,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -490,7 +1433,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -525,8 +1468,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -539,10 +1486,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -571,7 +1518,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags:  
       
@@ -606,8 +1553,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -620,10 +1571,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -652,7 +1603,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -687,8 +1638,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -701,10 +1656,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -733,13 +1688,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --c++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--c++'
+      c++.exe: error: unrecognized command-line option '--c++'
       
       
   -
@@ -769,8 +1724,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -783,10 +1742,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -815,13 +1774,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --ec++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      c++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
       
       
   -
@@ -851,8 +1810,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -865,10 +1828,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -897,14 +1860,14 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
       The output was:
       1
-      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
-      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      c++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      c++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
       
       
   -
@@ -934,8 +1897,12 @@ events:
     found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -948,10 +1915,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -980,7 +1947,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -997,7 +1964,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
-      g++.exe: fatal error: no input files
+      c++.exe: fatal error: no input files
       compilation terminated.
   -
     kind: "message-v1"
@@ -1008,7 +1975,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
-      g++.exe: fatal error: no input files
+      c++.exe: fatal error: no input files
       compilation terminated.
   -
     kind: "find-v1"
@@ -1031,8 +1998,9 @@ events:
       - "ar"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1048,6 +2016,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1071,8 +2040,12 @@ events:
     found: "C:/msys64/ucrt64/bin/ar.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1085,10 +2058,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1129,8 +2102,9 @@ events:
       - "ranlib"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1146,6 +2120,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1169,8 +2144,12 @@ events:
     found: "C:/msys64/ucrt64/bin/ranlib.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1183,10 +2162,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1227,8 +2206,9 @@ events:
       - "strip"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1244,6 +2224,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1267,8 +2248,12 @@ events:
     found: "C:/msys64/ucrt64/bin/strip.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1281,10 +2266,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1325,8 +2310,9 @@ events:
       - "ld"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1342,6 +2328,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1365,8 +2352,12 @@ events:
     found: "C:/msys64/ucrt64/bin/ld.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1379,10 +2370,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1423,8 +2414,9 @@ events:
       - "nm"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1440,6 +2432,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1463,8 +2456,12 @@ events:
     found: "C:/msys64/ucrt64/bin/nm.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1477,10 +2474,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1521,8 +2518,9 @@ events:
       - "objdump"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1538,6 +2536,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1561,8 +2560,12 @@ events:
     found: "C:/msys64/ucrt64/bin/objdump.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1575,10 +2578,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1619,8 +2622,9 @@ events:
       - "objcopy"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1636,6 +2640,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1659,8 +2664,12 @@ events:
     found: "C:/msys64/ucrt64/bin/objcopy.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1673,10 +2682,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1717,8 +2726,9 @@ events:
       - "readelf"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1734,6 +2744,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1757,8 +2768,12 @@ events:
     found: "C:/msys64/ucrt64/bin/readelf.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1771,10 +2786,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1815,8 +2830,9 @@ events:
       - "dlltool"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1832,6 +2848,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1855,8 +2872,12 @@ events:
     found: "C:/msys64/ucrt64/bin/dlltool.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1869,10 +2890,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -1913,8 +2934,9 @@ events:
       - "addr2line"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -1930,6 +2952,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -1953,8 +2976,12 @@ events:
     found: "C:/msys64/ucrt64/bin/addr2line.exe"
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -1967,10 +2994,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -2011,8 +3038,9 @@ events:
       - "tapi"
     candidate_directories:
       - "C:/msys64/ucrt64/bin/"
-      - "C:/Program Files/CMake/bin/"
-      - "C:/Program Files/LLVM/bin/"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/"
       - "C:/Windows/System32/"
       - "C:/Windows/"
@@ -2028,6 +3056,7 @@ events:
       - "C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
       - "C:/Program Files/Docker/Docker/resources/bin/"
       - "C:/Program Files/GitHub CLI/"
+      - "C:/Program Files/CMake/bin/"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/"
       - "C:/Users/saada/AppData/Local/Programs/cursor/resources/app/codeBin/"
       - "C:/Users/saada/AppData/Local/Programs/Python/Python312/Scripts/"
@@ -2050,12 +3079,15 @@ events:
       - "C:/msys64/ucrt64/bin/tapi.com"
       - "C:/msys64/ucrt64/bin/tapi.exe"
       - "C:/msys64/ucrt64/bin/tapi"
-      - "C:/Program Files/CMake/bin/tapi.com"
-      - "C:/Program Files/CMake/bin/tapi.exe"
-      - "C:/Program Files/CMake/bin/tapi"
-      - "C:/Program Files/LLVM/bin/tapi.com"
-      - "C:/Program Files/LLVM/bin/tapi.exe"
-      - "C:/Program Files/LLVM/bin/tapi"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/tapi.com"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/tapi.exe"
+      - "C:/Users/saada/.trae/tools/trae-gopls/current/tapi"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/tapi.com"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/tapi.exe"
+      - "C:/Users/saada/.trae/sdks/workspaces/fce129f6/versions/node/current/tapi"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/tapi.com"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/tapi.exe"
+      - "C:/Users/saada/.trae/sdks/versions/node/current/tapi"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/tapi.com"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/tapi.exe"
       - "C:/Program Files/Eclipse Adoptium/jdk-25.0.2.10-hotspot/bin/tapi"
@@ -2101,6 +3133,9 @@ events:
       - "C:/Program Files/GitHub CLI/tapi.com"
       - "C:/Program Files/GitHub CLI/tapi.exe"
       - "C:/Program Files/GitHub CLI/tapi"
+      - "C:/Program Files/CMake/bin/tapi.com"
+      - "C:/Program Files/CMake/bin/tapi.exe"
+      - "C:/Program Files/CMake/bin/tapi"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/tapi.com"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/tapi.exe"
       - "C:/Users/saada/AppData/Local/Programs/Trae/bin/tapi"
@@ -2158,8 +3193,12 @@ events:
     found: false
     search_context:
       ENV{PATH}:
-        - "C:\\Program Files\\CMake\\bin"
-        - "C:\\Program Files\\LLVM\\bin"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
         - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
         - "C:\\WINDOWS\\system32"
         - "C:\\WINDOWS"
@@ -2172,10 +3211,10 @@ events:
         - "C:\\Program Files\\nodejs\\"
         - "C:\\Program Files\\PostgreSQL\\16\\bin"
         - "C:\\Program Files\\cursor\\resources\\app\\bin"
-        - "C:\\Program Files\\CMake\\bin"
         - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
         - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
         - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
         - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
         - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
@@ -2204,8 +3243,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-cv05ij"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-cv05ij"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-6peyar"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-6peyar"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -2215,28 +3254,25 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-cv05ij'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-6peyar'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_ba684/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_ba684.dir\\build.make CMakeFiles/cmTC_ba684.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-cv05ij'
-        Building CXX object CMakeFiles/cmTC_ba684.dir/CMakeCXXCompilerABI.cpp.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_ba684.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_ba684.dir\\build.make:80: CMakeFiles/cmTC_ba684.dir/CMakeCXXCompilerABI.cpp.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-cv05ij'
-        mingw32-make: *** [Makefile:133: cmTC_ba684/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_0fb6b
+        [1/2] C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_0fb6b.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        FAILED: [code=1] CMakeFiles/cmTC_0fb6b.dir/CMakeCXXCompilerABI.cpp.obj 
+        C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_0fb6b.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        ninja: build stopped: subcommand failed.
         
-      exitCode: 2
+      exitCode: 1
   -
     kind: "try_compile-v1"
     backtrace:
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:56 (try_compile)"
       - "CMakeLists.txt:2 (project)"
     checks:
-      - "Check for working CXX compiler: C:/msys64/ucrt64/bin/g++.exe"
+      - "Check for working CXX compiler: C:/msys64/ucrt64/bin/c++.exe"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-iscw1l"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-iscw1l"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-yo6ffl"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-yo6ffl"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -2246,18 +3282,15 @@ events:
       variable: "CMAKE_CXX_COMPILER_WORKS"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-iscw1l'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-yo6ffl'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_be2aa/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_be2aa.dir\\build.make CMakeFiles/cmTC_be2aa.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-iscw1l'
-        Building CXX object CMakeFiles/cmTC_be2aa.dir/testCXXCompiler.cxx.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_be2aa.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build\\CMakeFiles\\CMakeScratch\\TryCompile-iscw1l\\testCXXCompiler.cxx
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_be2aa.dir\\build.make:80: CMakeFiles/cmTC_be2aa.dir/testCXXCompiler.cxx.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-iscw1l'
-        mingw32-make: *** [Makefile:133: cmTC_be2aa/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_56cee
+        [1/2] C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_56cee.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-yo6ffl\\testCXXCompiler.cxx
+        FAILED: [code=1] CMakeFiles/cmTC_56cee.dir/testCXXCompiler.cxx.obj 
+        C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_56cee.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-yo6ffl\\testCXXCompiler.cxx
+        ninja: build stopped: subcommand failed.
         
-      exitCode: 2
+      exitCode: 1
 ...
 
 ---
@@ -2340,7 +3373,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags:  
       
@@ -2426,7 +3459,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -2512,13 +3545,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --c++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--c++'
+      c++.exe: error: unrecognized command-line option '--c++'
       
       
   -
@@ -2599,13 +3632,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --ec++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      c++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
       
       
   -
@@ -2686,14 +3719,14 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
       The output was:
       1
-      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
-      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      c++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      c++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
       
       
   -
@@ -2774,7 +3807,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -2860,7 +3893,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags:  
       
@@ -2946,7 +3979,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -3032,13 +4065,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --c++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--c++'
+      c++.exe: error: unrecognized command-line option '--c++'
       
       
   -
@@ -3119,13 +4152,13 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --ec++ 
       
       The output was:
       1
-      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      c++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
       
       
   -
@@ -3206,14 +4239,14 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
       The output was:
       1
-      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
-      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      c++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      c++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
       
       
   -
@@ -3294,7 +4327,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/ucrt64/bin/c++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -3311,7 +4344,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
-      g++.exe: fatal error: no input files
+      c++.exe: fatal error: no input files
       compilation terminated.
   -
     kind: "message-v1"
@@ -3322,7 +4355,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
-      g++.exe: fatal error: no input files
+      c++.exe: fatal error: no input files
       compilation terminated.
   -
     kind: "try_compile-v1"
@@ -3333,8 +4366,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-76d5z5"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-76d5z5"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-icm8jv"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-icm8jv"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -3344,28 +4377,25 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-76d5z5'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-icm8jv'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_cc7db/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_cc7db.dir\\build.make CMakeFiles/cmTC_cc7db.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-76d5z5'
-        Building CXX object CMakeFiles/cmTC_cc7db.dir/CMakeCXXCompilerABI.cpp.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_cc7db.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_cc7db.dir\\build.make:80: CMakeFiles/cmTC_cc7db.dir/CMakeCXXCompilerABI.cpp.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-76d5z5'
-        mingw32-make: *** [Makefile:133: cmTC_cc7db/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_bfe97
+        [1/2] C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_bfe97.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        FAILED: [code=1] CMakeFiles/cmTC_bfe97.dir/CMakeCXXCompilerABI.cpp.obj 
+        C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_bfe97.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        ninja: build stopped: subcommand failed.
         
-      exitCode: 2
+      exitCode: 1
   -
     kind: "try_compile-v1"
     backtrace:
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:56 (try_compile)"
       - "CMakeLists.txt:2 (project)"
     checks:
-      - "Check for working CXX compiler: C:/msys64/ucrt64/bin/g++.exe"
+      - "Check for working CXX compiler: C:/msys64/ucrt64/bin/c++.exe"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-sls7zk"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-sls7zk"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-ovhae3"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-ovhae3"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -3375,18 +4405,15 @@ events:
       variable: "CMAKE_CXX_COMPILER_WORKS"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-sls7zk'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-ovhae3'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_48f17/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_48f17.dir\\build.make CMakeFiles/cmTC_48f17.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-sls7zk'
-        Building CXX object CMakeFiles/cmTC_48f17.dir/testCXXCompiler.cxx.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_48f17.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sls7zk\\testCXXCompiler.cxx
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_48f17.dir\\build.make:80: CMakeFiles/cmTC_48f17.dir/testCXXCompiler.cxx.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-sls7zk'
-        mingw32-make: *** [Makefile:133: cmTC_48f17/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_5b391
+        [1/2] C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_5b391.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-ovhae3\\testCXXCompiler.cxx
+        FAILED: [code=1] CMakeFiles/cmTC_5b391.dir/testCXXCompiler.cxx.obj 
+        C:\\msys64\\ucrt64\\bin\\c++.exe    -o CMakeFiles\\cmTC_5b391.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-ovhae3\\testCXXCompiler.cxx
+        ninja: build stopped: subcommand failed.
         
-      exitCode: 2
+      exitCode: 1
 ...
 
 ---
@@ -3469,7 +4496,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags:  
       
@@ -3555,7 +4582,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -3641,7 +4668,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --c++ 
       
@@ -3728,7 +4755,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --ec++ 
       
@@ -3815,7 +4842,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
@@ -3903,7 +4930,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -3989,7 +5016,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags:  
       
@@ -4075,7 +5102,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: -c 
       
@@ -4161,7 +5188,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --c++ 
       
@@ -4248,7 +5275,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --ec++ 
       
@@ -4335,7 +5362,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
       
@@ -4423,7 +5450,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
-      Compiler: C:/msys64/ucrt64/bin/g++.exe 
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
       Build flags: 
       Id flags: -c;-I__does_not_exist__ 
       
@@ -4462,8 +5489,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-ia8ift"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-ia8ift"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-0f7yfi"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-0f7yfi"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -4473,28 +5500,22 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-ia8ift'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-0f7yfi'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_bf5cc/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_bf5cc.dir\\build.make CMakeFiles/cmTC_bf5cc.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-ia8ift'
-        Building CXX object CMakeFiles/cmTC_bf5cc.dir/CMakeCXXCompilerABI.cpp.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_bf5cc.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_bf5cc.dir\\build.make:80: CMakeFiles/cmTC_bf5cc.dir/CMakeCXXCompilerABI.cpp.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-ia8ift'
-        mingw32-make: *** [Makefile:133: cmTC_bf5cc/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_c6beb
+        [1/2] C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_c6beb.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
         
-      exitCode: 2
+      exitCode: 1
   -
     kind: "try_compile-v1"
     backtrace:
       - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:56 (try_compile)"
       - "CMakeLists.txt:2 (project)"
     checks:
-      - "Check for working CXX compiler: C:/msys64/ucrt64/bin/g++.exe"
+      - "Check for working CXX compiler: C:/msys64/mingw64/bin/g++.exe"
     directories:
-      source: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-29jim1"
-      binary: "C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-29jim1"
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-qwz81x"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-qwz81x"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: ""
@@ -4504,16 +5525,1133 @@ events:
       variable: "CMAKE_CXX_COMPILER_WORKS"
       cached: true
       stdout: |
-        Change Dir: 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-29jim1'
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-qwz81x'
         
-        Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile cmTC_c8221/fast
-        C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\\cmTC_c8221.dir\\build.make CMakeFiles/cmTC_c8221.dir/build
-        mingw32-make[1]: Entering directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-29jim1'
-        Building CXX object CMakeFiles/cmTC_c8221.dir/testCXXCompiler.cxx.obj
-        C:\\msys64\\ucrt64\\bin\\g++.exe    -o CMakeFiles\\cmTC_c8221.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build\\CMakeFiles\\CMakeScratch\\TryCompile-29jim1\\testCXXCompiler.cxx
-        mingw32-make[1]: *** [CMakeFiles\\cmTC_c8221.dir\\build.make:80: CMakeFiles/cmTC_c8221.dir/testCXXCompiler.cxx.obj] Error 1
-        mingw32-make[1]: Leaving directory 'C:/Programming/Compiler/build/CMakeFiles/CMakeScratch/TryCompile-29jim1'
-        mingw32-make: *** [Makefile:133: cmTC_c8221/fast] Error 2
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_693f8
+        [1/2] C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_693f8.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-qwz81x\\testCXXCompiler.cxx
         
-      exitCode: 2
+      exitCode: 1
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: -c 
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --c++ 
+      
+      The output was:
+      1
+      g++.exe: error: unrecognized command-line option '--c++'
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --ec++ 
+      
+      The output was:
+      1
+      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
+      
+      The output was:
+      1
+      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: -c;-I__does_not_exist__ 
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: -c 
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --c++ 
+      
+      The output was:
+      1
+      g++.exe: error: unrecognized command-line option '--c++'
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --ec++ 
+      
+      The output was:
+      1
+      g++.exe: error: unrecognized command-line option '--ec++'; did you mean '-Weffc++'?
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
+      
+      The output was:
+      1
+      g++.exe: warning: '-mcpu=' is deprecated; use '-mtune=' or '-march=' instead
+      g++.exe: error: unrecognized command-line option '--target=arm-arm-none-eabi'
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/"
+    found: "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\tools\\\\trae-gopls\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\workspaces\\\\fce129f6\\\\versions\\\\node\\\\current"
+        - "c:\\\\Users\\\\saada\\\\.trae\\\\sdks\\\\versions\\\\node\\\\current"
+        - "c:\\Users\\saada\\.trae\\tools\\trae-gopls\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\workspaces\\fce129f6\\versions\\node\\current"
+        - "c:\\Users\\saada\\.trae\\sdks\\versions\\node\\current"
+        - "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.2.10-hotspot\\bin"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PostgreSQL\\16\\bin"
+        - "C:\\Program Files\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\GitHub CLI\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\Trae\\bin"
+        - "c:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\codeBin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Program Files\\MySQL\\MySQL Shell 8.0\\bin\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\msys64\\ucrt64\\bin"
+        - "C:\\Users\\saada\\AppData\\Roaming\\npm"
+        - "C:\\SFML-3.0.2\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Antigravity\\bin"
+        - "C:\\Program Files (x86)\\MongoDB CLI\\"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\mongosh\\"
+        - "C:\\Users\\saada\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Kiro\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Windsurf\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Qoder\\bin"
+        - "C:\\Users\\saada\\AppData\\Local\\Programs\\Zed\\bin"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/quantum"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/msys64/mingw64/bin/g++.exe 
+      Build flags: 
+      Id flags: -c;-I__does_not_exist__ 
+      
+      The output was:
+      1
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:1303 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:86 (CMAKE_DETERMINE_COMPILER_ID_VENDOR)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+      g++.exe: fatal error: no input files
+      compilation terminated.
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:1303 (message)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:86 (CMAKE_DETERMINE_COMPILER_ID_VENDOR)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+      g++.exe: fatal error: no input files
+      compilation terminated.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-are8tl"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-are8tl"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: ""
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-are8tl'
+        
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_9ca4b
+        [1/2] C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_9ca4b.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        FAILED: [code=1] CMakeFiles/cmTC_9ca4b.dir/CMakeCXXCompilerABI.cpp.obj 
+        C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_9ca4b.dir\\CMakeCXXCompilerABI.cpp.obj -c "C:\\Program Files\\CMake\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp"
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:56 (try_compile)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Check for working CXX compiler: C:/msys64/mingw64/bin/g++.exe"
+    directories:
+      source: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-8t23is"
+      binary: "C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-8t23is"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: ""
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_COMPILER_WORKS"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Programming/Compiler/build_ninja/CMakeFiles/CMakeScratch/TryCompile-8t23is'
+        
+        Run Build Command(s): C:/msys64/ucrt64/bin/ninja.exe -v cmTC_48190
+        [1/2] C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_48190.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-8t23is\\testCXXCompiler.cxx
+        FAILED: [code=1] CMakeFiles/cmTC_48190.dir/testCXXCompiler.cxx.obj 
+        C:\\msys64\\mingw64\\bin\\g++.exe    -o CMakeFiles\\cmTC_48190.dir\\testCXXCompiler.cxx.obj -c C:\\Programming\\Compiler\\build_ninja\\CMakeFiles\\CMakeScratch\\TryCompile-8t23is\\testCXXCompiler.cxx
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: 1
 ...
