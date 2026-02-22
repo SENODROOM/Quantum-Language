@@ -1,0 +1,19 @@
+{
+  "terminal.integrated.env.windows": {
+    "PATH": "${env:PATH};C:\\Users\\saada\\AppData\\Local\\Programs\\Quantum;C:\\Users\\saada\\AppData\\Local\\Microsoft\\WindowsApps",
+    "PATHEXT": "${env:PATHEXT};.CMD"
+  },
+  "terminal.integrated.fontFamily": "Cascadia Code, Segoe UI Emoji",
+  "editor.fontFamily": "Cascadia Code, Segoe UI Emoji",
+  "terminal.integrated.profiles.windows": {
+    "Quantum PowerShell": {
+      "source": "PowerShell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "chcp 65001 > $null; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $OutputEncoding=[System.Text.UTF8Encoding]::new()"
+      ]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Quantum PowerShell"
+}

@@ -1,0 +1,96 @@
+{
+  "scopeName": "source.quantum",
+  "name": "Quantum",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.quantum",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.quantum",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.quantum",
+              "match": "\\\\[nrt\"'\\\\0]"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.quantum",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.quantum",
+              "match": "\\\\[nrt\"'\\\\0]"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.quantum",
+          "match": "\\b0x[0-9A-Fa-f]+\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.quantum",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(if|elif|else|while|for|in|break|continue|return|fn|class|import)\\b"
+        },
+        {
+          "name": "storage.modifier.quantum",
+          "match": "\\b(let|const)\\b"
+        },
+        {
+          "name": "constant.language.boolean.quantum",
+          "match": "\\b(true|false|nil)\\b"
+        },
+        {
+          "name": "support.function.builtin.quantum",
+          "match": "\\b(print|input|len|type|range|rand|rand_int|num|str|bool|abs|sqrt|floor|ceil|round|pow|log|log2|sin|cos|tan|hex|bin|chr|ord|sleep|time)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.quantum",
+          "match": "(\\+|\\-|\\*|\\/|%|\\*\\*|==|!=|<=|>=|<|>|=|\\+=|\\-=|\\*=|\\/=|and|or|not|\\&|\\||\\^|~|<<|>>)"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "variable.other.readwrite.quantum",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "quantum-language",
+  "displayName": "Quantum Language",
+  "description": "Syntax highlighting and language basics for Quantum (.sa) files",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/quantum-language.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "package": "npx @vscode/vsce package --allow-missing-repository"
+  },
+    "Programming Languages"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:quantum"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "quantum",
+        "aliases": [
+          "Quantum",
+          "quantum"
+        ],
+        "extensions": [
+          ".sa"
+  },
+  "files": [
+    "extension.js",
+    "language-configuration.json",
+    "syntaxes/quantum.tmLanguage.json",
+    "README.md"
+  ]
+        "configuration": "./language-configuration.json"
