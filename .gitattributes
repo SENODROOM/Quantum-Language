@@ -1,13 +1,2 @@
-# Quantum language detection for GitHub
-# Using Python as base (dark blue color) until Quantum PR merges
+# Quantum language (.sa files) - mapped to Python for GitHub stats
 *.sa linguist-language=Python
-*.sa linguist-detectable
-
-# Ensure C++ files are still detected properly
-*.cpp linguist-language=C++
-*.h linguist-language=C++
-*.hpp linguist-language=C++
-
-# Override any potential conflicts
-examples/*.sa linguist-language=Python
-src/*.sa linguist-language=Python
