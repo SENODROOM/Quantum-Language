@@ -8,6 +8,8 @@
     "vscode": "^1.84.0"
   },
   "categories": [
+    "Programming Languages"
+  ],
   "repository": {
     "type": "git",
     "url": "https://example.com/quantum-language.git"
@@ -16,11 +18,9 @@
   "scripts": {
     "package": "npx @vscode/vsce package --allow-missing-repository"
   },
-    "Programming Languages"
-  ],
   "main": "./extension.js",
   "activationEvents": [
-    "onLanguage:quantum"
+    "*"
   ],
   "contributes": {
     "languages": [
@@ -32,6 +32,17 @@
         ],
         "extensions": [
           ".sa"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "quantum",
+        "scopeName": "source.quantum",
+        "path": "./syntaxes/quantum.tmLanguage.json"
+      }
+    ]
   },
   "files": [
     "extension.js",
@@ -39,4 +50,4 @@
     "syntaxes/quantum.tmLanguage.json",
     "README.md"
   ]
-        "configuration": "./language-configuration.json"
+}
