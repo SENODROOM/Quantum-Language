@@ -1,0 +1,6 @@
+let a=96;
+if(a<=69){
+    print("KUTTA IS VERY HORNY");
+}else{
+    print("CHUCHU is GREAT");
+}
