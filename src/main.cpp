@@ -13,6 +13,7 @@
 static void printBanner()
 {
     std::cout << Colors::CYAN << Colors::BOLD
+              << "\n"
               << "  ██████╗ ██╗   ██╗ █████╗ ███╗   ██╗████████╗██╗   ██╗███╗   ███╗\n"
               << " ██╔═══██╗██║   ██║██╔══██╗████╗  ██║╚══██╔══╝██║   ██║████╗ ████║\n"
               << " ██║   ██║██║   ██║███████║██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║\n"
@@ -22,6 +23,43 @@ static void printBanner()
               << Colors::RESET
               << Colors::YELLOW << "  Quantum Language v1.0.0 | The Cybersecurity-Ready Scripting Language\n"
               << Colors::RESET << "\n";
+}
+
+static void printAura()
+{
+    std::cout << Colors::CYAN << Colors::BOLD
+              << "\n╔══════════════════════════════════════════════════════════════════╗\n"
+              << "║" << Colors::YELLOW << "                🌟 QUANTUM LANGUAGE ACHIEVEMENTS 🌟" << Colors::CYAN << "               ║\n"
+              << "╠══════════════════════════════════════════════════════════════════╣\n"
+              << "║" << Colors::GREEN << "  ✅ Complete C++17 Compiler Implementation" << Colors::CYAN << "                       ║\n"
+              << "║" << Colors::GREEN << "  ✅ Tree-Walk Interpreter Engine" << Colors::CYAN << "                                 ║\n"
+              << "║" << Colors::GREEN << "  ✅ Lexical Analysis & Tokenization" << Colors::CYAN << "                              ║\n"
+              << "║" << Colors::GREEN << "  ✅ Recursive Descent Parser" << Colors::CYAN << "                                     ║\n"
+              << "║" << Colors::GREEN << "  ✅ Abstract Syntax Tree (AST)" << Colors::CYAN << "                                   ║\n"
+              << "║" << Colors::GREEN << "  ✅ Dynamic Type System" << Colors::CYAN << "                                          ║\n"
+              << "║" << Colors::GREEN << "  ✅ REPL Interactive Mode" << Colors::CYAN << "                                        ║\n"
+              << "║" << Colors::GREEN << "  ✅ Cross-Platform Build System" << Colors::CYAN << "                                  ║\n"
+              << "║" << Colors::GREEN << "  ✅ VS Code Language Support" << Colors::CYAN << "                                     ║\n"
+              << "║" << Colors::GREEN << "  ✅ GitHub CI/CD Pipeline" << Colors::CYAN << "                                        ║\n"
+              << "║" << Colors::GREEN << "  ✅ Comprehensive Documentation" << Colors::CYAN << "                                  ║\n"
+              << "╠══════════════════════════════════════════════════════════════════╣\n"
+              << "║" << Colors::MAGENTA << "                    📊 PROJECT STATISTICS 📊" << Colors::CYAN << "                      ║\n"
+              << "╠══════════════════════════════════════════════════════════════════╣\n"
+              << "║" << Colors::WHITE << "  📁 Source Files: " << Colors::YELLOW << "6 core modules" << Colors::CYAN << "                                 ║\n"
+              << "║" << Colors::WHITE << "  📝 Language Version: " << Colors::YELLOW << "v1.0.0" << Colors::CYAN << "                                     ║\n"
+              << "║" << Colors::WHITE << "  🔧 Build System: " << Colors::YELLOW << "CMake + MSVC" << Colors::CYAN << "                                   ║\n"
+              << "║" << Colors::WHITE << "  🎯 Language Standard: " << Colors::YELLOW << "C++17" << Colors::CYAN << "                                     ║\n"
+              << "║" << Colors::WHITE << "  🚀 Performance: " << Colors::YELLOW << "Optimized Release Build" << Colors::CYAN << "                         ║\n"
+              << "╠══════════════════════════════════════════════════════════════════╣\n"
+              << "║" << Colors::BLUE << "                    🛡️  CYBERSECURITY FEATURES 🛡️" << Colors::CYAN << "                   ║\n"
+              << "╠══════════════════════════════════════════════════════════════════╣\n"
+              << "║" << Colors::BLUE << "  🔍 scan()      - Network scanning capabilities" << Colors::CYAN << "                  ║\n"
+              << "║" << Colors::BLUE << "  💣 payload()   - Exploit payload creation" << Colors::CYAN << "                       ║\n"
+              << "║" << Colors::BLUE << "  🔐 encrypt()   - Cryptographic operations" << Colors::CYAN << "                       ║\n"
+              << "║" << Colors::BLUE << "  🔓 decrypt()   - Decryption functions" << Colors::CYAN << "                           ║\n"
+              << "║" << Colors::BLUE << "  🗝️  hash()     - Hashing algorithms" << Colors::CYAN << "                              ║\n"
+              << "╚══════════════════════════════════════════════════════════════════╝\n"
+              << Colors::RESET;
 }
 
 static void runREPL()
@@ -196,6 +234,13 @@ int main(int argc, char *argv[])
     {
         printBanner();
         printHelp(argv[0]);
+        return 0;
+    }
+
+    if (arg == "--aura")
+    {
+        printBanner();
+        printAura();
         return 0;
     }
 

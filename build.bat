@@ -33,7 +33,8 @@ mkdir "%BUILD_DIR%"
 
 :: Configure with CMake
 echo [3/5] Configuring with CMake...
-cmake -S "%SCRIPT_DIR%" -B "%BUILD_DIR%" -DCMAKE_BUILD_TYPE=Release
+cd /d "%SCRIPT_DIR%"
+cmake -B build -DCMAKE_BUILD_TYPE=Release
 if %errorlevel% neq 0 (
     echo [ERROR] CMake configuration failed!
     pause
@@ -42,7 +43,7 @@ if %errorlevel% neq 0 (
 
 :: Build the project
 echo [4/5] Building Quantum Language...
-cmake --build "%BUILD_DIR%" --config Release
+cmake --build build --config Release
 if %errorlevel% neq 0 (
     echo [ERROR] Build failed!
     pause
@@ -51,7 +52,7 @@ if %errorlevel% neq 0 (
 
 :: Copy executable to main directory
 echo [5/5] Installing executable...
-copy "%BUILD_DIR%\Release\quantum.exe" "%EXE%" >nul
+copy "build\Release\quantum.exe" "%EXE%" >nul
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to copy executable!
     pause
@@ -116,7 +117,7 @@ echo Build Verification
 echo ========================================
 echo.
 echo Testing quantum.exe:
-"%EXE%" --version
+"build\Release\quantum.exe" --version
 if %errorlevel% neq 0 (
     echo [ERROR] Executable test failed!
     pause
@@ -135,7 +136,7 @@ if %errorlevel% neq 0 (
 :: Test with example
 echo.
 echo Testing with example script:
-"%EXE%" "%SCRIPT_DIR%examples\hello.sa"
+"build\Release\quantum.exe" "%SCRIPT_DIR%examples\hello.sa"
 if %errorlevel% neq 0 (
     echo [WARNING] Example test failed, but build succeeded
 )
