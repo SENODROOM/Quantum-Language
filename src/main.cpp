@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
     {
         std::cout << "Quantum Language v1.0.0\n"
                   << "Runtime: Tree-walk interpreter\n"
-                  << "Built with C++17\n";
+                  << "Built By Muhammad Saad Amin\n";
         return 0;
     }
 

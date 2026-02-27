@@ -1,213 +1,119 @@
-# `Lexer.h` Line-by-Line Explanation
+# Lexer.h Design Document
 
-Source file: `include/Lexer.h`
+## Overview
 
-## Whole file explanation
+The `Lexer.h` header file defines the lexical analyzer (tokenizer) for the Quantum Language. It's responsible for breaking down source code into a stream of tokens that the parser can understand.
 
-`Lexer.h` is the interface (blueprint) for the lexer component of your language.
+## Class Definition
 
-At a high level, this header defines:
-- What the lexer does: convert raw source code text into a list of tokens.
-- What outside code can call: construct a `Lexer` with source text, then call `tokenize()`.
-- What internal state it keeps while scanning: current position, line, and column.
-- What helper operations it uses internally: character movement, whitespace/comment skipping, and token readers.
-
-Conceptually, the flow is:
-1. Store the input source in `src`.
-2. Start scanning from `pos = 0`.
-3. Repeatedly inspect current characters with `current()` and `peek()`.
-4. Move through text with `advance()`, updating line/column counters.
-5. Ignore irrelevant text (`skipWhitespace()`, `skipComment()`).
-6. Build concrete tokens using specialized readers (`readNumber()`, `readString()`, etc.).
-7. Return all produced tokens from `tokenize()`.
-
-The `keywords` map is important because identifiers and keywords look similar at first (`if`, `while`, `name`, `count` are all text). The lexer first reads identifier-like text, then checks if that text is a reserved keyword.
-
-This file is intentionally only a header, so it declares behavior but does not implement it. Implementations live in the corresponding `.cpp` file.
-
-## Line-by-line
-
-### Line 1
-```cpp
-#pragma once
-```
-Preprocessor guard that prevents this header from being included multiple times in one translation unit.
-
-### Line 2
-```cpp
-#include "Token.h"
-```
-Includes token definitions (`Token`, `TokenType`) used by the lexer interface.
-
-### Line 3
-```cpp
-#include <string>
-```
-Needed for `std::string` (source code storage and text processing).
-
-### Line 4
-```cpp
-#include <vector>
-```
-Needed for `std::vector<Token>` returned by `tokenize()`.
-
-### Line 5
-```cpp
-#include <unordered_map>
-```
-Needed for the keyword lookup table (`keywords`).
-
-### Line 6
-```cpp
-
-```
-Blank line for readability; separates includes from class declaration.
-
-### Line 7
 ```cpp
 class Lexer {
-```
-Declares the `Lexer` class, responsible for converting source text into tokens.
-
-### Line 8
-```cpp
 public:
-```
-Starts the public API section (what outside code can use).
+    explicit Lexer(const std::string& source);
+    std::vector<Token> tokenize();
 
-### Line 9
-```cpp
-explicit Lexer(const std::string& source);
-```
-Constructor that receives source code text.
-- `explicit` prevents accidental implicit conversion from `std::string` to `Lexer`.
-- `const std::string&` avoids copying on input.
-
-### Line 10
-```cpp
-std::vector<Token> tokenize();
-```
-Main lexer entry point. Scans the full source and returns a list of tokens.
-
-### Line 11
-```cpp
-
-```
-Blank line separating public API from private internals.
-
-### Line 12
-```cpp
 private:
-```
-Starts private section (internal state and helper functions).
+    std::string src;
+    size_t pos;
+    int line, col;
 
-### Line 13
-```cpp
-std::string src;
-```
-Stores the full input source code being lexed.
+    static const std::unordered_map<std::string, TokenType> keywords;
 
-### Line 14
-```cpp
-size_t pos;
-```
-Current character index in `src`.
+    char current() const;
+    char peek(int offset = 1) const;
+    char advance();
+    void skipWhitespace();
+    void skipComment();
 
-### Line 15
-```cpp
-int line, col;
-```
-Tracks current line and column for diagnostics and token positions.
-
-### Line 16
-```cpp
-
-```
-Blank line separating state fields from static lookup data.
-
-### Line 17
-```cpp
-static const std::unordered_map<std::string, TokenType> keywords;
-```
-Static keyword table mapping text (like `"if"`, `"while"`) to `TokenType`.
-- `static`: shared by all `Lexer` instances.
-- `const`: read-only after definition.
-
-### Line 18
-```cpp
-
-```
-Blank line separating data members from helper methods.
-
-### Line 19
-```cpp
-char current() const;
-```
-Returns character at current position without moving forward.
-
-### Line 20
-```cpp
-char peek(int offset = 1) const;
-```
-Looks ahead by `offset` characters (default one char ahead), without consuming input.
-
-### Line 21
-```cpp
-char advance();
-```
-Consumes current character and moves cursor forward (usually updates `pos`, `line`, `col`).
-
-### Line 22
-```cpp
-void skipWhitespace();
-```
-Skips spaces/tabs/newlines that are not semantically meaningful tokens.
-
-### Line 23
-```cpp
-void skipComment();
-```
-Skips comment text so comments do not become tokens.
-
-### Line 24
-```cpp
-
-```
-Blank line separating low-level movement helpers from token readers.
-
-### Line 25
-```cpp
-Token readNumber();
-```
-Reads a numeric literal from current position and returns a number token.
-
-### Line 26
-```cpp
-Token readString(char quote);
-```
-Reads a string literal using the opening quote character (`'` or `"`) and returns a string token.
-
-### Line 27
-```cpp
-Token readIdentifierOrKeyword();
-```
-Reads identifier-like text, then checks `keywords` to decide identifier vs keyword token.
-
-### Line 28
-```cpp
-Token readOperator();
-```
-Reads operator or punctuation symbols (e.g., `+`, `==`, `(`, `)`) and returns matching token.
-
-### Line 29
-```cpp
+    Token readNumber();
+    Token readString(char quote);
+    Token readIdentifierOrKeyword();
+    Token readOperator();
 };
 ```
-Ends the `Lexer` class declaration.
 
-## Concept summary
+## Core Components
 
-- Public API is intentionally small: construct lexer, call `tokenize()`.
-- Private members hold scanning state (`src`, `pos`, `line`, `col`).
-- Helper methods split lexing into clear stages: movement, skipping, then token-specific readers.
-- `keywords` map supports fast keyword detection after reading identifier text.
+### State Management
+- `src`: The source code string to be tokenized
+- `pos`: Current position in the source string
+- `line`, `col`: Current line and column for error reporting
+
+### Public Interface
+- `Lexer(source)`: Constructor that takes source code
+- `tokenize()`: Main method that returns a vector of tokens
+
+### Private Helper Methods
+
+#### Character Access
+- `current()`: Returns current character
+- `peek(offset)`: Looks ahead at future characters
+- `advance()`: Moves to next character and updates line/col
+
+#### Skipping Methods
+- `skipWhitespace()`: Skips spaces and tabs
+- `skipComment()`: Skips single-line comments starting with #
+
+#### Token Reading Methods
+- `readNumber()`: Parses numeric literals (decimal and hex)
+- `readString()`: Parses string literals with escape sequences
+- `readIdentifierOrKeyword()`: Distinguishes identifiers from keywords
+- `readOperator()`: Parses multi-character operators
+
+## Keyword Recognition
+
+The lexer uses a static hash map for O(1) keyword lookup:
+
+```cpp
+static const std::unordered_map<std::string, TokenType> keywords = {
+    {"let",      TokenType::LET},
+    {"const",    TokenType::CONST},
+    {"fn",       TokenType::FN},
+    // ... more keywords
+};
+```
+
+## Tokenization Process
+
+1. **Initialization**: Set up source code and position tracking
+2. **Main Loop**: Continue until end of source
+   - Skip whitespace and comments
+   - Identify token type based on current character
+   - Call appropriate token reading method
+   - Add token to result vector
+3. **EOF Token**: Add EOF_TOKEN to mark end of input
+
+## Error Handling
+
+The lexer throws `QuantumError` exceptions for:
+- Unterminated string literals
+- Unexpected characters
+- Invalid numeric formats
+
+## Performance Considerations
+
+- **Single Pass**: Processes source in O(n) time
+- **Hash Map Lookup**: O(1) keyword identification
+- **Minimal Memory**: Only stores tokens, not intermediate structures
+
+## Integration Points
+
+- **Token.h**: Defines TokenType enum and Token struct
+- **Error.h**: Provides exception types for error handling
+- **Parser.cpp**: Consumes the token stream
+
+## Example Usage
+
+```cpp
+std::string source = "let x = 42";
+Lexer lexer(source);
+auto tokens = lexer.tokenize();
+// Results in: [LET, IDENTIFIER("x"), ASSIGN, NUMBER(42), EOF_TOKEN]
+```
+
+## Future Enhancements
+
+- Support for multi-line comments
+- Better Unicode handling
+- Token position tracking for improved error messages
+- Preprocessor directives

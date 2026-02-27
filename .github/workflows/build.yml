@@ -1,0 +1,86 @@
+name: Build Quantum Language
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: cmake --build build --config Release
+    
+    - name: Test
+      run: |
+        cd build
+        ctest -C Release
+    
+    - name: Upload Windows Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: quantum-windows
+        path: build/Release/quantum.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install build-essential cmake
+    
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: cmake --build build
+    
+    - name: Test
+      run: |
+        cd build
+        ctest
+    
+    - name: Upload Linux Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: quantum-linux
+        path: build/quantum
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        brew install cmake
+    
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: cmake --build build
+    
+    - name: Test
+      run: |
+        cd build
+        ctest
+    
+    - name: Upload macOS Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: quantum-macos
+        path: build/quantum

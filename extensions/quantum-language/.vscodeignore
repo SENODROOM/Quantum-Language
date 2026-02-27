@@ -1,7 +1,0 @@
-node_modules/
-.git/
-.vscode/
-npm-debug.log
-yarn.lock
-package-lock.json
-*.vsix

@@ -386,5 +386,3 @@ examples/          # Sample .sa files
 ## Conclusion
 
 Quantum Language implements a clean, modular architecture following established compiler design principles. The separation of concerns between lexical analysis, parsing, and interpretation provides a solid foundation for language evolution and the addition of cybersecurity features. The use of modern C++ features ensures efficient memory management and type safety throughout the compilation pipeline.
-
-The `.sa` file compilation process demonstrates how a simple scripting language can be implemented while maintaining extensibility for future security-focused enhancements.
