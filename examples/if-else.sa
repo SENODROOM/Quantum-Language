@@ -1,0 +1,15 @@
+let chuchu = 234;
+let kutta = 234;
+if(chuchu>100){
+    print(chuchu);
+}
+else{
+    print(kutta);
+}
+fn ChuzaArmy(kutta,chuchu){
+    let chuchu="CHUCHU ARMO is the best Armo"
+    print(chuchu);
+    return 0;
+}
+
+print(ChuzaArmy(chuchu,kutta));
