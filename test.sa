@@ -1,0 +1,7 @@
+# Test file for language detection
+def hello_world():
+    print("Hello from Quantum Language!")
+    return True
+
+if __name__ == "__main__":
+    hello_world()
