@@ -1,9 +1,8 @@
-
-int secretNumber;
-int guess;
-int attempts;
-int maxAttempts;
-int level;
+int secretNumber = 0;
+int guess = 0;
+int attempts = 0;
+int maxAttempts = 0;
+int level = 0;
 int score = 0;
 int playAgain = 1;
 int seed = 12345;

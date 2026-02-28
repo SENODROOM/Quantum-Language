@@ -3,6 +3,7 @@
   "name": "Quantum",
   "scopeName": "source.quantum",
   "patterns": [
+    {"include": "#lineLanguages"},
     {"include": "#comments"},
     {"include": "#keywords"},
     {"include": "#strings"},
@@ -12,6 +13,34 @@
     {"include": "#variables"}
   ],
   "repository": {
+    "lineLanguages": {
+      "patterns": [
+        {
+          "begin": "^(?=.*#\\s*Python\\b)",
+          "end": "$",
+          "name": "meta.embedded.line.python.quantum",
+          "patterns": [
+            {"include": "#pythonInline"}
+          ]
+        },
+        {
+          "begin": "^(?=.*#\\s*C\\+\\+\\b)",
+          "end": "$",
+          "name": "meta.embedded.line.cpp.quantum",
+          "patterns": [
+            {"include": "#cppInline"}
+          ]
+        },
+        {
+          "begin": "^(?=.*#\\s*C\\b)(?!.*#\\s*C\\+\\+\\b)",
+          "end": "$",
+          "name": "meta.embedded.line.c.quantum",
+          "patterns": [
+            {"include": "#cInline"}
+          ]
+        }
+      ]
+    },
     "comments": {
       "patterns": [
         {
@@ -26,15 +55,135 @@
         }
       ]
     },
+    "pythonInline": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.python",
+          "match": "#.*$"
+        },
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(let|const|if|elif|else|for|while|break|continue|return|in|is|def|class|try|except|finally|with|as|pass|lambda|from|import|int|float|double|char|bool|void|long|short|unsigned|signed|str)\\b"
+        },
+        {
+          "name": "constant.language.python",
+          "match": "\\b(True|False|None)\\b"
+        },
+        {
+          "name": "keyword.function.quantum",
+          "match": "\\b(print|printf|scanf|cout|cin|sin|input|len|range|list|dict|set|tuple|type)\\b"
+        },
+        {
+          "name": "string.quoted.double.python",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {"name": "constant.character.escape.python", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "string.quoted.single.python",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {"name": "constant.character.escape.python", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "constant.numeric.python",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "cInline": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.quantum",
+          "match": "#.*$"
+        },
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(void|char|short|int|long|float|double|signed|unsigned|size_t)\\b"
+        },
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(if|else|for|while|do|switch|case|default|break|continue|return|typedef|struct|enum|union|goto|sizeof)\\b"
+        },
+        {
+          "name": "keyword.function.quantum",
+          "match": "\\b(print|printf|scanf|cout|cin|sin|gets|puts|getchar|putchar|fgets|fputs|malloc|calloc|realloc|free|strlen|strcpy|strcmp)\\b"
+        },
+        {
+          "name": "string.quoted.double.c",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {"name": "constant.character.escape.c", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "string.quoted.single.c",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {"name": "constant.character.escape.c", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "constant.numeric.c",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "cppInline": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.quantum",
+          "match": "#.*$"
+        },
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(void|char|short|int|long|float|double|bool|signed|unsigned|auto|size_t|string|wchar_t)\\b"
+        },
+        {
+          "name": "keyword.control.quantum",
+          "match": "\\b(if|else|for|while|do|switch|case|default|break|continue|return|class|struct|enum|namespace|template|typename|public|private|protected|virtual|override|const|constexpr|using|new|delete|try|catch|throw)\\b"
+        },
+        {
+          "name": "keyword.function.quantum",
+          "match": "\\b(print|printf|scanf|cout|cin|sin|endl)\\b"
+        },
+        {
+          "name": "string.quoted.double.cpp",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {"name": "constant.character.escape.cpp", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "string.quoted.single.cpp",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {"name": "constant.character.escape.cpp", "match": "\\\\."}
+          ]
+        },
+        {
+          "name": "constant.numeric.cpp",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {
           "name": "keyword.control.quantum",
-          "match": "\\b(let|const|fn|return|if|else|elif|while|for|in|break|continue)\\b"
+          "match": "\\b(let|const|fn|return|if|else|elif|while|for|in|break|continue|int|float|double|char|bool|void|long|short|unsigned|signed)\\b"
         },
         {
           "name": "keyword.function.quantum",
-          "match": "\\b(print|input|import)\\b"
+          "match": "\\b(print|input|import|printf|scanf|cout|cin|sin|gets|puts|getchar|putchar|fgets|fputs)\\b"
         },
         {
           "name": "keyword.operator.quantum",

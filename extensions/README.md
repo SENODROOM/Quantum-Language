@@ -5,10 +5,21 @@ Provides syntax highlighting, auto-completion, and snippets for Quantum Language
 ## Features
 
 - 🎨 **Syntax Highlighting** for all Quantum Language constructs
+- 🌐 **Per-line Multilingual Highlighting** using trailing tags (`#Python`, `#C`, `#C++`)
 - 🔮 **Auto-Completion** for keywords, functions, and variables
 - 📝 **Code Snippets** for common patterns
 - 🛡️ **Cybersecurity Keywords** highlighting
 - 🔧 **Language Configuration** for proper bracket matching
+
+## Multilingual Line Tags
+
+Use a line-end tag to force language-specific coloring for that line:
+
+```quantum
+print(kutta + bandru + kaka)               #Python
+printf("%s %s %s\n", kutta, bandru, kaka); #C
+cout << kutta << bandru << kaka;           #C++
+```
 
 ## Installation
 
@@ -34,3 +45,4 @@ Provides syntax highlighting, auto-completion, and snippets for Quantum Language
 ```bash
 npm install
 npm run compile
+```
