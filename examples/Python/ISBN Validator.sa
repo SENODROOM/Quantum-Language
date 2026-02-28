@@ -77,4 +77,4 @@ def main():
         print("Enter comma-separated values.")
 
 
-# main()  # Commented out for automated tests
+main()  # Commented out for automated tests
