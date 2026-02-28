@@ -857,6 +857,96 @@ void Interpreter::registerNatives()
     makeExcClass("Error");          // JS alias
     makeExcClass("RangeError");     // JS alias
     makeExcClass("ReferenceError"); // JS alias
+
+    // ── Python built-in type tokens as first-class values ─────────────────
+    // Allows:  isinstance(x, int)  isinstance(x, str)  isinstance(x, list)
+    // These reserved keywords (TYPE_INT etc.) become Identifier{"int"} in the
+    // AST; the interpreter looks them up here rather than throwing NameError.
+    auto makeTypeVal = [&](const std::string &name)
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = name;
+        // When called as a constructor/cast: int(x), str(x), list(x), etc.
+        nat->fn = [name](std::vector<QuantumValue> args) -> QuantumValue
+        {
+            if (args.empty())
+                return QuantumValue();
+            auto &v = args[0];
+            if (name == "int" || name == "long" || name == "short")
+            {
+                if (v.isNumber())
+                    return QuantumValue(std::floor(v.asNumber()));
+                if (v.isString())
+                {
+                    try
+                    {
+                        return QuantumValue((double)(long long)std::stod(v.asString()));
+                    }
+                    catch (...)
+                    {
+                    }
+                }
+                if (v.isBool())
+                    return QuantumValue(v.asBool() ? 1.0 : 0.0);
+                throw TypeError("int() cannot convert " + v.typeName());
+            }
+            if (name == "float" || name == "double")
+            {
+                if (v.isNumber())
+                    return v;
+                if (v.isString())
+                {
+                    try
+                    {
+                        return QuantumValue(std::stod(v.asString()));
+                    }
+                    catch (...)
+                    {
+                    }
+                }
+                if (v.isBool())
+                    return QuantumValue(v.asBool() ? 1.0 : 0.0);
+                throw TypeError("float() cannot convert " + v.typeName());
+            }
+            if (name == "str" || name == "string")
+                return QuantumValue(v.toString());
+            if (name == "bool")
+                return QuantumValue(v.isTruthy());
+            if (name == "list" || name == "tuple")
+            {
+                if (v.isArray())
+                    return v;
+                auto arr = std::make_shared<Array>();
+                if (v.isString())
+                {
+                    for (char c : v.asString())
+                        arr->push_back(QuantumValue(std::string(1, c)));
+                }
+                else
+                    arr->push_back(v);
+                return QuantumValue(arr);
+            }
+            if (name == "dict")
+            {
+                if (v.isDict())
+                    return v;
+                return QuantumValue(std::make_shared<Dict>());
+            }
+            return v;
+        };
+        globals->define(name, QuantumValue(nat));
+    };
+    makeTypeVal("int");
+    makeTypeVal("float");
+    makeTypeVal("double");
+    makeTypeVal("str");
+    makeTypeVal("bool");
+    makeTypeVal("list");
+    makeTypeVal("tuple");
+    makeTypeVal("dict");
+    makeTypeVal("long");
+    makeTypeVal("short");
+    makeTypeVal("char");
 }
 
 // ─── Execute ─────────────────────────────────────────────────────────────────
