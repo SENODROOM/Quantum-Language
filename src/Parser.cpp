@@ -71,17 +71,17 @@ ASTNodePtr Parser::parseStatement()
     case TokenType::FUNCTION:
     {
         consume();
-        // "function name(...)" → named declaration
-        // "function(...)"      → anonymous, treat as expr statement (lambda)
         if (current().type == TokenType::IDENTIFIER)
             return parseFunctionDecl();
-        // anonymous function used as statement — rare but valid
-        // fall through to expr parsing via parseExprStmt would double-consume;
-        // instead parse it as an expression statement manually
         auto lam = parseLambda();
         while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
             consume();
         return std::make_unique<ASTNode>(ExprStmt{std::move(lam)}, lam->line);
+    }
+    case TokenType::CLASS:
+    {
+        consume();
+        return parseClassDecl();
     }
     case TokenType::IF:
     {
@@ -267,6 +267,82 @@ ASTNodePtr Parser::parseFunctionDecl()
     return std::make_unique<ASTNode>(FunctionDecl{nameToken.value, std::move(params), std::move(body)}, ln);
 }
 
+ASTNodePtr Parser::parseClassDecl()
+{
+    int ln = current().line;
+    auto name = expect(TokenType::IDENTIFIER, "Expected class name").value;
+    std::string base;
+    if (check(TokenType::EXTENDS))
+    {
+        consume();
+        base = expect(TokenType::IDENTIFIER, "Expected base class name").value;
+    }
+    match(TokenType::COLON);
+    skipNewlines();
+
+    ClassDecl cd;
+    cd.name = name;
+    cd.base = base;
+
+    auto parseClassBody = [&]()
+    {
+        skipNewlines();
+        while (!check(TokenType::RBRACE) && !check(TokenType::DEDENT) && !atEnd())
+        {
+            skipNewlines();
+            if (check(TokenType::RBRACE) || check(TokenType::DEDENT))
+                break;
+
+            // Skip access modifiers
+            while (check(TokenType::IDENTIFIER) &&
+                   (current().value == "public" || current().value == "private" ||
+                    current().value == "static" || current().value == "async"))
+                consume();
+
+            // Optional fn/def/function keyword
+            if (check(TokenType::FN) || check(TokenType::DEF) || check(TokenType::FUNCTION))
+                consume();
+
+            if (!check(TokenType::IDENTIFIER))
+            {
+                skipNewlines();
+                continue;
+            }
+            std::string methodName = consume().value;
+            if (methodName == "constructor")
+                methodName = "init";
+
+            auto params = parseParamList();
+            match(TokenType::COLON);
+            skipNewlines();
+            auto body = parseBlock();
+
+            auto fn = std::make_unique<ASTNode>(
+                FunctionDecl{methodName, std::move(params), std::move(body)}, ln);
+            cd.methods.push_back(std::move(fn));
+            skipNewlines();
+        }
+    };
+
+    if (check(TokenType::LBRACE))
+    {
+        consume();
+        parseClassBody();
+        expect(TokenType::RBRACE, "Expected \'}\'");
+    }
+    else if (check(TokenType::INDENT))
+    {
+        consume();
+        parseClassBody();
+        if (check(TokenType::DEDENT))
+            consume();
+    }
+    else
+        throw ParseError("Expected \'{\' or indented class body", current().line, current().col);
+
+    return std::make_unique<ASTNode>(std::move(cd), ln);
+}
+
 ASTNodePtr Parser::parseIfStmt()
 {
     int ln = current().line;
@@ -349,7 +425,7 @@ ASTNodePtr Parser::parseForStmt()
                         match(TokenType::COLON);
                         skipNewlines();
                         auto body = parseBodyOrStatement();
-                        return std::make_unique<ASTNode>(ForStmt{forOfVar, std::move(iterable), std::move(body)}, ln);
+                        return std::make_unique<ASTNode>(ForStmt{forOfVar, "", std::move(iterable), std::move(body)}, ln);
                     }
                 }
                 initNode = parseVarDecl(isConst);
@@ -422,15 +498,28 @@ ASTNodePtr Parser::parseForStmt()
         return std::make_unique<ASTNode>(std::move(outer), ln);
     }
 
-    // Python / Quantum / JS for-in / for-of: for x in iterable  or  for x of iterable
-    // Also accept type keywords as loop variable names: for char of str
-    std::string var;
-    if (check(TokenType::IDENTIFIER))
-        var = consume().value;
-    else if (isCTypeKeyword(current().type))
-        var = consume().value;
-    else
+    // Python / Quantum / JS for-in / for-of
+    // Supports tuple unpacking: for k, v in dict.items()
+    // Also accepts type keywords as variable names
+    auto readLoopVar = [&]() -> std::string
+    {
+        if (check(TokenType::IDENTIFIER))
+            return consume().value;
+        if (isCTypeKeyword(current().type))
+            return consume().value;
         throw ParseError("Expected variable in for loop (got '" + current().value + "')", current().line, current().col);
+        return "";
+    };
+
+    std::string var = readLoopVar();
+    std::string var2; // second variable for tuple unpacking
+
+    // Tuple unpacking: for k, v in ...
+    if (check(TokenType::COMMA))
+    {
+        consume();
+        var2 = readLoopVar();
+    }
 
     // Accept both 'in' and 'of' (JavaScript for...of)
     if (!match(TokenType::IN) && !match(TokenType::OF))
@@ -440,7 +529,7 @@ ASTNodePtr Parser::parseForStmt()
     match(TokenType::COLON);
     skipNewlines();
     auto body = parseBodyOrStatement();
-    return std::make_unique<ASTNode>(ForStmt{var, std::move(iterable), std::move(body)}, ln);
+    return std::make_unique<ASTNode>(ForStmt{var, var2, std::move(iterable), std::move(body)}, ln);
 }
 
 ASTNodePtr Parser::parseReturnStmt()
@@ -813,19 +902,29 @@ ASTNodePtr Parser::parsePostfix()
     auto expr = parsePrimary();
     while (true)
     {
+        // Peek past newlines to support method chaining across lines:
+        //   obj
+        //     .filter(...)
+        //     .map(...)
+        size_t savedPos = pos;
+        while (check(TokenType::NEWLINE))
+            consume();
+        if (!check(TokenType::DOT) && !check(TokenType::LBRACKET) && !check(TokenType::LPAREN) && !check(TokenType::PLUS_PLUS) && !check(TokenType::MINUS_MINUS))
+        {
+            pos = savedPos; // restore so newline terminates the statement
+            break;
+        }
+
         int ln = current().line;
-        // Postfix ++ and --
         if (check(TokenType::PLUS_PLUS))
         {
             consume();
-            // x++ is sugar for x += 1
             auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
             expr = std::make_unique<ASTNode>(AssignExpr{"+=", std::move(expr), std::move(one)}, ln);
         }
         else if (check(TokenType::MINUS_MINUS))
         {
             consume();
-            // x-- is sugar for x -= 1
             auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
             expr = std::make_unique<ASTNode>(AssignExpr{"-=", std::move(expr), std::move(one)}, ln);
         }
@@ -844,7 +943,15 @@ ASTNodePtr Parser::parsePostfix()
         else if (check(TokenType::DOT))
         {
             consume();
-            auto mem = expect(TokenType::IDENTIFIER, "Expected member name").value;
+            // Accept any identifier or keyword as member name (e.g. type, filter, length)
+            std::string mem;
+            if (check(TokenType::IDENTIFIER))
+                mem = consume().value;
+            else if (isCTypeKeyword(current().type))
+                mem = consume().value;
+            else
+                mem = expect(TokenType::IDENTIFIER, "Expected member name").value;
+
             if (check(TokenType::LPAREN))
             {
                 auto memExpr = std::make_unique<ASTNode>(MemberExpr{std::move(expr), mem}, ln);
@@ -897,6 +1004,23 @@ ASTNodePtr Parser::parsePrimary()
     {
         consume();
         return std::make_unique<ASTNode>(NilLiteral{}, ln);
+    }
+
+    // this / self → Identifier{"self"}
+    if (tok.type == TokenType::THIS)
+    {
+        consume();
+        return std::make_unique<ASTNode>(Identifier{"self"}, ln);
+    }
+
+    // new ClassName(args) → CallExpr on the class constructor
+    if (tok.type == TokenType::NEW)
+    {
+        consume();
+        auto name = expect(TokenType::IDENTIFIER, "Expected class name after \'new\'").value;
+        auto callee = std::make_unique<ASTNode>(Identifier{name}, ln);
+        auto args = parseArgList();
+        return std::make_unique<ASTNode>(CallExpr{std::move(callee), std::move(args)}, ln);
     }
 
     if (tok.type == TokenType::LBRACKET)
@@ -1025,17 +1149,72 @@ ASTNodePtr Parser::parseArrayLiteral()
     int ln = current().line;
     expect(TokenType::LBRACKET, "Expected '['");
     skipNewlines();
-    ArrayLiteral arr;
-    while (!check(TokenType::RBRACKET) && !atEnd())
+
+    // Empty array
+    if (check(TokenType::RBRACKET))
     {
+        consume();
+        return std::make_unique<ASTNode>(ArrayLiteral{}, ln);
+    }
+
+    // Parse first expression — then decide if it's a list comprehension
+    auto firstExpr = parseExpr();
+    skipNewlines();
+
+    // List comprehension: [expr for var in iterable (if cond)?]
+    if (check(TokenType::FOR))
+    {
+        consume(); // eat 'for'
+        // Collect loop variable(s) — support tuple unpacking: for k, v in ...
+        std::vector<std::string> vars;
+        auto readVar = [&]()
+        {
+            if (check(TokenType::IDENTIFIER))
+                vars.push_back(consume().value);
+            else if (isCTypeKeyword(current().type))
+                vars.push_back(consume().value);
+            else
+                vars.push_back(expect(TokenType::IDENTIFIER, "Expected variable in comprehension").value);
+        };
+        readVar();
+        while (match(TokenType::COMMA))
+            readVar();
+
+        if (!match(TokenType::IN) && !match(TokenType::OF))
+            throw ParseError("Expected 'in' in list comprehension", current().line, current().col);
+
+        auto iterable = parseExpr();
+        skipNewlines();
+
+        // Optional filter: if condition
+        ASTNodePtr condition;
+        if (check(TokenType::IF))
+        {
+            consume();
+            condition = parseExpr();
+            skipNewlines();
+        }
+
+        expect(TokenType::RBRACKET, "Expected ']'");
+        ListComp lc;
+        lc.expr = std::move(firstExpr);
+        lc.vars = std::move(vars);
+        lc.iterable = std::move(iterable);
+        lc.condition = std::move(condition);
+        return std::make_unique<ASTNode>(std::move(lc), ln);
+    }
+
+    // Regular array literal
+    ArrayLiteral arr;
+    arr.elements.push_back(std::move(firstExpr));
+    skipNewlines();
+    while (match(TokenType::COMMA))
+    {
+        skipNewlines();
+        if (check(TokenType::RBRACKET))
+            break; // trailing comma
         arr.elements.push_back(parseExpr());
         skipNewlines();
-        if (!match(TokenType::COMMA))
-            break;
-        skipNewlines();
-        // Allow trailing comma: [1, 2, 3,]
-        if (check(TokenType::RBRACKET))
-            break;
     }
     expect(TokenType::RBRACKET, "Expected ']'");
     return std::make_unique<ASTNode>(std::move(arr), ln);

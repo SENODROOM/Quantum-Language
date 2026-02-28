@@ -1,0 +1,11 @@
+function test() {
+    x = 10          # Python style
+
+    if (x > 5) {    // C / C++ / JS style
+        print("Hello")
+    }
+
+    for i in range(5):   # Python style loop
+        console.log(i);  // JavaScript style output
+}
+test()

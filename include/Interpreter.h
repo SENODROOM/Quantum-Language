@@ -9,6 +9,7 @@ public:
     Interpreter();
     void execute(ASTNode &node);
     QuantumValue evaluate(ASTNode &node);
+    void execBlock(BlockStmt &s, std::shared_ptr<Environment> scope = nullptr);
 
     std::shared_ptr<Environment> globals;
 
@@ -18,7 +19,6 @@ private:
     void registerNatives();
 
     // Statement executors
-    void execBlock(BlockStmt &s, std::shared_ptr<Environment> scope = nullptr);
     void execVarDecl(VarDecl &s);
     void execFunctionDecl(FunctionDecl &s);
     void execClassDecl(ClassDecl &s);
@@ -41,6 +41,7 @@ private:
     QuantumValue evalArray(ArrayLiteral &e);
     QuantumValue evalDict(DictLiteral &e);
     QuantumValue evalLambda(LambdaExpr &e);
+    QuantumValue evalListComp(ListComp &e);
     QuantumValue evalIdentifier(Identifier &e);
 
     QuantumValue callFunction(std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);

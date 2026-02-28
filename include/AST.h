@@ -130,8 +130,18 @@ struct WhileStmt
 struct ForStmt
 {
     std::string var;
+    std::string var2; // optional second variable for tuple unpacking: for k, v in ...
     ASTNodePtr iterable;
     ASTNodePtr body;
+};
+
+// List comprehension: [expr for var in iterable (if cond)?]
+struct ListComp
+{
+    ASTNodePtr expr;               // the value expression
+    std::vector<std::string> vars; // loop variable(s) — supports tuple unpacking
+    ASTNodePtr iterable;
+    ASTNodePtr condition; // optional if-filter (may be null)
 };
 
 struct BlockStmt
@@ -184,7 +194,7 @@ using NodeVariant = std::variant<
     Identifier,
     BinaryExpr, UnaryExpr, AssignExpr,
     CallExpr, IndexExpr, MemberExpr,
-    ArrayLiteral, DictLiteral, LambdaExpr,
+    ArrayLiteral, DictLiteral, LambdaExpr, ListComp,
     VarDecl, FunctionDecl, ReturnStmt,
     IfStmt, WhileStmt, ForStmt,
     BlockStmt, ExprStmt,
