@@ -228,15 +228,22 @@ ASTNodePtr Parser::parseBodyOrStatement()
 ASTNodePtr Parser::parseVarDecl(bool isConst)
 {
     int ln = current().line;
-    auto nameToken = expect(TokenType::IDENTIFIER, "Expected variable name");
+    // Accept plain identifiers OR type keywords used as variable names
+    // e.g. "let char = ..." where 'char' is TYPE_CHAR
+    std::string name;
+    if (check(TokenType::IDENTIFIER))
+        name = consume().value;
+    else if (isCTypeKeyword(current().type))
+        name = consume().value;
+    else
+        throw ParseError("Expected variable name (got '" + current().value + "')", current().line, current().col);
+
     ASTNodePtr init;
     if (match(TokenType::ASSIGN))
-    {
         init = parseExpr();
-    }
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    return std::make_unique<ASTNode>(VarDecl{isConst, nameToken.value, std::move(init), ""}, ln);
+    return std::make_unique<ASTNode>(VarDecl{isConst, name, std::move(init), ""}, ln);
 }
 
 ASTNodePtr Parser::parseFunctionDecl()
@@ -308,10 +315,129 @@ ASTNodePtr Parser::parseWhileStmt()
 ASTNodePtr Parser::parseForStmt()
 {
     int ln = current().line;
-    auto var = expect(TokenType::IDENTIFIER, "Expected variable in for loop").value;
-    expect(TokenType::IN, "Expected 'in'");
+
+    // C-style for: for (init; condition; post) { body }
+    // Detected by: for ( ...
+    if (check(TokenType::LPAREN))
+    {
+        consume(); // eat (
+
+        // ── Init ──────────────────────────────────────────────────────────
+        ASTNodePtr initNode;
+        std::string forOfVar; // set if this turns out to be for-of/for-in
+        if (!check(TokenType::SEMICOLON))
+        {
+            // let/const/type-keyword declaration OR plain expression
+            if (check(TokenType::LET) || check(TokenType::CONST))
+            {
+                bool isConst = current().type == TokenType::CONST;
+                consume();
+                // Peek: if next is identifier/type-kw followed by 'in'/'of' → for-in/for-of
+                size_t la = pos;
+                if (la < tokens.size() &&
+                    (tokens[la].type == TokenType::IDENTIFIER || isCTypeKeyword(tokens[la].type)))
+                {
+                    size_t la2 = la + 1;
+                    if (la2 < tokens.size() &&
+                        (tokens[la2].type == TokenType::IN || tokens[la2].type == TokenType::OF))
+                    {
+                        // for (let x of iterable) — treat as for-of
+                        forOfVar = consume().value; // var name
+                        consume();                  // eat 'in' or 'of'
+                        auto iterable = parseExpr();
+                        expect(TokenType::RPAREN, "Expected ')'");
+                        match(TokenType::COLON);
+                        skipNewlines();
+                        auto body = parseBodyOrStatement();
+                        return std::make_unique<ASTNode>(ForStmt{forOfVar, std::move(iterable), std::move(body)}, ln);
+                    }
+                }
+                initNode = parseVarDecl(isConst);
+            }
+            else if (isCTypeKeyword(current().type))
+            {
+                size_t la = pos + 1;
+                while (la < tokens.size() && isCTypeKeyword(tokens[la].type))
+                    ++la;
+                if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER)
+                {
+                    auto hint = consume().value;
+                    while (isCTypeKeyword(current().type))
+                        hint += " " + consume().value;
+                    initNode = parseCTypeVarDecl(hint);
+                }
+                else
+                    initNode = std::make_unique<ASTNode>(ExprStmt{parseExpr()}, ln);
+            }
+            else
+            {
+                auto expr = parseExpr();
+                initNode = std::make_unique<ASTNode>(ExprStmt{std::move(expr)}, ln);
+            }
+        }
+        while (check(TokenType::SEMICOLON))
+            consume();
+
+        // ── Condition ─────────────────────────────────────────────────────
+        ASTNodePtr condition;
+        if (!check(TokenType::SEMICOLON))
+            condition = parseExpr();
+        else
+            condition = std::make_unique<ASTNode>(BoolLiteral{true}, ln); // infinite if omitted
+        while (check(TokenType::SEMICOLON))
+            consume();
+
+        // ── Post expression ───────────────────────────────────────────────
+        ASTNodePtr postNode;
+        if (!check(TokenType::RPAREN))
+        {
+            auto expr = parseExpr();
+            postNode = std::make_unique<ASTNode>(ExprStmt{std::move(expr)}, ln);
+        }
+        expect(TokenType::RPAREN, "Expected ')'");
+        match(TokenType::COLON);
+        skipNewlines();
+
+        // ── Body ──────────────────────────────────────────────────────────
+        auto rawBody = parseBodyOrStatement();
+
+        // Append post expression at end of body block
+        BlockStmt loopBlock;
+        // Copy existing body statements
+        for (auto &s : rawBody->as<BlockStmt>().statements)
+            loopBlock.statements.push_back(std::move(const_cast<ASTNodePtr &>(s)));
+        if (postNode)
+            loopBlock.statements.push_back(std::move(postNode));
+        auto loopBody = std::make_unique<ASTNode>(std::move(loopBlock), ln);
+
+        // Build: while (condition) { body; post }
+        auto whileNode = std::make_unique<ASTNode>(
+            WhileStmt{std::move(condition), std::move(loopBody)}, ln);
+
+        // Wrap in block: { init; while(...){...} }
+        BlockStmt outer;
+        if (initNode)
+            outer.statements.push_back(std::move(initNode));
+        outer.statements.push_back(std::move(whileNode));
+        return std::make_unique<ASTNode>(std::move(outer), ln);
+    }
+
+    // Python / Quantum / JS for-in / for-of: for x in iterable  or  for x of iterable
+    // Also accept type keywords as loop variable names: for char of str
+    std::string var;
+    if (check(TokenType::IDENTIFIER))
+        var = consume().value;
+    else if (isCTypeKeyword(current().type))
+        var = consume().value;
+    else
+        throw ParseError("Expected variable in for loop (got '" + current().value + "')", current().line, current().col);
+
+    // Accept both 'in' and 'of' (JavaScript for...of)
+    if (!match(TokenType::IN) && !match(TokenType::OF))
+        throw ParseError("Expected 'in' or 'of' in for loop", current().line, current().col);
+
     auto iterable = parseExpr();
-    match(TokenType::COLON); // optional Python-style colon
+    match(TokenType::COLON);
     skipNewlines();
     auto body = parseBodyOrStatement();
     return std::make_unique<ASTNode>(ForStmt{var, std::move(iterable), std::move(body)}, ln);
@@ -562,12 +688,15 @@ ASTNodePtr Parser::parseBitwise()
 ASTNodePtr Parser::parseEquality()
 {
     auto left = parseComparison();
-    while (check(TokenType::EQ) || check(TokenType::NEQ))
+    while (check(TokenType::EQ) || check(TokenType::NEQ) || check(TokenType::STRICT_EQ) || check(TokenType::STRICT_NEQ))
     {
         int ln = current().line;
-        auto op = consume().value;
+        auto op = consume();
+        // Treat === as == and !== as != (Quantum is dynamically typed)
+        std::string opStr = (op.type == TokenType::STRICT_EQ) ? "==" : (op.type == TokenType::STRICT_NEQ) ? "!="
+                                                                                                          : op.value;
         auto right = parseComparison();
-        left = std::make_unique<ASTNode>(BinaryExpr{op, std::move(left), std::move(right)}, ln);
+        left = std::make_unique<ASTNode>(BinaryExpr{opStr, std::move(left), std::move(right)}, ln);
     }
     return left;
 }
@@ -904,6 +1033,9 @@ ASTNodePtr Parser::parseArrayLiteral()
         if (!match(TokenType::COMMA))
             break;
         skipNewlines();
+        // Allow trailing comma: [1, 2, 3,]
+        if (check(TokenType::RBRACKET))
+            break;
     }
     expect(TokenType::RBRACKET, "Expected ']'");
     return std::make_unique<ASTNode>(std::move(arr), ln);
@@ -917,14 +1049,36 @@ ASTNodePtr Parser::parseDictLiteral()
     DictLiteral dict;
     while (!check(TokenType::RBRACE) && !atEnd())
     {
-        auto key = parseExpr();
+        // Key: accept quoted string, number, bare identifier, or type keyword
+        // e.g.  "name": ...   or   firstName: ...   or   42: ...
+        ASTNodePtr key;
+        if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type) || check(TokenType::TYPE_STRING))
+        {
+            // Peek ahead — if next token after this is COLON, treat as bare string key
+            size_t la = pos + 1;
+            if (la < tokens.size() && tokens[la].type == TokenType::COLON)
+            {
+                // Bare identifier key: firstName → StringLiteral "firstName"
+                auto keyName = consume().value;
+                key = std::make_unique<ASTNode>(StringLiteral{keyName}, ln);
+            }
+            else
+                key = parseExpr();
+        }
+        else
+            key = parseExpr();
+
         expect(TokenType::COLON, "Expected ':'");
+        skipNewlines();
         auto val = parseExpr();
         dict.pairs.emplace_back(std::move(key), std::move(val));
         skipNewlines();
         if (!match(TokenType::COMMA))
             break;
         skipNewlines();
+        // Allow trailing comma: { a: 1, b: 2, }
+        if (check(TokenType::RBRACE))
+            break;
     }
     expect(TokenType::RBRACE, "Expected '}'");
     return std::make_unique<ASTNode>(std::move(dict), ln);
