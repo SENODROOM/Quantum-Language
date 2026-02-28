@@ -1011,6 +1011,98 @@ void Interpreter::registerNatives()
     makeTypeVal("long");
     makeTypeVal("short");
     makeTypeVal("char");
+
+    // ── isinstance(obj, klass) ──────────────────────────────────────────────
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = "isinstance";
+        nat->fn = [](std::vector<QuantumValue> args) -> QuantumValue {
+            if (args.size() < 2)
+                throw RuntimeError("isinstance() requires 2 arguments");
+            if (!args[0].isInstance())
+                return QuantumValue(false);
+            if (!args[1].isClass())
+                return QuantumValue(false);
+            auto inst = args[0].asInstance();
+            auto targetKlass = args[1].asClass();
+            // Walk the inheritance chain
+            auto k = inst->klass.get();
+            while (k) {
+                if (k == targetKlass.get())
+                    return QuantumValue(true);
+                k = k->base.get();
+            }
+            return QuantumValue(false);
+        };
+        globals->define("isinstance", QuantumValue(nat));
+    }
+
+    // ── classname(obj) — get class name as string ───────────────────────────
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = "classname";
+        nat->fn = [](std::vector<QuantumValue> args) -> QuantumValue {
+            if (args.empty()) return QuantumValue(std::string("nil"));
+            if (args[0].isInstance())
+                return QuantumValue(args[0].asInstance()->klass->name);
+            return QuantumValue(args[0].typeName());
+        };
+        globals->define("classname", QuantumValue(nat));
+    }
+
+    // ── __format__(obj, specifier) — internal f-string format helper ────────
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = "__format__";
+        nat->fn = [](std::vector<QuantumValue> args) -> QuantumValue {
+            if (args.size() < 2) return QuantumValue(std::string(""));
+            std::string valStr = args[0].toString();
+            std::string spec = args[1].asString();
+            
+            // Basic handling for Python format specifiers like .2f
+            if (spec.size() >= 3 && spec[0] == '.' && spec.back() == 'f' && args[0].isNumber()) {
+                int precision = std::stoi(spec.substr(1, spec.size() - 2));
+                std::ostringstream out;
+                out.precision(precision);
+                out << std::fixed << args[0].asNumber();
+                return QuantumValue(out.str());
+            }
+
+            // Basic handling for alignment like *^30 or >10
+            if (spec.size() >= 2) {
+                char fill = ' ';
+                char align = spec[0];
+                size_t widthIdx = 1;
+
+                if (spec.size() >= 3 && (spec[1] == '<' || spec[1] == '>' || spec[1] == '^')) {
+                    fill = spec[0];
+                    align = spec[1];
+                    widthIdx = 2;
+                }
+
+                if (align == '<' || align == '>' || align == '^') {
+                    try {
+                        int width = std::stoi(spec.substr(widthIdx));
+                        int len = valStr.size();
+                        if (width > len) {
+                            if (align == '<') {
+                                valStr = valStr + std::string(width - len, fill);
+                            } else if (align == '>') {
+                                valStr = std::string(width - len, fill) + valStr;
+                            } else if (align == '^') {
+                                int padLeft = (width - len) / 2;
+                                int padRight = width - len - padLeft;
+                                valStr = std::string(padLeft, fill) + valStr + std::string(padRight, fill);
+                            }
+                        }
+                    } catch (...) {}
+                }
+            }
+            
+            return QuantumValue(valStr);
+        };
+        globals->define("__format__", QuantumValue(nat));
+    }
 }
 
 // ─── Execute ─────────────────────────────────────────────────────────────────
@@ -1217,17 +1309,18 @@ void Interpreter::execClassDecl(ClassDecl &s)
         try
         {
             auto baseVal = env->get(s.base);
-            if (baseVal.isFunction())
-            {
-                auto baseFn = baseVal.asNative();
-                // Copy base methods if we can access them (stored in closure)
-            }
+            if (baseVal.isClass())
+                klass->base = baseVal.asClass();
+            else
+                throw RuntimeError("Base class '" + s.base + "' is not a class");
         }
-        catch (...)
+        catch (NameError &)
         {
+            throw RuntimeError("Base class '" + s.base + "' is not defined");
         }
     }
 
+    // Compile instance methods
     for (auto &m : s.methods)
     {
         if (m->is<FunctionDecl>())
@@ -1242,39 +1335,23 @@ void Interpreter::execClassDecl(ClassDecl &s)
         }
     }
 
-    // Capture interpreter pointer for use in constructor
-    Interpreter *interp = this;
-    env->define(s.name, QuantumValue(std::make_shared<QuantumNative>(
-                            QuantumNative{s.name, [klass, interp](std::vector<QuantumValue> args) -> QuantumValue
-                                          {
-                                              auto inst = std::make_shared<QuantumInstance>();
-                                              inst->klass = klass;
-                                              QuantumValue instVal(inst);
+    // Compile static methods
+    for (auto &m : s.staticMethods)
+    {
+        if (m->is<FunctionDecl>())
+        {
+            auto &fd = m->as<FunctionDecl>();
+            auto fn = std::make_shared<QuantumFunction>();
+            fn->name = fd.name;
+            fn->params = fd.params;
+            fn->body = fd.body.get();
+            fn->closure = env;
+            klass->staticMethods[fd.name] = fn;
+        }
+    }
 
-                                              // Call init/constructor if defined
-                                              auto it = klass->methods.find("init");
-                                              if (it != klass->methods.end())
-                                              {
-                                                  auto fn = it->second;
-                                                  auto scope = std::make_shared<Environment>(fn->closure);
-                                                  scope->define("self", instVal);
-                                                  // Bind params (skip leading "self" if present)
-                                                  size_t paramStart = (!fn->params.empty() && fn->params[0] == "self") ? 1 : 0;
-                                                  for (size_t i = paramStart; i < fn->params.size(); i++)
-                                                  {
-                                                      size_t ai = i - paramStart;
-                                                      scope->define(fn->params[i], ai < args.size() ? args[ai] : QuantumValue());
-                                                  }
-                                                  try
-                                                  {
-                                                      interp->execBlock(fn->body->as<BlockStmt>(), scope);
-                                                  }
-                                                  catch (ReturnSignal &)
-                                                  {
-                                                  }
-                                              }
-                                              return instVal;
-                                          }})));
+    // Store the class as a first-class value
+    env->define(s.name, QuantumValue(klass));
 }
 
 void Interpreter::execIf(IfStmt &s)
@@ -1442,7 +1519,26 @@ void Interpreter::execPrint(PrintStmt &s)
         {
             if (i)
                 std::cout << " ";
-            std::cout << vals[i].toString();
+            // Call __str__ on instances if defined
+            if (vals[i].isInstance()) {
+                auto inst = vals[i].asInstance();
+                auto k = inst->klass.get();
+                bool found = false;
+                while (k) {
+                    auto it = k->methods.find("__str__");
+                    if (it != k->methods.end()) {
+                        auto result = callInstanceMethod(inst, it->second, {});
+                        std::cout << result.toString();
+                        found = true;
+                        break;
+                    }
+                    k = k->base.get();
+                }
+                if (!found)
+                    std::cout << vals[i].toString();
+            } else {
+                std::cout << vals[i].toString();
+            }
         }
         if (s.newline)
             std::cout << "\n";
@@ -1682,6 +1778,11 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
             return evaluate(*n.condition).isTruthy()
                 ? evaluate(*n.thenExpr)
                 : evaluate(*n.elseExpr);
+        }
+        else if constexpr (std::is_same_v<T, SuperExpr>) {
+            // SuperExpr is handled directly in evalCall for super() and super.method()
+            // If we get here, it's a bare super reference
+            throw RuntimeError("Cannot use 'super' outside of a method call");
         }
         else {
             execute(node);
@@ -2013,10 +2114,93 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
         return callMethod(obj, me.member, std::move(args));
     }
 
+    // Super constructor call: super(args)
+    if (e.callee->is<SuperExpr>())
+    {
+        auto &se = e.callee->as<SuperExpr>();
+        std::vector<QuantumValue> args;
+        for (auto &a : e.args)
+            args.push_back(evaluate(*a));
+
+        if (!se.method.empty())
+        {
+            // super.method(args) — find method in parent class and call with current self
+            auto selfVal = env->get("self");
+            auto inst = selfVal.asInstance();
+            auto parentClass = inst->klass->base;
+            if (!parentClass)
+                throw RuntimeError("No parent class for super call");
+            // Walk parent chain to find the method
+            auto k = parentClass.get();
+            while (k) {
+                auto it = k->methods.find(se.method);
+                if (it != k->methods.end())
+                    return callInstanceMethod(inst, it->second, std::move(args));
+                k = k->base.get();
+            }
+            throw RuntimeError("Method '" + se.method + "' not found in parent class");
+        }
+        else
+        {
+            // super(args) — call parent constructor
+            auto selfVal = env->get("self");
+            auto inst = selfVal.asInstance();
+            auto parentClass = inst->klass->base;
+            if (!parentClass)
+                throw RuntimeError("No parent class for super() call");
+            // Find init in parent chain
+            auto k = parentClass.get();
+            while (k) {
+                auto it = k->methods.find("init");
+                if (it != k->methods.end())
+                    return callInstanceMethod(inst, it->second, std::move(args));
+                k = k->base.get();
+            }
+            return QuantumValue(); // no parent init
+        }
+    }
+
     auto callee = evaluate(*e.callee);
     std::vector<QuantumValue> args;
     for (auto &a : e.args)
         args.push_back(evaluate(*a));
+
+    // Class construction: ClassName(args)
+    if (callee.isClass())
+    {
+        auto klass = callee.asClass();
+        auto inst = std::make_shared<QuantumInstance>();
+        inst->klass = klass;
+        inst->env = std::make_shared<Environment>(env);
+        QuantumValue instVal(inst);
+
+        // Find init in class hierarchy
+        auto k = klass.get();
+        std::shared_ptr<QuantumFunction> initFn;
+        while (k && !initFn) {
+            auto it = k->methods.find("init");
+            if (it != k->methods.end())
+                initFn = it->second;
+            k = k->base.get();
+        }
+
+        if (initFn)
+        {
+            auto scope = std::make_shared<Environment>(initFn->closure);
+            scope->define("self", instVal);
+            scope->define("this", instVal);
+            // Bind params (skip leading "self"/"this" if present)
+            size_t paramStart = (!initFn->params.empty() && (initFn->params[0] == "self" || initFn->params[0] == "this")) ? 1 : 0;
+            for (size_t i = paramStart; i < initFn->params.size(); i++)
+            {
+                size_t ai = i - paramStart;
+                scope->define(initFn->params[i], ai < args.size() ? args[ai] : QuantumValue());
+            }
+            try { execBlock(initFn->body->as<BlockStmt>(), scope); }
+            catch (ReturnSignal &) {}
+        }
+        return instVal;
+    }
 
     if (callee.isFunction())
     {
@@ -2050,6 +2234,23 @@ QuantumValue Interpreter::callFunction(std::shared_ptr<QuantumFunction> fn, std:
 QuantumValue Interpreter::callNative(std::shared_ptr<QuantumNative> fn, std::vector<QuantumValue> args)
 {
     return fn->fn(std::move(args));
+}
+
+QuantumValue Interpreter::callInstanceMethod(std::shared_ptr<QuantumInstance> inst, std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args)
+{
+    QuantumValue instVal(inst);
+    auto scope = std::make_shared<Environment>(fn->closure);
+    scope->define("self", instVal);
+    scope->define("this", instVal);
+    size_t paramStart = (!fn->params.empty() && (fn->params[0] == "self" || fn->params[0] == "this")) ? 1 : 0;
+    for (size_t i = paramStart; i < fn->params.size(); i++)
+    {
+        size_t ai = i - paramStart;
+        scope->define(fn->params[i], ai < args.size() ? args[ai] : QuantumValue());
+    }
+    try { execBlock(fn->body->as<BlockStmt>(), scope); }
+    catch (ReturnSignal &r) { return r.value; }
+    return QuantumValue();
 }
 
 QuantumValue Interpreter::evalIndex(IndexExpr &e)
@@ -2108,7 +2309,26 @@ QuantumValue Interpreter::evalMember(MemberExpr &e)
 {
     auto obj = evaluate(*e.object);
     if (obj.isInstance())
-        return obj.asInstance()->getField(e.member);
+    {
+        auto inst = obj.asInstance();
+        // Check for __str__ when toString is called
+        try { return inst->getField(e.member); }
+        catch (NameError &) {
+            throw TypeError("No member '" + e.member + "' on instance of " + inst->klass->name);
+        }
+    }
+    if (obj.isClass())
+    {
+        // Static method/field access: ClassName.method or ClassName.field
+        auto klass = obj.asClass();
+        auto it = klass->staticMethods.find(e.member);
+        if (it != klass->staticMethods.end())
+            return QuantumValue(it->second);
+        auto fit = klass->staticFields.find(e.member);
+        if (fit != klass->staticFields.end())
+            return fit->second;
+        throw TypeError("No static member '" + e.member + "' on class " + klass->name);
+    }
     if (obj.isDict())
     {
         auto dict = obj.asDict();
@@ -2261,30 +2481,34 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
     if (obj.isInstance())
     {
         auto inst = obj.asInstance();
-        auto field = inst->getField(method);
-        if (std::holds_alternative<std::shared_ptr<QuantumFunction>>(field.data))
-        {
-            auto fn = field.asFunction();
-            auto scope = std::make_shared<Environment>(fn->closure);
-            scope->define("self", obj);
-            for (size_t i = 0; i < fn->params.size(); i++)
-            {
-                std::string param = fn->params[i];
-                if (param == "self")
-                    continue;
-                size_t ai = (fn->params[0] == "self") ? i - 1 : i;
-                scope->define(param, ai < args.size() ? args[ai] : QuantumValue());
-            }
-            try
-            {
-                execBlock(fn->body->as<BlockStmt>(), scope);
-            }
-            catch (ReturnSignal &r)
-            {
-                return r.value;
-            }
-            return QuantumValue();
+        // Look up method in class hierarchy
+        auto k = inst->klass.get();
+        while (k) {
+            auto it = k->methods.find(method);
+            if (it != k->methods.end())
+                return callInstanceMethod(inst, it->second, std::move(args));
+            k = k->base.get();
         }
+        // Check instance fields for callable
+        if (inst->fields.count(method)) {
+            auto &field = inst->fields[method];
+            if (field.isFunction()) {
+                if (std::holds_alternative<std::shared_ptr<QuantumFunction>>(field.data))
+                    return callFunction(field.asFunction(), std::move(args));
+                if (std::holds_alternative<std::shared_ptr<QuantumNative>>(field.data))
+                    return callNative(field.asNative(), std::move(args));
+            }
+        }
+        throw TypeError("No method '" + method + "' on instance of " + inst->klass->name);
+    }
+    if (obj.isClass())
+    {
+        // Static method call: ClassName.method(args)
+        auto klass = obj.asClass();
+        auto it = klass->staticMethods.find(method);
+        if (it != klass->staticMethods.end())
+            return callFunction(it->second, std::move(args));
+        throw TypeError("No static method '" + method + "' on class " + klass->name);
     }
     throw TypeError("No method '" + method + "' on " + obj.typeName());
 }

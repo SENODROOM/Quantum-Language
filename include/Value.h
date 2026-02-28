@@ -47,7 +47,8 @@ struct QuantumValue {
         std::shared_ptr<Dict>,
         std::shared_ptr<QuantumFunction>,
         std::shared_ptr<QuantumNative>,
-        std::shared_ptr<QuantumInstance>
+        std::shared_ptr<QuantumInstance>,
+        std::shared_ptr<QuantumClass>
     >;
 
     Data data;
@@ -63,6 +64,7 @@ struct QuantumValue {
     explicit QuantumValue(std::shared_ptr<QuantumFunction> f) : data(std::move(f)) {}
     explicit QuantumValue(std::shared_ptr<QuantumNative>   n) : data(std::move(n)) {}
     explicit QuantumValue(std::shared_ptr<QuantumInstance> i) : data(std::move(i)) {}
+    explicit QuantumValue(std::shared_ptr<QuantumClass>    c) : data(std::move(c)) {}
 
     // Type checks
     bool isNil()      const { return std::holds_alternative<QuantumNil>(data); }
@@ -74,6 +76,7 @@ struct QuantumValue {
     bool isFunction() const { return std::holds_alternative<std::shared_ptr<QuantumFunction>>(data)
                                   || std::holds_alternative<std::shared_ptr<QuantumNative>>(data); }
     bool isInstance() const { return std::holds_alternative<std::shared_ptr<QuantumInstance>>(data); }
+    bool isClass()    const { return std::holds_alternative<std::shared_ptr<QuantumClass>>(data); }
 
     // Accessors
     bool        asBool()   const { return std::get<bool>(data); }
@@ -84,6 +87,7 @@ struct QuantumValue {
     std::shared_ptr<QuantumFunction> asFunction() const { return std::get<std::shared_ptr<QuantumFunction>>(data); }
     std::shared_ptr<QuantumNative>   asNative()   const { return std::get<std::shared_ptr<QuantumNative>>(data); }
     std::shared_ptr<QuantumInstance> asInstance() const { return std::get<std::shared_ptr<QuantumInstance>>(data); }
+    std::shared_ptr<QuantumClass>    asClass()    const { return std::get<std::shared_ptr<QuantumClass>>(data); }
 
     bool isTruthy() const;
     std::string toString() const;
@@ -114,6 +118,8 @@ struct QuantumClass {
     std::string name;
     std::shared_ptr<QuantumClass> base;
     std::unordered_map<std::string, std::shared_ptr<QuantumFunction>> methods;
+    std::unordered_map<std::string, std::shared_ptr<QuantumFunction>> staticMethods;
+    std::unordered_map<std::string, QuantumValue> staticFields;
 };
 
 struct QuantumInstance {
