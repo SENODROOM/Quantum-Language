@@ -1327,7 +1327,13 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
     {
         auto &name = target.as<Identifier>().name;
         if (op == "=")
-            env->set(name, std::move(val));
+        {
+            // Python-style: if variable doesn't exist anywhere, define it in current scope
+            if (!env->has(name))
+                env->define(name, std::move(val));
+            else
+                env->set(name, std::move(val));
+        }
         else
             env->set(name, applyOp(env->get(name)));
     }
