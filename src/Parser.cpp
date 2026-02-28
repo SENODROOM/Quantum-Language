@@ -160,6 +160,7 @@ ASTNodePtr Parser::parseStatement()
         auto body = parseBlock();
         TryStmt ts;
         ts.body = std::move(body);
+        skipNewlines(); // skip blank lines between try body and except/finally
         // Parse except/catch clauses
         while (check(TokenType::EXCEPT))
         {
@@ -244,6 +245,21 @@ ASTNodePtr Parser::parseStatement()
 
 ASTNodePtr Parser::parseBlock()
 {
+    // Helper: tokens that terminate a block because they belong to the parent stmt
+    auto isBlockTerminator = [&]() -> bool
+    {
+        switch (current().type)
+        {
+        case TokenType::EXCEPT:
+        case TokenType::FINALLY:
+        case TokenType::ELSE:
+        case TokenType::ELIF:
+            return true;
+        default:
+            return false;
+        }
+    };
+
     // Brace-style: { statements }
     if (check(TokenType::LBRACE))
     {
@@ -266,7 +282,7 @@ ASTNodePtr Parser::parseBlock()
         consume(); // eat INDENT
         skipNewlines();
         BlockStmt block;
-        while (!check(TokenType::DEDENT) && !atEnd())
+        while (!check(TokenType::DEDENT) && !atEnd() && !isBlockTerminator())
         {
             block.statements.push_back(parseStatement());
             skipNewlines();
