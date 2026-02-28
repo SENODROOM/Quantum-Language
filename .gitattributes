@@ -1,7 +1,1 @@
-# Using Python as base (dark blue color) until Quantum PR merges
-*.sa linguist-language=Python linguist-detectable=true
-
-# Override any potential conflicts
-examples/*.sa linguist-language=Python
-examples/Python/*.sa linguist-language=Python
-src/*.sa linguist-language=Python
+*.sa linguist-language=Python linguist-detectable=true linguist-vendored=false
