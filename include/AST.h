@@ -100,6 +100,12 @@ struct TernaryExpr
     ASTNodePtr elseExpr;
 };
 
+// super(args) or super.method(args)
+struct SuperExpr
+{
+    std::string method; // empty = super constructor call
+};
+
 // ─── Statement Types ─────────────────────────────────────────────────────────
 
 struct VarDecl
@@ -207,8 +213,12 @@ struct TryStmt
 
 struct ImportStmt
 {
-    std::string module;
-    std::string alias; // optional
+    std::string module; // e.g. "abc" for `from abc import...`, empty for `import sys`
+    struct Item {
+        std::string name;
+        std::string alias; // empty if no alias
+    };
+    std::vector<Item> imports;
 };
 
 struct ClassDecl
@@ -216,6 +226,7 @@ struct ClassDecl
     std::string name;
     std::string base; // optional
     std::vector<ASTNodePtr> methods;
+    std::vector<ASTNodePtr> staticMethods;
     std::vector<ASTNodePtr> fields;
 };
 
@@ -231,7 +242,7 @@ using NodeVariant = std::variant<
     IfStmt, WhileStmt, ForStmt,
     BlockStmt, ExprStmt,
     PrintStmt, InputStmt,
-    BreakStmt, ContinueStmt,
+    BreakStmt, ContinueStmt, SuperExpr,
     RaiseStmt, TryStmt,
     ImportStmt, ClassDecl,
     TernaryExpr>;

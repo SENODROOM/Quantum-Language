@@ -41,7 +41,8 @@ enum class TokenType
     PRINT,
     INPUT,
     COUT, // cout
-    CIN,  // cin
+    CIN, // cin
+    FROM,
     IMPORT,
     // C/C++ style type keywords
     TYPE_INT,
@@ -111,6 +112,7 @@ enum class TokenType
     DOT,
     ARROW,
     QUESTION,
+    DECORATOR,
     NEWLINE,
 
     // Special

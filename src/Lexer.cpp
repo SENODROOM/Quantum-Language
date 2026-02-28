@@ -40,6 +40,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"cout", TokenType::COUT},
     {"cin", TokenType::CIN},
     {"import", TokenType::IMPORT},
+    {"from", TokenType::FROM},
     {"true", TokenType::BOOL_TRUE},
     {"True", TokenType::BOOL_TRUE}, // Python
     {"false", TokenType::BOOL_FALSE},
@@ -350,8 +351,40 @@ Token Lexer::readIdentifierOrKeyword()
         {
             if (current() == '{')
             {
-                raw += "${";
-                advance();
+                advance(); // skip {
+                std::string exprPart;
+                std::string fmtPart;
+                int depth = 1;
+                bool inFormat = false;
+                while (pos < src.size() && depth > 0)
+                {
+                    if (current() == '{') depth++;
+                    else if (current() == '}') {
+                        depth--;
+                        if (depth == 0) { advance(); break; }
+                    }
+                    
+                    // Only start formatting if we are at the top level of the interpolation
+                    // to prevent matching dict colons like {"a": 1}
+                    if (depth == 1 && current() == ':' && !inFormat) {
+                        inFormat = true;
+                        advance();
+                        continue;
+                    }
+
+                    if (inFormat) {
+                        fmtPart += current();
+                    } else {
+                        exprPart += current();
+                    }
+                    advance();
+                }
+                
+                if (inFormat) {
+                    raw += "${__format__(" + exprPart + ", \"" + fmtPart + "\")}";
+                } else {
+                    raw += "${" + exprPart + "}";
+                }
             }
             else if (current() == '\\')
             {
@@ -666,6 +699,9 @@ std::vector<Token> Lexer::tokenize()
             break;
         case '?':
             rawTokens.emplace_back(TokenType::QUESTION, "?", startLine, startCol);
+            break;
+        case '@':
+            rawTokens.emplace_back(TokenType::DECORATOR, "@", startLine, startCol);
             break;
         default:
             throw QuantumError("LexError", std::string("Unexpected character: ") + c, startLine);

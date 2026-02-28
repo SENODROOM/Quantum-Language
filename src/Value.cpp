@@ -54,7 +54,21 @@ std::string QuantumValue::toString() const {
         }
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumFunction>>) return "<fn:" + v->name + ">";
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumNative>>)   return "<native:" + v->name + ">";
-        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumInstance>>) return "<instance:" + v->klass->name + ">";
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumInstance>>) {
+            // Call __str__ if defined
+            auto k = v->klass.get();
+            while (k) {
+                auto mit = k->methods.find("__str__");
+                if (mit != k->methods.end()) {
+                    // __str__ found — we can't call it here without an interpreter,
+                    // so fall back to default representation
+                    break;
+                }
+                k = k->base.get();
+            }
+            return "<instance:" + v->klass->name + ">";
+        }
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumClass>>)    return "<class:" + v->name + ">";
         return "?";
     }, data);
 }
@@ -70,7 +84,8 @@ std::string QuantumValue::typeName() const {
         if constexpr (std::is_same_v<T, std::shared_ptr<Dict>>)            return "dict";
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumFunction>>) return "function";
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumNative>>)   return "native";
-        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumInstance>>) return "instance";
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumInstance>>) return v->klass->name;
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumClass>>)    return "class";
         return "unknown";
     }, data);
 }

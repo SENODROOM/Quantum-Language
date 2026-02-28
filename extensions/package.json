@@ -1,24 +1,21 @@
 {
   "name": "quantum-language",
   "displayName": "Quantum Language",
-  "description": "Language support for Quantum Programming Language with auto-completion and syntax highlighting",
-  "version": "1.0.0",
+  "description": "Syntax highlighting, multi-syntax coloring, auto-completion, and snippets for Quantum Language (.sa files)",
+  "version": "1.1.0",
   "publisher": "Muhammad Saad Amin",
   "engines": {
     "vscode": "^1.60.0"
   },
   "categories": ["Programming Languages", "Snippets"],
+  "icon": "quantum-icon.png",
   "contributes": {
     "languages": [
       {
         "id": "quantum",
         "aliases": ["Quantum", "quantum", "sa"],
         "extensions": [".sa"],
-        "configuration": "./language-configuration.json",
-        "icon": {
-          "light": "./quantum-icon-light.png",
-          "dark": "./quantum-icon-dark.png"
-        }
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -78,7 +75,7 @@
     "type": "git",
     "url": "https://github.com/SENODROOM/Quantum-Language.git"
   },
-  "keywords": ["quantum", "programming language", "cybersecurity", "scripting", "autocomplete", "syntax highlighting"],
+  "keywords": ["quantum", "programming language", "cybersecurity", "scripting", "autocomplete", "syntax highlighting", "multi-syntax"],
   "author": "Muhammad Saad Amin",
   "license": "MIT"
 }

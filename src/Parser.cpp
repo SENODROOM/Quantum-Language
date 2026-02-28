@@ -53,6 +53,26 @@ ASTNodePtr Parser::parse()
 ASTNodePtr Parser::parseStatement()
 {
     skipNewlines();
+    
+    // Skip Python-style decorators (e.g. @property, @dataclass)
+    while (check(TokenType::DECORATOR)) {
+        consume(); // eat @
+        if (check(TokenType::IDENTIFIER)) {
+            consume(); // eat decorator name
+            // Optional call parens e.g. @decorator(args)
+            if (check(TokenType::LPAREN)) {
+                consume(); // eat (
+                int depth = 1;
+                while (!atEnd() && depth > 0) {
+                    if (check(TokenType::LPAREN)) depth++;
+                    else if (check(TokenType::RPAREN)) depth--;
+                    consume();
+                }
+            }
+        }
+        skipNewlines();
+    }
+    
     int ln = current().line;
     switch (current().type)
     {
@@ -118,15 +138,15 @@ ASTNodePtr Parser::parseStatement()
         consume();
         return parseCoutStmt();
     }
-    case TokenType::CIN:
-    {
-        consume();
-        return parseCinStmt();
-    }
     case TokenType::IMPORT:
+    case TokenType::FROM:
     {
+        // For FROM, we don't consume here because parseImportStmt needs to know if it's 'from' or 'import'
+        // But the current implementation consumes. Let's consume and pass a bool or just let parseImportStmt do it.
+        // Actually, the current code just calls parseImportStmt().
+        bool isFrom = (current().type == TokenType::FROM);
         consume();
-        return parseImportStmt();
+        return parseImportStmt(isFrom);
     }
     case TokenType::BREAK:
     {
@@ -367,30 +387,94 @@ ASTNodePtr Parser::parseClassDecl()
     auto parseClassBody = [&]()
     {
         skipNewlines();
+        // Check for 'pass' which just means an empty body
+        if (check(TokenType::IDENTIFIER) && current().value == "pass") {
+            consume();
+            skipNewlines();
+            return;
+        }
+        
         while (!check(TokenType::RBRACE) && !check(TokenType::DEDENT) && !atEnd())
         {
             skipNewlines();
             if (check(TokenType::RBRACE) || check(TokenType::DEDENT))
                 break;
+                
+            // Handle decorators on methods
+            while (check(TokenType::DECORATOR)) {
+                consume(); // eat @
+                if (check(TokenType::IDENTIFIER)) {
+                    consume(); // eat decorator name
+                    if (check(TokenType::LPAREN)) {
+                        consume(); // eat (
+                        int depth = 1;
+                        while (!atEnd() && depth > 0) {
+                            if (check(TokenType::LPAREN)) depth++;
+                            else if (check(TokenType::RPAREN)) depth--;
+                            consume();
+                        }
+                    }
+                }
+                skipNewlines();
+            }
 
-            // Skip access modifiers
+            bool isStatic = false;
+
+            // Skip access modifiers, detect static
             while (check(TokenType::IDENTIFIER) &&
                    (current().value == "public" || current().value == "private" ||
-                    current().value == "static" || current().value == "async"))
+                    current().value == "protected" || current().value == "static" ||
+                    current().value == "async"))
+            {
+                if (current().value == "static")
+                    isStatic = true;
                 consume();
+            }
 
             // Optional fn/def/function keyword
             if (check(TokenType::FN) || check(TokenType::DEF) || check(TokenType::FUNCTION))
                 consume();
 
-            if (!check(TokenType::IDENTIFIER))
+            // Handle ~ClassName destructor syntax (C++ style)
+            if (check(TokenType::BIT_NOT))
             {
+                consume(); // eat ~
+                if (check(TokenType::IDENTIFIER))
+                    consume(); // eat class name
+                auto params = parseParamList();
+                match(TokenType::COLON);
+                skipNewlines();
+                auto body = parseBlock();
+                auto fn = std::make_unique<ASTNode>(
+                    FunctionDecl{"__del__", std::move(params), std::move(body)}, ln);
+                cd.methods.push_back(std::move(fn));
                 skipNewlines();
                 continue;
             }
+
+            if (!check(TokenType::IDENTIFIER))
+            {
+                skipNewlines();
+                // If it's a pass inside the class but not the first thing
+                if (check(TokenType::IDENTIFIER) && current().value == "pass") {
+                    consume();
+                    skipNewlines();
+                } else if (!check(TokenType::RBRACE) && !check(TokenType::DEDENT)) {
+                    consume(); // skip whatever garbage token this is to avoid infinite loops
+                }
+                continue;
+            }
             std::string methodName = consume().value;
-            if (methodName == "constructor")
+
+            // Normalize constructor names
+            if (methodName == "constructor" || methodName == "__init__")
                 methodName = "init";
+            // Normalize destructor names
+            if (methodName == "destructor")
+                methodName = "__del__";
+            // Normalize toString
+            if (methodName == "toString" || methodName == "to_string" || methodName == "to_str")
+                methodName = "__str__";
 
             auto params = parseParamList();
             match(TokenType::COLON);
@@ -399,7 +483,11 @@ ASTNodePtr Parser::parseClassDecl()
 
             auto fn = std::make_unique<ASTNode>(
                 FunctionDecl{methodName, std::move(params), std::move(body)}, ln);
-            cd.methods.push_back(std::move(fn));
+
+            if (isStatic)
+                cd.staticMethods.push_back(std::move(fn));
+            else
+                cd.methods.push_back(std::move(fn));
             skipNewlines();
         }
     };
@@ -416,6 +504,16 @@ ASTNodePtr Parser::parseClassDecl()
         parseClassBody();
         if (check(TokenType::DEDENT))
             consume();
+    }
+    else if (check(TokenType::IDENTIFIER) && current().value == "pass")
+    {
+        // One-liner: class X: pass
+        consume();
+    }
+    else if (check(TokenType::NEWLINE) || atEnd())
+    {
+        // Empty class with nothing but newlines (Python will fail but we can be lenient)
+        skipNewlines();
     }
     else
         throw ParseError("Expected \'{\' or indented class body", current().line, current().col);
@@ -786,14 +884,41 @@ ASTNodePtr Parser::parseCinStmt()
     return std::make_unique<ASTNode>(std::move(block), ln);
 }
 
-ASTNodePtr Parser::parseImportStmt()
+ASTNodePtr Parser::parseImportStmt(bool isFrom)
 {
     int ln = current().line;
-    auto mod = expect(TokenType::IDENTIFIER, "Expected module name").value;
-    std::string alias;
+    ImportStmt stmt;
+
+    if (isFrom) {
+        // from module.sub import A, B
+        // Actually, we'll just read an identifier (maybe with dots in the future)
+        stmt.module = expect(TokenType::IDENTIFIER, "Expected module name after 'from'").value;
+        expect(TokenType::IMPORT, "Expected 'import' after module name in 'from' statement");
+        
+        do {
+            ImportStmt::Item item;
+            item.name = expect(TokenType::IDENTIFIER, "Expected item name to import").value;
+            if (match(TokenType::AS)) {
+                item.alias = expect(TokenType::IDENTIFIER, "Expected alias after 'as'").value;
+            }
+            stmt.imports.push_back(item);
+        } while (match(TokenType::COMMA));
+    } else {
+        // import A as B, C
+        stmt.module = ""; // No base module, importing directly
+        do {
+            ImportStmt::Item item;
+            item.name = expect(TokenType::IDENTIFIER, "Expected module name to import").value;
+            if (match(TokenType::AS)) {
+                item.alias = expect(TokenType::IDENTIFIER, "Expected alias after 'as'").value;
+            }
+            stmt.imports.push_back(item);
+        } while (match(TokenType::COMMA));
+    }
+
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    return std::make_unique<ASTNode>(ImportStmt{mod, alias}, ln);
+    return std::make_unique<ASTNode>(std::move(stmt), ln);
 }
 
 ASTNodePtr Parser::parseExprStmt()
@@ -817,13 +942,37 @@ ASTNodePtr Parser::parseAssignment()
     // e.g.  high = number if number > 1 else 1
     if (check(TokenType::IF))
     {
-        consume(); // eat 'if'
-        auto condition = parseOr();
-        if (!check(TokenType::ELSE))
-            throw ParseError("Expected 'else' in Python ternary expression", current().line, current().col);
-        consume(); // eat 'else'
-        auto elseExpr = parseAssignment();
-        return std::make_unique<ASTNode>(TernaryExpr{std::move(condition), std::move(left), std::move(elseExpr)}, ln);
+        // Lookahead to ensure this is actually a ternary, not a list comprehension filter:
+        // A ternary MUST have an 'else' somewhere before a closing bracket/paren/newline.
+        bool hasElse = false;
+        int checkPos = pos + 1;
+        int depth = 0;
+        while (checkPos < tokens.size()) {
+            TokenType t = tokens[checkPos].type;
+            if (t == TokenType::LPAREN || t == TokenType::LBRACKET || t == TokenType::LBRACE) depth++;
+            else if (t == TokenType::RPAREN || t == TokenType::RBRACKET || t == TokenType::RBRACE) {
+                if (depth == 0) break;
+                depth--;
+            }
+            else if (depth == 0 && t == TokenType::ELSE) {
+                hasElse = true;
+                break;
+            }
+            else if (depth == 0 && (t == TokenType::NEWLINE || t == TokenType::SEMICOLON || t == TokenType::COMMA)) {
+                break;
+            }
+            checkPos++;
+        }
+
+        if (hasElse) {
+            consume(); // eat 'if'
+            auto condition = parseOr();
+            expect(TokenType::ELSE, "Expected 'else' in Python ternary expression");
+            auto elseExpr = parseAssignment();
+            return std::make_unique<ASTNode>(TernaryExpr{std::move(condition), std::move(left), std::move(elseExpr)}, ln);
+        }
+        // If there's no 'else', it's likely a list comprehension filter like `[x for x in lst if x > 0]`
+        // which will be handled by parseExpr/parseListComp, so we just return `left`.
     }
     // JS/C ternary: condition ? thenExpr : elseExpr
     if (check(TokenType::QUESTION))
@@ -1247,6 +1396,20 @@ ASTNodePtr Parser::parsePrimary()
         return std::make_unique<ASTNode>(CallExpr{std::move(callee), std::move(args)}, ln);
     }
 
+    // super → super() or super.method()
+    if (tok.type == TokenType::SUPER)
+    {
+        consume();
+        if (check(TokenType::DOT))
+        {
+            consume(); // eat '.'
+            auto method = expect(TokenType::IDENTIFIER, "Expected method name after 'super.'").value;
+            return std::make_unique<ASTNode>(SuperExpr{method}, ln);
+        }
+        // bare super — used as super(args) which becomes a CallExpr wrapping SuperExpr
+        return std::make_unique<ASTNode>(SuperExpr{""}, ln);
+    }
+
     if (tok.type == TokenType::LBRACKET)
         return parseArrayLiteral();
     if (tok.type == TokenType::LBRACE)
@@ -1653,7 +1816,18 @@ std::vector<std::string> Parser::parseParamList()
                 consume(); // multi-word types
         }
 
-        params.push_back(expect(TokenType::IDENTIFIER, "Expected parameter name").value);
+        if (check(TokenType::IDENTIFIER))
+        {
+            params.push_back(consume().value);
+        }
+        else if (check(TokenType::THIS))
+        {
+            params.push_back(consume().value);
+        }
+        else
+        {
+            throw ParseError("Expected parameter name", current().line, current().col);
+        }
 
         // Python-style annotation: "x: int" or "x: str" — skip ": type"
         if (check(TokenType::COLON))

@@ -46,6 +46,7 @@ private:
 
     QuantumValue callFunction(std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);
     QuantumValue callNative(std::shared_ptr<QuantumNative> fn, std::vector<QuantumValue> args);
+    QuantumValue callInstanceMethod(std::shared_ptr<QuantumInstance> inst, std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);
 
     // Built-in method dispatch
     QuantumValue callMethod(QuantumValue &obj, const std::string &method, std::vector<QuantumValue> args);
