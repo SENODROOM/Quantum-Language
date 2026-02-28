@@ -1,0 +1,5 @@
+
+let a;
+printf("hello Quantum World");
+scanf(a);
+printf(a);
