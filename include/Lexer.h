@@ -21,10 +21,12 @@ private:
     char peek(int offset = 1) const;
     char advance();
     void skipWhitespace();
-    void skipComment();
+    void skipComment();      // single-line: // ...
+    void skipBlockComment(); // multi-line:  /* ... */
 
     Token readNumber();
     Token readString(char quote);
+    void readTemplateLiteral(std::vector<Token> &out, int startLine, int startCol);
     Token readIdentifierOrKeyword();
     Token readOperator();
 };

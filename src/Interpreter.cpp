@@ -643,6 +643,58 @@ void Interpreter::registerNatives()
         {
         if (args.empty()) throw RuntimeError("sprintf() requires a format string");
         return QuantumValue(applyFormat(args[0].toString(), args, 1)); });
+
+    // ─── console object (JavaScript compatibility) ────────────────────────
+    // console.log, console.warn, console.error all print space-joined args
+    auto consolePrint = [](const std::string &prefix, std::ostream &out)
+    {
+        return [prefix, &out](std::vector<QuantumValue> args) -> QuantumValue
+        {
+            if (!prefix.empty())
+                out << prefix;
+            for (size_t i = 0; i < args.size(); i++)
+            {
+                if (i)
+                    out << " ";
+                out << args[i].toString();
+            }
+            out << "\n";
+            out.flush();
+            return QuantumValue();
+        };
+    };
+
+    auto consoleDict = std::make_shared<Dict>();
+
+    auto makeNative = [&](const std::string &name, QuantumNativeFunc fn) -> QuantumValue
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = name;
+        nat->fn = std::move(fn);
+        return QuantumValue(nat);
+    };
+
+    (*consoleDict)["log"] = makeNative("console.log",
+                                       [](std::vector<QuantumValue> args) -> QuantumValue
+                                       {
+            for (size_t i = 0; i < args.size(); i++) { if (i) std::cout << " "; std::cout << args[i].toString(); }
+            std::cout << "\n"; std::cout.flush(); return QuantumValue(); });
+
+    (*consoleDict)["warn"] = makeNative("console.warn",
+                                        [](std::vector<QuantumValue> args) -> QuantumValue
+                                        {
+            std::cout << "[warn] ";
+            for (size_t i = 0; i < args.size(); i++) { if (i) std::cout << " "; std::cout << args[i].toString(); }
+            std::cout << "\n"; std::cout.flush(); return QuantumValue(); });
+
+    (*consoleDict)["error"] = makeNative("console.error",
+                                         [](std::vector<QuantumValue> args) -> QuantumValue
+                                         {
+            std::cerr << "[error] ";
+            for (size_t i = 0; i < args.size(); i++) { if (i) std::cerr << " "; std::cerr << args[i].toString(); }
+            std::cerr << "\n"; std::cerr.flush(); return QuantumValue(); });
+
+    globals->define("console", QuantumValue(consoleDict));
 }
 
 // ─── Execute ─────────────────────────────────────────────────────────────────
@@ -1529,7 +1581,21 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
     if (obj.isString())
         return callStringMethod(obj.asString(), method, std::move(args));
     if (obj.isDict())
-        return callDictMethod(obj.asDict(), method, std::move(args));
+    {
+        // First check if the dict has a callable stored under that key
+        // e.g. console.log(...) where console["log"] is a native function
+        auto dict = obj.asDict();
+        auto it = dict->find(method);
+        if (it != dict->end() && it->second.isFunction())
+        {
+            auto &fn = it->second;
+            if (std::holds_alternative<std::shared_ptr<QuantumNative>>(fn.data))
+                return callNative(fn.asNative(), std::move(args));
+            if (std::holds_alternative<std::shared_ptr<QuantumFunction>>(fn.data))
+                return callFunction(fn.asFunction(), std::move(args));
+        }
+        return callDictMethod(dict, method, std::move(args));
+    }
     if (obj.isInstance())
     {
         auto inst = obj.asInstance();
@@ -1779,12 +1845,76 @@ QuantumValue Interpreter::callStringMethod(const std::string &str, const std::st
             arr->push_back(QuantumValue(std::string(1, c)));
         return QuantumValue(arr);
     }
+
+    // ── JavaScript-style aliases ──────────────────────────────────────────
+    if (m == "toLowerCase")
+        return callStringMethod(str, "lower", std::move(args));
+    if (m == "toUpperCase")
+        return callStringMethod(str, "upper", std::move(args));
+    if (m == "includes")
+        return callStringMethod(str, "contains", std::move(args));
+    if (m == "startsWith")
+        return callStringMethod(str, "starts_with", std::move(args));
+    if (m == "endsWith")
+        return callStringMethod(str, "ends_with", std::move(args));
+    if (m == "indexOf")
+        return callStringMethod(str, "index", std::move(args));
+    if (m == "substring" || m == "subString")
+        return callStringMethod(str, "slice", std::move(args));
+    if (m == "trimStart" || m == "trimEnd")
+        return callStringMethod(str, "trim", std::move(args));
+    if (m == "toLocaleLowerCase")
+        return callStringMethod(str, "lower", std::move(args));
+    if (m == "toLocaleUpperCase")
+        return callStringMethod(str, "upper", std::move(args));
+    if (m == "padStart")
+    {
+        int targetLen = args.empty() ? 0 : (int)toNum(args[0], "padStart");
+        std::string pad = args.size() > 1 ? args[1].toString() : " ";
+        std::string result = str;
+        while ((int)result.size() < targetLen)
+            result = pad + result;
+        return QuantumValue(result.substr(result.size() - std::max((int)str.size(), targetLen)));
+    }
+    if (m == "padEnd")
+    {
+        int targetLen = args.empty() ? 0 : (int)toNum(args[0], "padEnd");
+        std::string pad = args.size() > 1 ? args[1].toString() : " ";
+        std::string result = str;
+        while ((int)result.size() < targetLen)
+            result += pad;
+        return QuantumValue(result.substr(0, std::max((int)str.size(), targetLen)));
+    }
+    if (m == "charAt")
+    {
+        int idx = args.empty() ? 0 : (int)toNum(args[0], "charAt");
+        if (idx < 0 || idx >= (int)str.size())
+            return QuantumValue(std::string(""));
+        return QuantumValue(std::string(1, str[idx]));
+    }
+    if (m == "charCodeAt")
+    {
+        int idx = args.empty() ? 0 : (int)toNum(args[0], "charCodeAt");
+        if (idx < 0 || idx >= (int)str.size())
+            return QuantumValue(std::numeric_limits<double>::quiet_NaN());
+        return QuantumValue((double)(unsigned char)str[idx]);
+    }
+    if (m == "at")
+    {
+        int idx = args.empty() ? 0 : (int)toNum(args[0], "at");
+        if (idx < 0)
+            idx += (int)str.size();
+        if (idx < 0 || idx >= (int)str.size())
+            return QuantumValue();
+        return QuantumValue(std::string(1, str[idx]));
+    }
+
     throw TypeError("String has no method '" + m + "'");
 }
 
 QuantumValue Interpreter::callDictMethod(std::shared_ptr<Dict> dict, const std::string &m, std::vector<QuantumValue> args)
 {
-    if (m == "has" || m == "contains")
+    if (m == "has" || m == "contains" || m == "hasOwnProperty")
         return QuantumValue(dict->count(args[0].toString()) > 0);
     if (m == "get")
     {

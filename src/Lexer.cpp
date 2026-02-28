@@ -17,6 +17,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"while", TokenType::WHILE},
     {"for", TokenType::FOR},
     {"in", TokenType::IN},
+    {"of", TokenType::OF},
     {"break", TokenType::BREAK},
     {"continue", TokenType::CONTINUE},
     {"print", TokenType::PRINT},
@@ -90,6 +91,22 @@ void Lexer::skipComment()
         advance();
 }
 
+void Lexer::skipBlockComment()
+{
+    // We've already consumed '/*' — skip until '*/'
+    while (pos < src.size())
+    {
+        if (current() == '*' && peek() == '/')
+        {
+            advance(); // skip *
+            advance(); // skip /
+            return;
+        }
+        advance();
+    }
+    // Unterminated block comment — just silently reach EOF
+}
+
 Token Lexer::readNumber()
 {
     int startLine = line, startCol = col;
@@ -117,6 +134,135 @@ Token Lexer::readNumber()
         }
     }
     return Token(TokenType::NUMBER, num, startLine, startCol);
+}
+
+// Template literal: `Hello ${name}, you are ${age} years old!`
+// Emits: STRING("Hello ") PLUS LPAREN STRING(name-as-expr) RPAREN PLUS STRING(", you are ") ...
+// We expand into: "seg0" + (expr1) + "seg1" + (expr2) + "seg2" ...
+void Lexer::readTemplateLiteral(std::vector<Token> &out, int startLine, int startCol)
+{
+    advance(); // skip opening backtick
+
+    // Collect alternating: text segment, then expression source string
+    // We'll build a list of parts: {isExpr, content}
+    struct Part
+    {
+        bool isExpr;
+        std::string content;
+    };
+    std::vector<Part> parts;
+
+    std::string seg;
+    while (pos < src.size() && current() != '`')
+    {
+        if (current() == '\\')
+        {
+            advance();
+            switch (current())
+            {
+            case 'n':
+                seg += '\n';
+                break;
+            case 't':
+                seg += '\t';
+                break;
+            case '`':
+                seg += '`';
+                break;
+            case '\\':
+                seg += '\\';
+                break;
+            case '$':
+                seg += '$';
+                break;
+            default:
+                seg += '\\';
+                seg += current();
+                break;
+            }
+            advance();
+        }
+        else if (current() == '$' && pos + 1 < src.size() && src[pos + 1] == '{')
+        {
+            // Flush current text segment
+            parts.push_back({false, seg});
+            seg.clear();
+            advance(); // skip $
+            advance(); // skip {
+            // Collect expression source until matching }
+            std::string expr;
+            int depth = 1;
+            while (pos < src.size() && depth > 0)
+            {
+                if (current() == '{')
+                    depth++;
+                else if (current() == '}')
+                {
+                    if (--depth == 0)
+                    {
+                        advance();
+                        break;
+                    }
+                }
+                expr += current();
+                advance();
+            }
+            parts.push_back({true, expr});
+        }
+        else
+        {
+            seg += current();
+            advance();
+        }
+    }
+    if (pos < src.size())
+        advance(); // skip closing backtick
+
+    // Flush final text segment
+    parts.push_back({false, seg});
+
+    // Remove empty text-only parts at start/end to keep output clean
+    // Build token sequence: part[0] + part[1] + ...
+    // Text parts → STRING tokens, expr parts → re-lexed tokens wrapped in parens
+
+    bool first = true;
+    auto emitPlus = [&]()
+    {
+        if (!first)
+            out.emplace_back(TokenType::PLUS, "+", startLine, startCol);
+        first = false;
+    };
+
+    for (auto &p : parts)
+    {
+        if (!p.isExpr)
+        {
+            // Always emit text segments (even empty ones if they're the only part)
+            if (!p.content.empty() || parts.size() == 1)
+            {
+                emitPlus();
+                out.emplace_back(TokenType::STRING, p.content, startLine, startCol);
+            }
+        }
+        else
+        {
+            // Re-lex the expression and wrap in parentheses
+            // Use str() wrapper so numbers/bools get stringified in concat context
+            emitPlus();
+            // emit: str( <expr tokens> )
+            out.emplace_back(TokenType::LPAREN, "(", startLine, startCol);
+            Lexer subLex(p.content);
+            auto subTokens = subLex.tokenize();
+            for (auto &t : subTokens)
+                if (t.type != TokenType::EOF_TOKEN && t.type != TokenType::NEWLINE)
+                    out.push_back(t);
+            out.emplace_back(TokenType::RPAREN, ")", startLine, startCol);
+        }
+    }
+
+    // If the entire template was empty
+    if (first)
+        out.emplace_back(TokenType::STRING, "", startLine, startCol);
 }
 
 Token Lexer::readString(char quote)
@@ -215,6 +361,11 @@ std::vector<Token> Lexer::tokenize()
             rawTokens.push_back(readString(c));
             continue;
         }
+        if (c == '`')
+        {
+            readTemplateLiteral(rawTokens, startLine, startCol);
+            continue;
+        }
         if (std::isalpha(c) || c == '_')
         {
             rawTokens.push_back(readIdentifierOrKeyword());
@@ -277,6 +428,11 @@ std::vector<Token> Lexer::tokenize()
             {
                 skipComment();
             }
+            else if (current() == '*')
+            {
+                advance(); // consume the *
+                skipBlockComment();
+            }
             else if (current() == '=')
             {
                 advance();
@@ -292,7 +448,13 @@ std::vector<Token> Lexer::tokenize()
             if (current() == '=')
             {
                 advance();
-                rawTokens.emplace_back(TokenType::EQ, "==", startLine, startCol);
+                if (current() == '=')
+                {
+                    advance();
+                    rawTokens.emplace_back(TokenType::STRICT_EQ, "===", startLine, startCol);
+                }
+                else
+                    rawTokens.emplace_back(TokenType::EQ, "==", startLine, startCol);
             }
             else if (current() == '>')
             {
@@ -306,7 +468,13 @@ std::vector<Token> Lexer::tokenize()
             if (current() == '=')
             {
                 advance();
-                rawTokens.emplace_back(TokenType::NEQ, "!=", startLine, startCol);
+                if (current() == '=')
+                {
+                    advance();
+                    rawTokens.emplace_back(TokenType::STRICT_NEQ, "!==", startLine, startCol);
+                }
+                else
+                    rawTokens.emplace_back(TokenType::NEQ, "!=", startLine, startCol);
             }
             else
                 rawTokens.emplace_back(TokenType::NOT, "!", startLine, startCol);
@@ -439,13 +607,25 @@ std::vector<Token> Lexer::tokenize()
     }
 
     std::vector<int> indentStack = {0};
+    int bracketDepth = 0; // track ( { [ depth — never emit INDENT/DEDENT inside these
 
     for (size_t i = 0; i < rawTokens.size(); ++i)
     {
         Token &tok = rawTokens[i];
 
+        // Track bracket/brace/paren depth
+        if (tok.type == TokenType::LBRACE ||
+            tok.type == TokenType::LBRACKET ||
+            tok.type == TokenType::LPAREN)
+            bracketDepth++;
+        else if (tok.type == TokenType::RBRACE ||
+                 tok.type == TokenType::RBRACKET ||
+                 tok.type == TokenType::RPAREN)
+            bracketDepth = std::max(0, bracketDepth - 1);
+
         // COLON followed by NEWLINE + deeper indent → open Python block
-        if (tok.type == TokenType::COLON)
+        // But NOT inside brackets/braces/parens (dict literal, array, call args)
+        if (tok.type == TokenType::COLON && bracketDepth == 0)
         {
             size_t j = i + 1;
             while (j < rawTokens.size() && rawTokens[j].type == TokenType::NEWLINE)
@@ -469,7 +649,8 @@ std::vector<Token> Lexer::tokenize()
         }
 
         // After NEWLINE, emit DEDENTs if next line is less indented
-        if (tok.type == TokenType::NEWLINE)
+        // But NOT inside brackets/braces/parens
+        if (tok.type == TokenType::NEWLINE && bracketDepth == 0)
         {
             tokens.push_back(tok);
             size_t j = i + 1;

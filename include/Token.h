@@ -6,6 +6,7 @@ enum class TokenType
     // Literals
     NUMBER,
     STRING,
+    TEMPLATE_STRING, // backtick template literal segment (text before ${)
     BOOL_TRUE,
     BOOL_FALSE,
     NIL,
@@ -24,6 +25,7 @@ enum class TokenType
     WHILE,
     FOR,
     IN,
+    OF, // JavaScript for...of
     BREAK,
     CONTINUE,
     PRINT,
@@ -57,8 +59,10 @@ enum class TokenType
     SLASH,
     PERCENT,
     POWER,
-    EQ,
-    NEQ,
+    EQ,         // ==
+    NEQ,        // !=
+    STRICT_EQ,  // ===
+    STRICT_NEQ, // !==
     LT,
     GT,
     LTE,
