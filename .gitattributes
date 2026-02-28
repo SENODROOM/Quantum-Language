@@ -2,9 +2,6 @@
 *.sa linguist-language=Python
 *.sa linguist-detectable
 
-# Ensure C++ files are still detected properly
-	@@ -9,5 +9,5 @@
-*.hpp linguist-language=C++
 
 # Override any potential conflicts
 examples/*.sa linguist-language=Python
