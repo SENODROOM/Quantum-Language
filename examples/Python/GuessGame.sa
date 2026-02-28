@@ -1,0 +1,90 @@
+
+    score = 0
+    play_again = True
+
+    while play_again:
+
+        print("\n=============================")
+        print("      NUMBER GUESS GAME")
+        print("=============================")
+        print("Select Difficulty Level")
+        print("1. Easy   (10 attempts)")
+        print("2. Medium (7 attempts)")
+        print("3. Hard   (5 attempts)")
+
+        level = int(input("Enter choice: "))
+
+        if level == 1:
+            max_attempts = 10
+        elif level == 2:
+            max_attempts = 7
+        elif level == 3:
+            max_attempts = 5
+        else:
+            print("Invalid level. Defaulting to Easy.")
+            max_attempts = 10
+
+        seed = int(input("Enter a seed number to generate the secret number: "))
+
+        secret_number = (seed * 37 + 11) % 100 + 1
+
+        attempts = 0
+
+        print("\nI picked a number between 1 and 100.")
+
+        while attempts < max_attempts:
+
+            print("\nAttempt", attempts + 1, "of", max_attempts)
+
+            guess = int(input("Enter your guess: "))
+
+            attempts += 1
+
+            if guess == secret_number:
+                print("🎉 Correct! You guessed it!")
+
+                if attempts == 1:
+                    score += 100
+                elif attempts <= 3:
+                    score += 70
+                elif attempts <= 5:
+                    score += 50
+                else:
+                    score += 20
+
+                break
+
+            elif guess < secret_number:
+                print("Too low 🔽")
+
+            else:
+                print("Too high 🔼")
+
+            if attempts == max_attempts:
+                print("\nYou lost! The number was", secret_number)
+
+        print("\nCurrent Score:", score)
+
+        replay = input("\nPlay again? (y/n): ").lower()
+
+        if replay == "y":
+            play_again = True
+            print("\nStarting new game...")
+        elif replay == "n":
+            play_again = False
+        else:
+            print("Invalid input. Exiting game.")
+            play_again = False
+
+        if score > 500:
+            print("\n🔥 Amazing score! You're a master guesser!")
+        elif score > 200:
+            print("\n👍 Good job! Keep improving.")
+        else:
+            print("\nPractice more to improve your score.")
+
+        if not play_again:
+            print("\n=============================")
+            print("       GAME OVER")
+            print("=============================")
+            print("Final Score:", score)
