@@ -20,6 +20,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"print", TokenType::PRINT},
     {"printf", TokenType::PRINT},
     {"input", TokenType::INPUT},
+    {"scanf", TokenType::INPUT},
     {"import", TokenType::IMPORT},
     {"true", TokenType::BOOL_TRUE},
     {"false", TokenType::BOOL_FALSE},
@@ -349,6 +350,9 @@ std::vector<Token> Lexer::tokenize()
             break;
         case '.':
             tokens.emplace_back(TokenType::DOT, ".", startLine, startCol);
+            break;
+        case '?':
+            tokens.emplace_back(TokenType::QUESTION, "?", startLine, startCol);
             break;
         default:
             throw QuantumError("LexError", std::string("Unexpected character: ") + c, startLine);

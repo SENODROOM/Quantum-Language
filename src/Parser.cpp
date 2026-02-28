@@ -3,69 +3,138 @@
 
 Parser::Parser(std::vector<Token> tokens) : tokens(std::move(tokens)), pos(0) {}
 
-Token& Parser::current() { return tokens[pos]; }
-Token& Parser::peek(int offset) {
+Token &Parser::current() { return tokens[pos]; }
+Token &Parser::peek(int offset)
+{
     size_t p = pos + offset;
     return p < tokens.size() ? tokens[p] : tokens.back();
 }
 
-Token& Parser::consume() { return tokens[pos++]; }
+Token &Parser::consume() { return tokens[pos++]; }
 
-Token& Parser::expect(TokenType t, const std::string& msg) {
+Token &Parser::expect(TokenType t, const std::string &msg)
+{
     if (current().type != t)
         throw ParseError(msg + " (got '" + current().value + "')", current().line, current().col);
     return consume();
 }
 
 bool Parser::check(TokenType t) const { return tokens[pos].type == t; }
-bool Parser::match(TokenType t) { if (check(t)) { consume(); return true; } return false; }
+bool Parser::match(TokenType t)
+{
+    if (check(t))
+    {
+        consume();
+        return true;
+    }
+    return false;
+}
 bool Parser::atEnd() const { return tokens[pos].type == TokenType::EOF_TOKEN; }
 
-void Parser::skipNewlines() {
-    while (check(TokenType::NEWLINE)) consume();
+void Parser::skipNewlines()
+{
+    while (check(TokenType::NEWLINE))
+        consume();
 }
 
-ASTNodePtr Parser::parse() {
+ASTNodePtr Parser::parse()
+{
     auto block = std::make_unique<ASTNode>(BlockStmt{}, 0);
-    auto& stmts = block->as<BlockStmt>().statements;
+    auto &stmts = block->as<BlockStmt>().statements;
     skipNewlines();
-    while (!atEnd()) {
+    while (!atEnd())
+    {
         stmts.push_back(parseStatement());
         skipNewlines();
     }
     return block;
 }
 
-ASTNodePtr Parser::parseStatement() {
+ASTNodePtr Parser::parseStatement()
+{
     skipNewlines();
     int ln = current().line;
-    switch (current().type) {
-        case TokenType::LET:    { consume(); return parseVarDecl(false); }
-        case TokenType::CONST:  { consume(); return parseVarDecl(true); }
-        case TokenType::FN:     { consume(); return parseFunctionDecl(); }
-        case TokenType::IF:     { consume(); return parseIfStmt(); }
-        case TokenType::WHILE:  { consume(); return parseWhileStmt(); }
-        case TokenType::FOR:    { consume(); return parseForStmt(); }
-        case TokenType::RETURN: { consume(); return parseReturnStmt(); }
-        case TokenType::PRINT:  { consume(); return parsePrintStmt(); }
-        case TokenType::IMPORT: { consume(); return parseImportStmt(); }
-        case TokenType::BREAK:  { consume(); 
-            while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
-            return std::make_unique<ASTNode>(BreakStmt{}, ln); }
-        case TokenType::CONTINUE: { consume();
-            while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
-            return std::make_unique<ASTNode>(ContinueStmt{}, ln); }
-        case TokenType::LBRACE: return parseBlock();
-        default: return parseExprStmt();
+    switch (current().type)
+    {
+    case TokenType::LET:
+    {
+        consume();
+        return parseVarDecl(false);
+    }
+    case TokenType::CONST:
+    {
+        consume();
+        return parseVarDecl(true);
+    }
+    case TokenType::FN:
+    {
+        consume();
+        return parseFunctionDecl();
+    }
+    case TokenType::IF:
+    {
+        consume();
+        return parseIfStmt();
+    }
+    case TokenType::WHILE:
+    {
+        consume();
+        return parseWhileStmt();
+    }
+    case TokenType::FOR:
+    {
+        consume();
+        return parseForStmt();
+    }
+    case TokenType::RETURN:
+    {
+        consume();
+        return parseReturnStmt();
+    }
+    case TokenType::PRINT:
+    {
+        consume();
+        return parsePrintStmt();
+    }
+    case TokenType::INPUT:
+    {
+        consume();
+        return parseInputStmt();
+    }
+    case TokenType::IMPORT:
+    {
+        consume();
+        return parseImportStmt();
+    }
+    case TokenType::BREAK:
+    {
+        consume();
+        while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+            consume();
+        return std::make_unique<ASTNode>(BreakStmt{}, ln);
+    }
+    case TokenType::CONTINUE:
+    {
+        consume();
+        while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+            consume();
+        return std::make_unique<ASTNode>(ContinueStmt{}, ln);
+    }
+    case TokenType::LBRACE:
+        return parseBlock();
+    default:
+        return parseExprStmt();
     }
 }
 
-ASTNodePtr Parser::parseBlock() {
+ASTNodePtr Parser::parseBlock()
+{
     int ln = current().line;
     expect(TokenType::LBRACE, "Expected '{'");
     skipNewlines();
     BlockStmt block;
-    while (!check(TokenType::RBRACE) && !atEnd()) {
+    while (!check(TokenType::RBRACE) && !atEnd())
+    {
         block.statements.push_back(parseStatement());
         skipNewlines();
     }
@@ -73,18 +142,22 @@ ASTNodePtr Parser::parseBlock() {
     return std::make_unique<ASTNode>(std::move(block), ln);
 }
 
-ASTNodePtr Parser::parseVarDecl(bool isConst) {
+ASTNodePtr Parser::parseVarDecl(bool isConst)
+{
     int ln = current().line;
     auto nameToken = expect(TokenType::IDENTIFIER, "Expected variable name");
     ASTNodePtr init;
-    if (match(TokenType::ASSIGN)) {
+    if (match(TokenType::ASSIGN))
+    {
         init = parseExpr();
     }
-    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
     return std::make_unique<ASTNode>(VarDecl{isConst, nameToken.value, std::move(init)}, ln);
 }
 
-ASTNodePtr Parser::parseFunctionDecl() {
+ASTNodePtr Parser::parseFunctionDecl()
+{
     int ln = current().line;
     auto nameToken = expect(TokenType::IDENTIFIER, "Expected function name");
     auto params = parseParamList();
@@ -92,17 +165,21 @@ ASTNodePtr Parser::parseFunctionDecl() {
     return std::make_unique<ASTNode>(FunctionDecl{nameToken.value, std::move(params), std::move(body)}, ln);
 }
 
-ASTNodePtr Parser::parseIfStmt() {
+ASTNodePtr Parser::parseIfStmt()
+{
     int ln = current().line;
     auto cond = parseExpr();
     skipNewlines();
     auto then = parseBlock();
     skipNewlines();
     ASTNodePtr elseBranch;
-    if (check(TokenType::ELIF)) {
+    if (check(TokenType::ELIF))
+    {
         consume();
         elseBranch = parseIfStmt();
-    } else if (check(TokenType::ELSE)) {
+    }
+    else if (check(TokenType::ELSE))
+    {
         consume();
         skipNewlines();
         elseBranch = parseBlock();
@@ -110,7 +187,8 @@ ASTNodePtr Parser::parseIfStmt() {
     return std::make_unique<ASTNode>(IfStmt{std::move(cond), std::move(then), std::move(elseBranch)}, ln);
 }
 
-ASTNodePtr Parser::parseWhileStmt() {
+ASTNodePtr Parser::parseWhileStmt()
+{
     int ln = current().line;
     auto cond = parseExpr();
     skipNewlines();
@@ -118,7 +196,8 @@ ASTNodePtr Parser::parseWhileStmt() {
     return std::make_unique<ASTNode>(WhileStmt{std::move(cond), std::move(body)}, ln);
 }
 
-ASTNodePtr Parser::parseForStmt() {
+ASTNodePtr Parser::parseForStmt()
+{
     int ln = current().line;
     auto var = expect(TokenType::IDENTIFIER, "Expected variable in for loop").value;
     expect(TokenType::IN, "Expected 'in'");
@@ -128,46 +207,115 @@ ASTNodePtr Parser::parseForStmt() {
     return std::make_unique<ASTNode>(ForStmt{var, std::move(iterable), std::move(body)}, ln);
 }
 
-ASTNodePtr Parser::parseReturnStmt() {
+ASTNodePtr Parser::parseReturnStmt()
+{
     int ln = current().line;
     ASTNodePtr val;
     if (!check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !atEnd())
         val = parseExpr();
-    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
     return std::make_unique<ASTNode>(ReturnStmt{std::move(val)}, ln);
 }
 
-ASTNodePtr Parser::parsePrintStmt() {
+ASTNodePtr Parser::parsePrintStmt()
+{
     int ln = current().line;
     bool newline = true;
     std::vector<ASTNodePtr> args;
-    if (check(TokenType::LPAREN)) {
+    if (check(TokenType::LPAREN))
+    {
         consume();
-        while (!check(TokenType::RPAREN) && !atEnd()) {
+        while (!check(TokenType::RPAREN) && !atEnd())
+        {
             args.push_back(parseExpr());
-            if (!match(TokenType::COMMA)) break;
+            if (!match(TokenType::COMMA))
+                break;
         }
         expect(TokenType::RPAREN, "Expected ')'");
-    } else {
-        args.push_back(parseExpr());
-        while (match(TokenType::COMMA)) args.push_back(parseExpr());
     }
-    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
+    else
+    {
+        args.push_back(parseExpr());
+        while (match(TokenType::COMMA))
+            args.push_back(parseExpr());
+    }
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
+    // If multiple args, treat as printf-style: route through __printf__ native
+    if (args.size() > 1)
+    {
+        auto id = std::make_unique<ASTNode>(Identifier{"__printf__"}, ln);
+        return std::make_unique<ASTNode>(ExprStmt{
+                                             std::make_unique<ASTNode>(CallExpr{std::move(id), std::move(args)}, ln)},
+                                         ln);
+    }
     return std::make_unique<ASTNode>(PrintStmt{std::move(args), newline}, ln);
 }
 
-ASTNodePtr Parser::parseImportStmt() {
+ASTNodePtr Parser::parseInputStmt()
+{
+    // Handles:
+    //   scanf("%d", &var)     — C-style: format string + address-of target
+    //   input("prompt", var)  — prompt + target variable
+    //   input(var)            — just target variable
+    int ln = current().line;
+    std::string target;
+    ASTNodePtr prompt;
+
+    if (check(TokenType::LPAREN))
+    {
+        consume();
+        if (check(TokenType::STRING))
+        {
+            // First arg is a string: either a format string or a prompt
+            auto fmtTok = current();
+            consume();
+            if (match(TokenType::COMMA))
+            {
+                // scanf("%d", &var) or input("prompt", var)
+                prompt = std::make_unique<ASTNode>(StringLiteral{fmtTok.value}, ln);
+                if (check(TokenType::BIT_AND))
+                    consume(); // strip optional &
+                target = expect(TokenType::IDENTIFIER, "Expected variable name after ','").value;
+            }
+            else
+            {
+                // input("prompt") — prompt only, no target
+                prompt = std::make_unique<ASTNode>(StringLiteral{fmtTok.value}, ln);
+                target = "";
+            }
+        }
+        else
+        {
+            // input(&var) or input(var)
+            if (check(TokenType::BIT_AND))
+                consume();
+            target = expect(TokenType::IDENTIFIER, "Expected variable name").value;
+        }
+        expect(TokenType::RPAREN, "Expected ')'");
+    }
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
+    return std::make_unique<ASTNode>(InputStmt{target, std::move(prompt)}, ln);
+}
+
+ASTNodePtr Parser::parseImportStmt()
+{
     int ln = current().line;
     auto mod = expect(TokenType::IDENTIFIER, "Expected module name").value;
     std::string alias;
-    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
     return std::make_unique<ASTNode>(ImportStmt{mod, alias}, ln);
 }
 
-ASTNodePtr Parser::parseExprStmt() {
+ASTNodePtr Parser::parseExprStmt()
+{
     int ln = current().line;
     auto expr = parseExpr();
-    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON)) consume();
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
     return std::make_unique<ASTNode>(ExprStmt{std::move(expr)}, ln);
 }
 
@@ -175,12 +323,23 @@ ASTNodePtr Parser::parseExprStmt() {
 
 ASTNodePtr Parser::parseExpr() { return parseAssignment(); }
 
-ASTNodePtr Parser::parseAssignment() {
+ASTNodePtr Parser::parseAssignment()
+{
     int ln = current().line;
     auto left = parseOr();
+    // Ternary: condition ? thenExpr : elseExpr
+    if (check(TokenType::QUESTION))
+    {
+        consume();
+        auto thenExpr = parseExpr();
+        expect(TokenType::COLON, "Expected ':' in ternary expression");
+        auto elseExpr = parseExpr();
+        return std::make_unique<ASTNode>(TernaryExpr{std::move(left), std::move(thenExpr), std::move(elseExpr)}, ln);
+    }
     if (check(TokenType::ASSIGN) || check(TokenType::PLUS_ASSIGN) ||
         check(TokenType::MINUS_ASSIGN) || check(TokenType::STAR_ASSIGN) ||
-        check(TokenType::SLASH_ASSIGN)) {
+        check(TokenType::SLASH_ASSIGN))
+    {
         auto op = consume().value;
         auto right = parseAssignment();
         return std::make_unique<ASTNode>(AssignExpr{op, std::move(left), std::move(right)}, ln);
@@ -188,9 +347,11 @@ ASTNodePtr Parser::parseAssignment() {
     return left;
 }
 
-ASTNodePtr Parser::parseOr() {
+ASTNodePtr Parser::parseOr()
+{
     auto left = parseAnd();
-    while (check(TokenType::OR)) {
+    while (check(TokenType::OR))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseAnd();
@@ -199,9 +360,11 @@ ASTNodePtr Parser::parseOr() {
     return left;
 }
 
-ASTNodePtr Parser::parseAnd() {
+ASTNodePtr Parser::parseAnd()
+{
     auto left = parseBitwise();
-    while (check(TokenType::AND)) {
+    while (check(TokenType::AND))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseBitwise();
@@ -210,9 +373,11 @@ ASTNodePtr Parser::parseAnd() {
     return left;
 }
 
-ASTNodePtr Parser::parseBitwise() {
+ASTNodePtr Parser::parseBitwise()
+{
     auto left = parseEquality();
-    while (check(TokenType::BIT_AND) || check(TokenType::BIT_OR) || check(TokenType::BIT_XOR)) {
+    while (check(TokenType::BIT_AND) || check(TokenType::BIT_OR) || check(TokenType::BIT_XOR))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseEquality();
@@ -221,9 +386,11 @@ ASTNodePtr Parser::parseBitwise() {
     return left;
 }
 
-ASTNodePtr Parser::parseEquality() {
+ASTNodePtr Parser::parseEquality()
+{
     auto left = parseComparison();
-    while (check(TokenType::EQ) || check(TokenType::NEQ)) {
+    while (check(TokenType::EQ) || check(TokenType::NEQ))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseComparison();
@@ -232,9 +399,11 @@ ASTNodePtr Parser::parseEquality() {
     return left;
 }
 
-ASTNodePtr Parser::parseComparison() {
+ASTNodePtr Parser::parseComparison()
+{
     auto left = parseShift();
-    while (check(TokenType::LT) || check(TokenType::GT) || check(TokenType::LTE) || check(TokenType::GTE)) {
+    while (check(TokenType::LT) || check(TokenType::GT) || check(TokenType::LTE) || check(TokenType::GTE))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseShift();
@@ -243,9 +412,11 @@ ASTNodePtr Parser::parseComparison() {
     return left;
 }
 
-ASTNodePtr Parser::parseShift() {
+ASTNodePtr Parser::parseShift()
+{
     auto left = parseAddSub();
-    while (check(TokenType::LSHIFT) || check(TokenType::RSHIFT)) {
+    while (check(TokenType::LSHIFT) || check(TokenType::RSHIFT))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseAddSub();
@@ -254,9 +425,11 @@ ASTNodePtr Parser::parseShift() {
     return left;
 }
 
-ASTNodePtr Parser::parseAddSub() {
+ASTNodePtr Parser::parseAddSub()
+{
     auto left = parseMulDiv();
-    while (check(TokenType::PLUS) || check(TokenType::MINUS)) {
+    while (check(TokenType::PLUS) || check(TokenType::MINUS))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parseMulDiv();
@@ -265,9 +438,11 @@ ASTNodePtr Parser::parseAddSub() {
     return left;
 }
 
-ASTNodePtr Parser::parseMulDiv() {
+ASTNodePtr Parser::parseMulDiv()
+{
     auto left = parsePower();
-    while (check(TokenType::STAR) || check(TokenType::SLASH) || check(TokenType::PERCENT)) {
+    while (check(TokenType::STAR) || check(TokenType::SLASH) || check(TokenType::PERCENT))
+    {
         int ln = current().line;
         auto op = consume().value;
         auto right = parsePower();
@@ -276,9 +451,11 @@ ASTNodePtr Parser::parseMulDiv() {
     return left;
 }
 
-ASTNodePtr Parser::parsePower() {
+ASTNodePtr Parser::parsePower()
+{
     auto left = parseUnary();
-    if (check(TokenType::POWER)) {
+    if (check(TokenType::POWER))
+    {
         int ln = current().line;
         consume();
         auto right = parsePower(); // right-associative
@@ -287,95 +464,129 @@ ASTNodePtr Parser::parsePower() {
     return left;
 }
 
-ASTNodePtr Parser::parseUnary() {
+ASTNodePtr Parser::parseUnary()
+{
     int ln = current().line;
-    if (check(TokenType::MINUS)) { consume(); return std::make_unique<ASTNode>(UnaryExpr{"-", parseUnary()}, ln); }
-    if (check(TokenType::NOT))   { consume(); return std::make_unique<ASTNode>(UnaryExpr{"not", parseUnary()}, ln); }
-    if (check(TokenType::BIT_NOT)){ consume(); return std::make_unique<ASTNode>(UnaryExpr{"~", parseUnary()}, ln); }
+    if (check(TokenType::MINUS))
+    {
+        consume();
+        return std::make_unique<ASTNode>(UnaryExpr{"-", parseUnary()}, ln);
+    }
+    if (check(TokenType::NOT))
+    {
+        consume();
+        return std::make_unique<ASTNode>(UnaryExpr{"not", parseUnary()}, ln);
+    }
+    if (check(TokenType::BIT_NOT))
+    {
+        consume();
+        return std::make_unique<ASTNode>(UnaryExpr{"~", parseUnary()}, ln);
+    }
+    // C-style address-of: &var — silently strip & and treat as the variable itself
+    if (check(TokenType::BIT_AND))
+    {
+        consume();
+        return parseUnary();
+    }
     return parsePostfix();
 }
 
-ASTNodePtr Parser::parsePostfix() {
+ASTNodePtr Parser::parsePostfix()
+{
     auto expr = parsePrimary();
-    while (true) {
+    while (true)
+    {
         int ln = current().line;
-        if (check(TokenType::LPAREN)) {
+        if (check(TokenType::LPAREN))
+        {
             auto args = parseArgList();
             expr = std::make_unique<ASTNode>(CallExpr{std::move(expr), std::move(args)}, ln);
-        } else if (check(TokenType::LBRACKET)) {
+        }
+        else if (check(TokenType::LBRACKET))
+        {
             consume();
             auto idx = parseExpr();
             expect(TokenType::RBRACKET, "Expected ']'");
             expr = std::make_unique<ASTNode>(IndexExpr{std::move(expr), std::move(idx)}, ln);
-        } else if (check(TokenType::DOT)) {
+        }
+        else if (check(TokenType::DOT))
+        {
             consume();
             auto mem = expect(TokenType::IDENTIFIER, "Expected member name").value;
-            if (check(TokenType::LPAREN)) {
-                // method call: obj.method(args)
-                // Represent as call of member expr
+            if (check(TokenType::LPAREN))
+            {
                 auto memExpr = std::make_unique<ASTNode>(MemberExpr{std::move(expr), mem}, ln);
                 auto args = parseArgList();
                 expr = std::make_unique<ASTNode>(CallExpr{std::move(memExpr), std::move(args)}, ln);
-            } else {
+            }
+            else
+            {
                 expr = std::make_unique<ASTNode>(MemberExpr{std::move(expr), mem}, ln);
             }
-        } else break;
+        }
+        else
+            break;
     }
     return expr;
 }
 
-ASTNodePtr Parser::parsePrimary() {
+ASTNodePtr Parser::parsePrimary()
+{
     int ln = current().line;
-    auto& tok = current();
+    auto &tok = current();
 
-    if (tok.type == TokenType::NUMBER) {
-        double v = std::stod(tok.value == "0x" || tok.value.substr(0,2) == "0x"
-                            ? std::to_string(std::stol(tok.value, nullptr, 16))
-                            : tok.value);
-        // Handle hex
+    if (tok.type == TokenType::NUMBER)
+    {
+        double v;
         if (tok.value.size() > 1 && tok.value[1] == 'x')
-            v = (double)std::stol(tok.value, nullptr, 16);
+            v = (double)std::stoull(tok.value, nullptr, 16);
+        else
+            v = std::stod(tok.value);
         consume();
         return std::make_unique<ASTNode>(NumberLiteral{v}, ln);
     }
-    if (tok.type == TokenType::STRING) {
-        auto s = tok.value; consume();
+    if (tok.type == TokenType::STRING)
+    {
+        auto s = tok.value;
+        consume();
         return std::make_unique<ASTNode>(StringLiteral{s}, ln);
     }
-    if (tok.type == TokenType::BOOL_TRUE)  { consume(); return std::make_unique<ASTNode>(BoolLiteral{true}, ln); }
-    if (tok.type == TokenType::BOOL_FALSE) { consume(); return std::make_unique<ASTNode>(BoolLiteral{false}, ln); }
-    if (tok.type == TokenType::NIL)        { consume(); return std::make_unique<ASTNode>(NilLiteral{}, ln); }
+    if (tok.type == TokenType::BOOL_TRUE)
+    {
+        consume();
+        return std::make_unique<ASTNode>(BoolLiteral{true}, ln);
+    }
+    if (tok.type == TokenType::BOOL_FALSE)
+    {
+        consume();
+        return std::make_unique<ASTNode>(BoolLiteral{false}, ln);
+    }
+    if (tok.type == TokenType::NIL)
+    {
+        consume();
+        return std::make_unique<ASTNode>(NilLiteral{}, ln);
+    }
 
-    if (tok.type == TokenType::IDENTIFIER) {
-        auto name = tok.value; consume();
+    if (tok.type == TokenType::IDENTIFIER)
+    {
+        auto name = tok.value;
+        consume();
         return std::make_unique<ASTNode>(Identifier{name}, ln);
     }
 
-    if (tok.type == TokenType::LBRACKET) return parseArrayLiteral();
-    if (tok.type == TokenType::LBRACE)   return parseDictLiteral();
+    if (tok.type == TokenType::LBRACKET)
+        return parseArrayLiteral();
+    if (tok.type == TokenType::LBRACE)
+        return parseDictLiteral();
 
-    if (tok.type == TokenType::FN) {
+    if (tok.type == TokenType::FN)
+    {
         consume();
         return parseLambda();
     }
 
-    if (tok.type == TokenType::INPUT) {
-        consume();
-        ASTNodePtr prompt;
-        if (check(TokenType::LPAREN)) {
-            consume();
-            if (!check(TokenType::RPAREN)) prompt = parseExpr();
-            expect(TokenType::RPAREN, "Expected ')'");
-        }
-        // Return as a call expression stub - we'll handle specially
-        // Actually return as identifier 'input' with args
-        std::vector<ASTNodePtr> args;
-        if (prompt) args.push_back(std::move(prompt));
-        auto id = std::make_unique<ASTNode>(Identifier{"__input__"}, ln);
-        return std::make_unique<ASTNode>(CallExpr{std::move(id), std::move(args)}, ln);
-    }
-
-    if (tok.type == TokenType::LPAREN) {
+    if (tok.type == TokenType::LPAREN)
+    {
         consume();
         skipNewlines();
         auto expr = parseExpr();
@@ -387,66 +598,79 @@ ASTNodePtr Parser::parsePrimary() {
     throw ParseError("Unexpected token: '" + tok.value + "'", tok.line, tok.col);
 }
 
-ASTNodePtr Parser::parseArrayLiteral() {
+ASTNodePtr Parser::parseArrayLiteral()
+{
     int ln = current().line;
     expect(TokenType::LBRACKET, "Expected '['");
     skipNewlines();
     ArrayLiteral arr;
-    while (!check(TokenType::RBRACKET) && !atEnd()) {
+    while (!check(TokenType::RBRACKET) && !atEnd())
+    {
         arr.elements.push_back(parseExpr());
         skipNewlines();
-        if (!match(TokenType::COMMA)) break;
+        if (!match(TokenType::COMMA))
+            break;
         skipNewlines();
     }
     expect(TokenType::RBRACKET, "Expected ']'");
     return std::make_unique<ASTNode>(std::move(arr), ln);
 }
 
-ASTNodePtr Parser::parseDictLiteral() {
+ASTNodePtr Parser::parseDictLiteral()
+{
     int ln = current().line;
     expect(TokenType::LBRACE, "Expected '{'");
     skipNewlines();
     DictLiteral dict;
-    while (!check(TokenType::RBRACE) && !atEnd()) {
+    while (!check(TokenType::RBRACE) && !atEnd())
+    {
         auto key = parseExpr();
         expect(TokenType::COLON, "Expected ':'");
         auto val = parseExpr();
         dict.pairs.emplace_back(std::move(key), std::move(val));
         skipNewlines();
-        if (!match(TokenType::COMMA)) break;
+        if (!match(TokenType::COMMA))
+            break;
         skipNewlines();
     }
     expect(TokenType::RBRACE, "Expected '}'");
     return std::make_unique<ASTNode>(std::move(dict), ln);
 }
 
-ASTNodePtr Parser::parseLambda() {
+ASTNodePtr Parser::parseLambda()
+{
     int ln = current().line;
     auto params = parseParamList();
     auto body = parseBlock();
     return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(body)}, ln);
 }
 
-std::vector<ASTNodePtr> Parser::parseArgList() {
+std::vector<ASTNodePtr> Parser::parseArgList()
+{
     expect(TokenType::LPAREN, "Expected '('");
     std::vector<ASTNodePtr> args;
     skipNewlines();
-    while (!check(TokenType::RPAREN) && !atEnd()) {
+    while (!check(TokenType::RPAREN) && !atEnd())
+    {
         args.push_back(parseExpr());
         skipNewlines();
-        if (!match(TokenType::COMMA)) break;
+        if (!match(TokenType::COMMA))
+            break;
         skipNewlines();
     }
     expect(TokenType::RPAREN, "Expected ')'");
     return args;
 }
 
-std::vector<std::string> Parser::parseParamList() {
+std::vector<std::string> Parser::parseParamList()
+{
     expect(TokenType::LPAREN, "Expected '('");
     std::vector<std::string> params;
-    while (!check(TokenType::RPAREN) && !atEnd()) {
+    while (!check(TokenType::RPAREN) && !atEnd())
+    {
         params.push_back(expect(TokenType::IDENTIFIER, "Expected parameter name").value);
-        if (!match(TokenType::COMMA)) break;
+        if (!match(TokenType::COMMA))
+            break;
     }
     expect(TokenType::RPAREN, "Expected ')'");
     return params;

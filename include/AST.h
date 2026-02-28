@@ -10,122 +10,168 @@ using ASTNodePtr = std::unique_ptr<ASTNode>;
 
 // ─── Expression Types ───────────────────────────────────────────────────────
 
-struct NumberLiteral   { double value; };
-struct StringLiteral   { std::string value; };
-struct BoolLiteral     { bool value; };
-struct NilLiteral      {};
+struct NumberLiteral
+{
+    double value;
+};
+struct StringLiteral
+{
+    std::string value;
+};
+struct BoolLiteral
+{
+    bool value;
+};
+struct NilLiteral
+{
+};
 
-struct Identifier      { std::string name; };
+struct Identifier
+{
+    std::string name;
+};
 
-struct BinaryExpr {
+struct BinaryExpr
+{
     std::string op;
     ASTNodePtr left, right;
 };
 
-struct UnaryExpr {
+struct UnaryExpr
+{
     std::string op;
     ASTNodePtr operand;
 };
 
-struct AssignExpr {
-    std::string op;   // = += -= *= /=
+struct AssignExpr
+{
+    std::string op; // = += -= *= /=
     ASTNodePtr target;
     ASTNodePtr value;
 };
 
-struct CallExpr {
+struct CallExpr
+{
     ASTNodePtr callee;
     std::vector<ASTNodePtr> args;
 };
 
-struct IndexExpr {
+struct IndexExpr
+{
     ASTNodePtr object;
     ASTNodePtr index;
 };
 
-struct MemberExpr {
+struct MemberExpr
+{
     ASTNodePtr object;
     std::string member;
 };
 
-struct ArrayLiteral {
+struct ArrayLiteral
+{
     std::vector<ASTNodePtr> elements;
 };
 
-struct DictLiteral {
+struct DictLiteral
+{
     std::vector<std::pair<ASTNodePtr, ASTNodePtr>> pairs;
 };
 
-struct LambdaExpr {
+struct LambdaExpr
+{
     std::vector<std::string> params;
     ASTNodePtr body;
 };
 
+struct TernaryExpr
+{
+    ASTNodePtr condition;
+    ASTNodePtr thenExpr;
+    ASTNodePtr elseExpr;
+};
+
 // ─── Statement Types ─────────────────────────────────────────────────────────
 
-struct VarDecl {
+struct VarDecl
+{
     bool isConst;
     std::string name;
     ASTNodePtr initializer; // may be null
 };
 
-struct FunctionDecl {
+struct FunctionDecl
+{
     std::string name;
     std::vector<std::string> params;
     ASTNodePtr body; // BlockStmt
 };
 
-struct ReturnStmt {
+struct ReturnStmt
+{
     ASTNodePtr value; // may be null
 };
 
-struct IfStmt {
+struct IfStmt
+{
     ASTNodePtr condition;
     ASTNodePtr thenBranch;
     // elif chains stored as else-if
     ASTNodePtr elseBranch; // may be null
 };
 
-struct WhileStmt {
+struct WhileStmt
+{
     ASTNodePtr condition;
     ASTNodePtr body;
 };
 
-struct ForStmt {
+struct ForStmt
+{
     std::string var;
     ASTNodePtr iterable;
     ASTNodePtr body;
 };
 
-struct BlockStmt {
+struct BlockStmt
+{
     std::vector<ASTNodePtr> statements;
 };
 
-struct ExprStmt {
+struct ExprStmt
+{
     ASTNodePtr expr;
 };
 
-struct PrintStmt {
+struct PrintStmt
+{
     std::vector<ASTNodePtr> args;
     bool newline;
 };
 
-struct InputStmt {
+struct InputStmt
+{
     std::string target;
     ASTNodePtr prompt;
 };
 
-struct BreakStmt  {};
-struct ContinueStmt {};
+struct BreakStmt
+{
+};
+struct ContinueStmt
+{
+};
 
-struct ImportStmt {
+struct ImportStmt
+{
     std::string module;
     std::string alias; // optional
 };
 
-struct ClassDecl {
+struct ClassDecl
+{
     std::string name;
-    std::string base;  // optional
+    std::string base; // optional
     std::vector<ASTNodePtr> methods;
     std::vector<ASTNodePtr> fields;
 };
@@ -143,22 +189,23 @@ using NodeVariant = std::variant<
     BlockStmt, ExprStmt,
     PrintStmt, InputStmt,
     BreakStmt, ContinueStmt,
-    ImportStmt, ClassDecl
->;
+    ImportStmt, ClassDecl,
+    TernaryExpr>;
 
-struct ASTNode {
+struct ASTNode
+{
     NodeVariant node;
     int line = 0;
 
-    template<typename T>
-    ASTNode(T&& n, int ln = 0) : node(std::forward<T>(n)), line(ln) {}
+    template <typename T>
+    ASTNode(T &&n, int ln = 0) : node(std::forward<T>(n)), line(ln) {}
 
-    template<typename T>
-    T& as() { return std::get<T>(node); }
+    template <typename T>
+    T &as() { return std::get<T>(node); }
 
-    template<typename T>
-    const T& as() const { return std::get<T>(node); }
+    template <typename T>
+    const T &as() const { return std::get<T>(node); }
 
-    template<typename T>
+    template <typename T>
     bool is() const { return std::holds_alternative<T>(node); }
 };

@@ -4,14 +4,16 @@
 #include <vector>
 #include <stdexcept>
 
-class ParseError : public std::runtime_error {
+class ParseError : public std::runtime_error
+{
 public:
     int line, col;
-    ParseError(const std::string& msg, int l, int c)
+    ParseError(const std::string &msg, int l, int c)
         : std::runtime_error(msg), line(l), col(c) {}
 };
 
-class Parser {
+class Parser
+{
 public:
     explicit Parser(std::vector<Token> tokens);
     ASTNodePtr parse();
@@ -21,10 +23,10 @@ private:
     size_t pos;
 
     // Token helpers
-    Token& current();
-    Token& peek(int offset = 1);
-    Token& consume();
-    Token& expect(TokenType t, const std::string& msg);
+    Token &current();
+    Token &peek(int offset = 1);
+    Token &consume();
+    Token &expect(TokenType t, const std::string &msg);
     bool check(TokenType t) const;
     bool match(TokenType t);
     bool atEnd() const;
@@ -41,6 +43,7 @@ private:
     ASTNodePtr parseForStmt();
     ASTNodePtr parseReturnStmt();
     ASTNodePtr parsePrintStmt();
+    ASTNodePtr parseInputStmt();
     ASTNodePtr parseImportStmt();
     ASTNodePtr parseExprStmt();
 

@@ -4,9 +4,10 @@
 #include <vector>
 #include <unordered_map>
 
-class Lexer {
+class Lexer
+{
 public:
-    explicit Lexer(const std::string& source);
+    explicit Lexer(const std::string &source);
     std::vector<Token> tokenize();
 
 private:

@@ -1,5 +1,4 @@
-
-let a;
-printf("hello Quantum World");
-scanf(a);
-printf(a);
+let a; 
+printf("hello Quantum World\n");
+scanf("Enter the number:  %d", &a);
+printf("You entered: %d\n", a);
