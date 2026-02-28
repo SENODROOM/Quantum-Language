@@ -5,4 +5,5 @@
 
 # Override any potential conflicts
 examples/*.sa linguist-language=Python
+examples/Python/*.sa linguist-language=Python
 src/*.sa linguist-language=Python
