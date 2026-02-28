@@ -449,6 +449,10 @@ void Interpreter::registerNatives()
     globals->define("PI", QuantumValue(M_PI));
     globals->define("E", QuantumValue(M_E));
     globals->define("INF", QuantumValue(std::numeric_limits<double>::infinity()));
+    // JavaScript compatibility aliases
+    globals->define("null", QuantumValue());
+    globals->define("undefined", QuantumValue());
+    globals->define("NaN", QuantumValue(std::numeric_limits<double>::quiet_NaN()));
 
     // Utility
     reg("len", [](std::vector<QuantumValue> args) -> QuantumValue
@@ -644,7 +648,88 @@ void Interpreter::registerNatives()
         if (args.empty()) throw RuntimeError("sprintf() requires a format string");
         return QuantumValue(applyFormat(args[0].toString(), args, 1)); });
 
-    // ─── console object (JavaScript compatibility) ────────────────────────
+    // ─── Math object (JavaScript compatibility) ──────────────────────────
+    auto mathDict = std::make_shared<Dict>();
+
+    auto mathNative = [&](const std::string &name, QuantumNativeFunc fn) -> QuantumValue
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = name;
+        nat->fn = std::move(fn);
+        return QuantumValue(nat);
+    };
+
+    (*mathDict)["PI"] = QuantumValue(M_PI);
+    (*mathDict)["E"] = QuantumValue(M_E);
+    (*mathDict)["LN2"] = QuantumValue(std::log(2.0));
+    (*mathDict)["LN10"] = QuantumValue(std::log(10.0));
+    (*mathDict)["LOG2E"] = QuantumValue(std::log2(M_E));
+    (*mathDict)["LOG10E"] = QuantumValue(std::log10(M_E));
+    (*mathDict)["SQRT2"] = QuantumValue(std::sqrt(2.0));
+    (*mathDict)["Infinity"] = QuantumValue(std::numeric_limits<double>::infinity());
+
+    (*mathDict)["floor"] = mathNative("Math.floor", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      { return QuantumValue(std::floor(toNum(a[0], "Math.floor"))); });
+    (*mathDict)["ceil"] = mathNative("Math.ceil", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::ceil(toNum(a[0], "Math.ceil"))); });
+    (*mathDict)["round"] = mathNative("Math.round", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      { return QuantumValue(std::round(toNum(a[0], "Math.round"))); });
+    (*mathDict)["abs"] = mathNative("Math.abs", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::abs(toNum(a[0], "Math.abs"))); });
+    (*mathDict)["sqrt"] = mathNative("Math.sqrt", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::sqrt(toNum(a[0], "Math.sqrt"))); });
+    (*mathDict)["cbrt"] = mathNative("Math.cbrt", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::cbrt(toNum(a[0], "Math.cbrt"))); });
+    (*mathDict)["pow"] = mathNative("Math.pow", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::pow(toNum(a[0], "Math.pow"), toNum(a[1], "Math.pow"))); });
+    (*mathDict)["log"] = mathNative("Math.log", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::log(toNum(a[0], "Math.log"))); });
+    (*mathDict)["log2"] = mathNative("Math.log2", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::log2(toNum(a[0], "Math.log2"))); });
+    (*mathDict)["log10"] = mathNative("Math.log10", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      { return QuantumValue(std::log10(toNum(a[0], "Math.log10"))); });
+    (*mathDict)["sin"] = mathNative("Math.sin", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::sin(toNum(a[0], "Math.sin"))); });
+    (*mathDict)["cos"] = mathNative("Math.cos", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::cos(toNum(a[0], "Math.cos"))); });
+    (*mathDict)["tan"] = mathNative("Math.tan", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::tan(toNum(a[0], "Math.tan"))); });
+    (*mathDict)["asin"] = mathNative("Math.asin", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::asin(toNum(a[0], "Math.asin"))); });
+    (*mathDict)["acos"] = mathNative("Math.acos", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::acos(toNum(a[0], "Math.acos"))); });
+    (*mathDict)["atan"] = mathNative("Math.atan", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { return QuantumValue(std::atan(toNum(a[0], "Math.atan"))); });
+    (*mathDict)["atan2"] = mathNative("Math.atan2", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      { return QuantumValue(std::atan2(toNum(a[0], "Math.atan2"), toNum(a[1], "Math.atan2"))); });
+    (*mathDict)["exp"] = mathNative("Math.exp", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    { return QuantumValue(std::exp(toNum(a[0], "Math.exp"))); });
+    (*mathDict)["sign"] = mathNative("Math.sign", [](std::vector<QuantumValue> a) -> QuantumValue
+                                     { double v = toNum(a[0],"Math.sign"); return QuantumValue(v > 0 ? 1.0 : v < 0 ? -1.0 : 0.0); });
+    (*mathDict)["trunc"] = mathNative("Math.trunc", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      { return QuantumValue(std::trunc(toNum(a[0], "Math.trunc"))); });
+    (*mathDict)["hypot"] = mathNative("Math.hypot", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      {
+        double s = 0; for (auto& x : a) { double v = toNum(x,"Math.hypot"); s += v*v; } return QuantumValue(std::sqrt(s)); });
+    (*mathDict)["min"] = mathNative("Math.min", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    {
+        if (a.empty()) return QuantumValue(std::numeric_limits<double>::infinity());
+        double m = toNum(a[0],"Math.min"); for (size_t i=1;i<a.size();i++) m = std::min(m, toNum(a[i],"Math.min")); return QuantumValue(m); });
+    (*mathDict)["max"] = mathNative("Math.max", [](std::vector<QuantumValue> a) -> QuantumValue
+                                    {
+        if (a.empty()) return QuantumValue(-std::numeric_limits<double>::infinity());
+        double m = toNum(a[0],"Math.max"); for (size_t i=1;i<a.size();i++) m = std::max(m, toNum(a[i],"Math.max")); return QuantumValue(m); });
+    (*mathDict)["random"] = mathNative("Math.random", [](std::vector<QuantumValue>) -> QuantumValue
+                                       {
+        static std::mt19937 rng(std::random_device{}());
+        std::uniform_real_distribution<double> dist(0.0, 1.0);
+        return QuantumValue(dist(rng)); });
+    (*mathDict)["clamp"] = mathNative("Math.clamp", [](std::vector<QuantumValue> a) -> QuantumValue
+                                      {
+        double v = toNum(a[0],"Math.clamp"), lo = toNum(a[1],"Math.clamp"), hi = toNum(a[2],"Math.clamp");
+        return QuantumValue(std::max(lo, std::min(hi, v))); });
+
+    globals->define("Math", QuantumValue(mathDict));
     // console.log, console.warn, console.error all print space-joined args
     auto consolePrint = [](const std::string &prefix, std::ostream &out)
     {

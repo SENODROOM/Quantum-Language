@@ -30,6 +30,8 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"true", TokenType::BOOL_TRUE},
     {"false", TokenType::BOOL_FALSE},
     {"nil", TokenType::NIL},
+    {"null", TokenType::NIL},      // JavaScript alias
+    {"undefined", TokenType::NIL}, // JavaScript alias
     {"and", TokenType::AND},
     {"or", TokenType::OR},
     {"not", TokenType::NOT},
