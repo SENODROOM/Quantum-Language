@@ -28,6 +28,17 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"and", TokenType::AND},
     {"or", TokenType::OR},
     {"not", TokenType::NOT},
+    // C/C++ style type keywords
+    {"int", TokenType::TYPE_INT},
+    {"float", TokenType::TYPE_FLOAT},
+    {"double", TokenType::TYPE_DOUBLE},
+    {"char", TokenType::TYPE_CHAR},
+    {"string", TokenType::TYPE_STRING},
+    {"bool", TokenType::TYPE_BOOL},
+    {"void", TokenType::TYPE_VOID},
+    {"long", TokenType::TYPE_LONG},
+    {"short", TokenType::TYPE_SHORT},
+    {"unsigned", TokenType::TYPE_UNSIGNED},
     // Cybersecurity future keywords
     {"scan", TokenType::SCAN},
     {"payload", TokenType::PAYLOAD},
@@ -211,7 +222,12 @@ std::vector<Token> Lexer::tokenize()
         switch (c)
         {
         case '+':
-            if (current() == '=')
+            if (current() == '+')
+            {
+                advance();
+                tokens.emplace_back(TokenType::PLUS_PLUS, "++", startLine, startCol);
+            }
+            else if (current() == '=')
             {
                 advance();
                 tokens.emplace_back(TokenType::PLUS_ASSIGN, "+=", startLine, startCol);
@@ -220,7 +236,12 @@ std::vector<Token> Lexer::tokenize()
                 tokens.emplace_back(TokenType::PLUS, "+", startLine, startCol);
             break;
         case '-':
-            if (current() == '>')
+            if (current() == '-')
+            {
+                advance();
+                tokens.emplace_back(TokenType::MINUS_MINUS, "--", startLine, startCol);
+            }
+            else if (current() == '>')
             {
                 advance();
                 tokens.emplace_back(TokenType::ARROW, "->", startLine, startCol);
@@ -310,10 +331,22 @@ std::vector<Token> Lexer::tokenize()
                 tokens.emplace_back(TokenType::GT, ">", startLine, startCol);
             break;
         case '&':
-            tokens.emplace_back(TokenType::BIT_AND, "&", startLine, startCol);
+            if (current() == '&')
+            {
+                advance();
+                tokens.emplace_back(TokenType::AND_AND, "&&", startLine, startCol);
+            }
+            else
+                tokens.emplace_back(TokenType::BIT_AND, "&", startLine, startCol);
             break;
         case '|':
-            tokens.emplace_back(TokenType::BIT_OR, "|", startLine, startCol);
+            if (current() == '|')
+            {
+                advance();
+                tokens.emplace_back(TokenType::OR_OR, "||", startLine, startCol);
+            }
+            else
+                tokens.emplace_back(TokenType::BIT_OR, "|", startLine, startCol);
             break;
         case '^':
             tokens.emplace_back(TokenType::BIT_XOR, "^", startLine, startCol);

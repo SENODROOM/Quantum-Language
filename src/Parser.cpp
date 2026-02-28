@@ -122,6 +122,24 @@ ASTNodePtr Parser::parseStatement()
     }
     case TokenType::LBRACE:
         return parseBlock();
+    // ── C/C++ style typed declarations ────────────────────────────────────
+    case TokenType::TYPE_INT:
+    case TokenType::TYPE_FLOAT:
+    case TokenType::TYPE_DOUBLE:
+    case TokenType::TYPE_CHAR:
+    case TokenType::TYPE_STRING:
+    case TokenType::TYPE_BOOL:
+    case TokenType::TYPE_VOID:
+    case TokenType::TYPE_LONG:
+    case TokenType::TYPE_SHORT:
+    case TokenType::TYPE_UNSIGNED:
+    {
+        auto typeHint = consume().value; // consume the type keyword
+        // Handle "unsigned int", "long long", "long double" etc. — eat extra qualifiers
+        while (isCTypeKeyword(current().type))
+            typeHint += " " + consume().value;
+        return parseCTypeVarDecl(typeHint);
+    }
     default:
         return parseExprStmt();
     }
@@ -142,6 +160,18 @@ ASTNodePtr Parser::parseBlock()
     return std::make_unique<ASTNode>(std::move(block), ln);
 }
 
+// Accepts either a { block } or a single statement — enables brace-free if/while/for
+ASTNodePtr Parser::parseBodyOrStatement()
+{
+    if (check(TokenType::LBRACE))
+        return parseBlock();
+    // Single statement — wrap in a BlockStmt so callers always get a block
+    int ln = current().line;
+    BlockStmt block;
+    block.statements.push_back(parseStatement());
+    return std::make_unique<ASTNode>(std::move(block), ln);
+}
+
 ASTNodePtr Parser::parseVarDecl(bool isConst)
 {
     int ln = current().line;
@@ -153,7 +183,7 @@ ASTNodePtr Parser::parseVarDecl(bool isConst)
     }
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    return std::make_unique<ASTNode>(VarDecl{isConst, nameToken.value, std::move(init)}, ln);
+    return std::make_unique<ASTNode>(VarDecl{isConst, nameToken.value, std::move(init), ""}, ln);
 }
 
 ASTNodePtr Parser::parseFunctionDecl()
@@ -170,7 +200,7 @@ ASTNodePtr Parser::parseIfStmt()
     int ln = current().line;
     auto cond = parseExpr();
     skipNewlines();
-    auto then = parseBlock();
+    auto then = parseBodyOrStatement();
     skipNewlines();
     ASTNodePtr elseBranch;
     if (check(TokenType::ELIF))
@@ -182,7 +212,16 @@ ASTNodePtr Parser::parseIfStmt()
     {
         consume();
         skipNewlines();
-        elseBranch = parseBlock();
+        // Support both "else if" and "elif"
+        if (check(TokenType::IF))
+        {
+            consume();
+            elseBranch = parseIfStmt();
+        }
+        else
+        {
+            elseBranch = parseBodyOrStatement();
+        }
     }
     return std::make_unique<ASTNode>(IfStmt{std::move(cond), std::move(then), std::move(elseBranch)}, ln);
 }
@@ -192,7 +231,7 @@ ASTNodePtr Parser::parseWhileStmt()
     int ln = current().line;
     auto cond = parseExpr();
     skipNewlines();
-    auto body = parseBlock();
+    auto body = parseBodyOrStatement();
     return std::make_unique<ASTNode>(WhileStmt{std::move(cond), std::move(body)}, ln);
 }
 
@@ -203,7 +242,7 @@ ASTNodePtr Parser::parseForStmt()
     expect(TokenType::IN, "Expected 'in'");
     auto iterable = parseExpr();
     skipNewlines();
-    auto body = parseBlock();
+    auto body = parseBodyOrStatement();
     return std::make_unique<ASTNode>(ForStmt{var, std::move(iterable), std::move(body)}, ln);
 }
 
@@ -242,14 +281,7 @@ ASTNodePtr Parser::parsePrintStmt()
     }
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    // If multiple args, treat as printf-style: route through __printf__ native
-    if (args.size() > 1)
-    {
-        auto id = std::make_unique<ASTNode>(Identifier{"__printf__"}, ln);
-        return std::make_unique<ASTNode>(ExprStmt{
-                                             std::make_unique<ASTNode>(CallExpr{std::move(id), std::move(args)}, ln)},
-                                         ln);
-    }
+    // Always emit PrintStmt — execPrint handles both python-style and printf-style at runtime
     return std::make_unique<ASTNode>(PrintStmt{std::move(args), newline}, ln);
 }
 
@@ -350,12 +382,12 @@ ASTNodePtr Parser::parseAssignment()
 ASTNodePtr Parser::parseOr()
 {
     auto left = parseAnd();
-    while (check(TokenType::OR))
+    while (check(TokenType::OR) || check(TokenType::OR_OR))
     {
         int ln = current().line;
-        auto op = consume().value;
+        consume(); // eat 'or' or '||'
         auto right = parseAnd();
-        left = std::make_unique<ASTNode>(BinaryExpr{op, std::move(left), std::move(right)}, ln);
+        left = std::make_unique<ASTNode>(BinaryExpr{"or", std::move(left), std::move(right)}, ln);
     }
     return left;
 }
@@ -363,12 +395,12 @@ ASTNodePtr Parser::parseOr()
 ASTNodePtr Parser::parseAnd()
 {
     auto left = parseBitwise();
-    while (check(TokenType::AND))
+    while (check(TokenType::AND) || check(TokenType::AND_AND))
     {
         int ln = current().line;
-        auto op = consume().value;
+        consume(); // eat 'and' or '&&'
         auto right = parseBitwise();
-        left = std::make_unique<ASTNode>(BinaryExpr{op, std::move(left), std::move(right)}, ln);
+        left = std::make_unique<ASTNode>(BinaryExpr{"and", std::move(left), std::move(right)}, ln);
     }
     return left;
 }
@@ -467,6 +499,21 @@ ASTNodePtr Parser::parsePower()
 ASTNodePtr Parser::parseUnary()
 {
     int ln = current().line;
+    // Prefix ++ and --
+    if (check(TokenType::PLUS_PLUS))
+    {
+        consume();
+        auto operand = parseUnary();
+        auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
+        return std::make_unique<ASTNode>(AssignExpr{"+=", std::move(operand), std::move(one)}, ln);
+    }
+    if (check(TokenType::MINUS_MINUS))
+    {
+        consume();
+        auto operand = parseUnary();
+        auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
+        return std::make_unique<ASTNode>(AssignExpr{"-=", std::move(operand), std::move(one)}, ln);
+    }
     if (check(TokenType::MINUS))
     {
         consume();
@@ -497,7 +544,22 @@ ASTNodePtr Parser::parsePostfix()
     while (true)
     {
         int ln = current().line;
-        if (check(TokenType::LPAREN))
+        // Postfix ++ and --
+        if (check(TokenType::PLUS_PLUS))
+        {
+            consume();
+            // x++ is sugar for x += 1
+            auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
+            expr = std::make_unique<ASTNode>(AssignExpr{"+=", std::move(expr), std::move(one)}, ln);
+        }
+        else if (check(TokenType::MINUS_MINUS))
+        {
+            consume();
+            // x-- is sugar for x -= 1
+            auto one = std::make_unique<ASTNode>(NumberLiteral{1.0}, ln);
+            expr = std::make_unique<ASTNode>(AssignExpr{"-=", std::move(expr), std::move(one)}, ln);
+        }
+        else if (check(TokenType::LPAREN))
         {
             auto args = parseArgList();
             expr = std::make_unique<ASTNode>(CallExpr{std::move(expr), std::move(args)}, ln);
@@ -668,10 +730,49 @@ std::vector<std::string> Parser::parseParamList()
     std::vector<std::string> params;
     while (!check(TokenType::RPAREN) && !atEnd())
     {
+        // Allow typed params like "int x" — skip the type if present
+        if (isCTypeKeyword(current().type))
+        {
+            consume(); // eat type keyword
+            while (isCTypeKeyword(current().type))
+                consume(); // multi-word types
+        }
         params.push_back(expect(TokenType::IDENTIFIER, "Expected parameter name").value);
         if (!match(TokenType::COMMA))
             break;
     }
     expect(TokenType::RPAREN, "Expected ')'");
     return params;
+}
+
+bool Parser::isCTypeKeyword(TokenType t) const
+{
+    switch (t)
+    {
+    case TokenType::TYPE_INT:
+    case TokenType::TYPE_FLOAT:
+    case TokenType::TYPE_DOUBLE:
+    case TokenType::TYPE_CHAR:
+    case TokenType::TYPE_STRING:
+    case TokenType::TYPE_BOOL:
+    case TokenType::TYPE_VOID:
+    case TokenType::TYPE_LONG:
+    case TokenType::TYPE_SHORT:
+    case TokenType::TYPE_UNSIGNED:
+        return true;
+    default:
+        return false;
+    }
+}
+
+ASTNodePtr Parser::parseCTypeVarDecl(const std::string &typeHint)
+{
+    int ln = current().line;
+    auto nameToken = expect(TokenType::IDENTIFIER, "Expected variable name after type");
+    ASTNodePtr init;
+    if (match(TokenType::ASSIGN))
+        init = parseExpr();
+    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+        consume();
+    return std::make_unique<ASTNode>(VarDecl{false, nameToken.value, std::move(init), typeHint}, ln);
 }
