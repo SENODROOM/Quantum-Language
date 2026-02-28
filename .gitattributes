@@ -1,2 +1,11 @@
-# Force .sa files to be detected as C (definitely supported)
-*.sa linguist-language=C
+# Using Python as base (dark blue color) until Quantum PR merges
+*.sa linguist-language=Python
+*.sa linguist-detectable
+
+# Ensure C++ files are still detected properly
+	@@ -9,5 +9,5 @@
+*.hpp linguist-language=C++
+
+# Override any potential conflicts
+examples/*.sa linguist-language=Python
+src/*.sa linguist-language=Python
