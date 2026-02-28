@@ -1,0 +1,106 @@
+
+int secretNumber;
+int guess;
+int attempts;
+int maxAttempts;
+int level;
+int score = 0;
+int playAgain = 1;
+int seed = 12345;
+
+while(playAgain) {
+
+    printf("\n=============================\n");
+    printf("      NUMBER GUESS GAME\n");
+    printf("=============================\n");
+    printf("Select Difficulty Level\n");
+    printf("1. Easy   (10 attempts)\n");
+    printf("2. Medium (7 attempts)\n");
+    printf("3. Hard   (5 attempts)\n");
+    printf("Enter choice: ");
+
+    scanf("%d", &level);
+
+    if(level == 1) {
+        maxAttempts = 10;
+    }
+    else if(level == 2) {
+        maxAttempts = 7;
+    }
+    else if(level == 3) {
+        maxAttempts = 5;
+    }
+    else {
+        printf("Invalid level. Defaulting to Easy.\n");
+        maxAttempts = 10;
+    }
+
+    seed = seed * 1103515245 + 12345;
+    secretNumber = (seed % 100) + 1;
+
+    attempts = 0;
+
+    printf("\nI picked a number between 1 and 100.\n");
+
+    while(attempts < maxAttempts) {
+
+        printf("\nAttempt %d of %d\n", attempts + 1, maxAttempts);
+        printf("Enter your guess: ");
+        scanf("%d", &guess);
+
+        attempts++;
+
+        if(guess == secretNumber) {
+            printf("🎉 Correct! You guessed it!\n");
+
+            if(attempts == 1) score += 100;
+            else if(attempts <= 3) score += 70;
+            else if(attempts <= 5) score += 50;
+            else score += 20;
+
+            break;
+        }
+        else if(guess < secretNumber) {
+            printf("Too low 🔽\n");
+        }
+        else {
+            printf("Too high 🔼\n");
+        }
+
+        if(attempts == maxAttempts) {
+            printf("\nYou lost! The number was %d\n", secretNumber);
+        }
+    }
+
+    printf("\nCurrent Score: %d\n", score);
+
+    printf("\nPlay again? (1 = Yes, 0 = No): ");
+    scanf("%d", &playAgain);
+
+    if(playAgain != 1 && playAgain != 0) {
+        printf("Invalid input. Exiting game.\n");
+        playAgain = 0;
+    }
+
+    if(playAgain == 1) {
+        printf("\nStarting new game...\n");
+    }
+
+    if(score > 500) {
+        printf("\n🔥 Amazing score! You're a master guesser!\n");
+    }
+    else if(score > 200) {
+        printf("\n👍 Good job! Keep improving.\n");
+    }
+    else {
+        printf("\nPractice more to improve your score.\n");
+    }
+
+    if(playAgain == 0) {
+        printf("\n=============================\n");
+        printf("       GAME OVER\n");
+        printf("=============================\n");
+        printf("Final Score: %d\n", score);
+    }
+
+}

@@ -694,6 +694,85 @@ void Interpreter::execVarDecl(VarDecl &s)
     QuantumValue val;
     if (s.initializer)
         val = evaluate(*s.initializer);
+
+    // ── C-style type coercion ────────────────────────────────────────────────
+    if (!s.typeHint.empty())
+    {
+        const std::string &h = s.typeHint;
+        // Integer types: int, short, long, unsigned, unsigned int, long long …
+        if (h == "int" || h == "short" || h == "long" ||
+            h == "long long" || h == "unsigned" || h == "unsigned int" ||
+            h == "unsigned long" || h == "unsigned long long" || h == "unsigned short")
+        {
+            if (val.isNumber())
+                val = QuantumValue((double)(long long)val.asNumber());
+            else if (val.isString())
+            {
+                try
+                {
+                    val = QuantumValue((double)std::stoll(val.asString()));
+                }
+                catch (...)
+                {
+                    val = QuantumValue(0.0);
+                }
+            }
+            else if (val.isBool())
+                val = QuantumValue(val.asBool() ? 1.0 : 0.0);
+            else if (val.isNil())
+                val = QuantumValue(0.0);
+        }
+        // Floating point types: float, double, long double
+        else if (h == "float" || h == "double" || h == "long double")
+        {
+            if (val.isNumber())
+                ; // already double — keep it
+            else if (val.isString())
+            {
+                try
+                {
+                    val = QuantumValue(std::stod(val.asString()));
+                }
+                catch (...)
+                {
+                    val = QuantumValue(0.0);
+                }
+            }
+            else if (val.isBool())
+                val = QuantumValue(val.asBool() ? 1.0 : 0.0);
+            else if (val.isNil())
+                val = QuantumValue(0.0);
+        }
+        // char — single character stored as string
+        else if (h == "char")
+        {
+            if (val.isString())
+                val = QuantumValue(val.asString().empty() ? std::string("") : std::string(1, val.asString()[0]));
+            else if (val.isNumber())
+            {
+                char c = (char)(int)val.asNumber();
+                val = QuantumValue(std::string(1, c));
+            }
+            else if (val.isNil())
+                val = QuantumValue(std::string("\0", 1));
+        }
+        // string / std::string — convert anything to string
+        else if (h == "string")
+        {
+            val = QuantumValue(val.toString());
+        }
+        // bool — truthy coercion
+        else if (h == "bool")
+        {
+            val = QuantumValue(val.isTruthy());
+        }
+        // void — just nil; assigning void x = ... is unusual but handled gracefully
+        else if (h == "void")
+        {
+            val = QuantumValue(); // nil
+        }
+    }
+
     env->define(s.name, std::move(val), s.isConst);
 }
 
@@ -843,14 +922,54 @@ void Interpreter::execReturn(ReturnStmt &s)
 
 void Interpreter::execPrint(PrintStmt &s)
 {
-    for (size_t i = 0; i < s.args.size(); i++)
+    if (s.args.empty())
     {
-        if (i)
-            std::cout << " ";
-        std::cout << evaluate(*s.args[i]).toString();
+        if (s.newline)
+            std::cout << "\n";
+        std::cout.flush();
+        return;
     }
-    if (s.newline)
-        std::cout << "\n";
+
+    // Evaluate all args first
+    std::vector<QuantumValue> vals;
+    vals.reserve(s.args.size());
+    for (auto &a : s.args)
+        vals.push_back(evaluate(*a));
+
+    // Printf-mode: first arg is a string containing a % format specifier
+    // e.g. printf("x = %d\n", x)  OR  print("%d items", count)
+    bool isPrintf = false;
+    if (vals.size() > 1 && vals[0].isString())
+    {
+        const std::string &fmt = vals[0].asString();
+        // Look for a real % specifier (not %%)
+        for (size_t i = 0; i + 1 < fmt.size(); ++i)
+        {
+            if (fmt[i] == '%' && fmt[i + 1] != '%')
+            {
+                isPrintf = true;
+                break;
+            }
+        }
+    }
+
+    if (isPrintf)
+    {
+        // Printf-style: format the string using the existing applyFormat engine
+        std::cout << applyFormat(vals[0].toString(), vals, 1);
+    }
+    else
+    {
+        // Python-style: space-join all args and print
+        for (size_t i = 0; i < vals.size(); i++)
+        {
+            if (i)
+                std::cout << " ";
+            std::cout << vals[i].toString();
+        }
+        if (s.newline)
+            std::cout << "\n";
+    }
     std::cout.flush();
 }
 

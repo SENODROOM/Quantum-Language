@@ -23,9 +23,6 @@ fn compose(f, g) {
     return fn(x) { return f(g(x)) }
 }
 
-let double = fn(n) { return n * 2 }
-let inc    = fn(n) { return n + 1 }
-let doubleAfterInc = compose(double, inc)
 
 print("double(inc(5)) =", doubleAfterInc(5))
 

@@ -98,6 +98,7 @@ struct VarDecl
     bool isConst;
     std::string name;
     ASTNodePtr initializer; // may be null
+    std::string typeHint;   // e.g. "int", "float", "char", "" = none
 };
 
 struct FunctionDecl

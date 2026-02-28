@@ -35,6 +35,7 @@ private:
     // Parsing methods
     ASTNodePtr parseStatement();
     ASTNodePtr parseBlock();
+    ASTNodePtr parseBodyOrStatement(); // block OR single statement (brace-optional)
     ASTNodePtr parseVarDecl(bool isConst);
     ASTNodePtr parseFunctionDecl();
     ASTNodePtr parseClassDecl();
@@ -46,6 +47,8 @@ private:
     ASTNodePtr parseInputStmt();
     ASTNodePtr parseImportStmt();
     ASTNodePtr parseExprStmt();
+    ASTNodePtr parseCTypeVarDecl(const std::string &typeHint); // int x = ...
+    bool isCTypeKeyword(TokenType t) const;
 
     // Expression parsing (Pratt-style precedence)
     ASTNodePtr parseExpr();

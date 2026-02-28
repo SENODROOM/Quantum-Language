@@ -27,6 +27,18 @@ enum class TokenType
     PRINT,
     INPUT,
     IMPORT,
+    // C/C++ style type keywords
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_DOUBLE,
+    TYPE_CHAR,
+    TYPE_STRING,
+    TYPE_BOOL,
+    TYPE_VOID,
+    TYPE_LONG,
+    TYPE_SHORT,
+    TYPE_UNSIGNED,
+
     // Cybersecurity reserved keywords (future)
     SCAN,
     PAYLOAD,
@@ -55,12 +67,16 @@ enum class TokenType
     MINUS_ASSIGN,
     STAR_ASSIGN,
     SLASH_ASSIGN,
+    PLUS_PLUS,
+    MINUS_MINUS,
     BIT_AND,
     BIT_OR,
     BIT_XOR,
     BIT_NOT,
     LSHIFT,
     RSHIFT,
+    AND_AND, // &&
+    OR_OR,   // ||
 
     // Delimiters
     LPAREN,
