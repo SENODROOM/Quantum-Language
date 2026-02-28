@@ -157,25 +157,45 @@ ASTNodePtr Parser::parseStatement()
 
 ASTNodePtr Parser::parseBlock()
 {
-    int ln = current().line;
-    expect(TokenType::LBRACE, "Expected '{'");
-    skipNewlines();
-    BlockStmt block;
-    while (!check(TokenType::RBRACE) && !atEnd())
+    // Brace-style: { statements }
+    if (check(TokenType::LBRACE))
     {
-        block.statements.push_back(parseStatement());
+        int ln = current().line;
+        expect(TokenType::LBRACE, "Expected '{'");
         skipNewlines();
+        BlockStmt block;
+        while (!check(TokenType::RBRACE) && !atEnd())
+        {
+            block.statements.push_back(parseStatement());
+            skipNewlines();
+        }
+        expect(TokenType::RBRACE, "Expected '}'");
+        return std::make_unique<ASTNode>(std::move(block), ln);
     }
-    expect(TokenType::RBRACE, "Expected '}'");
-    return std::make_unique<ASTNode>(std::move(block), ln);
+    // Python-style: INDENT statements DEDENT
+    if (check(TokenType::INDENT))
+    {
+        int ln = current().line;
+        consume(); // eat INDENT
+        skipNewlines();
+        BlockStmt block;
+        while (!check(TokenType::DEDENT) && !atEnd())
+        {
+            block.statements.push_back(parseStatement());
+            skipNewlines();
+        }
+        if (check(TokenType::DEDENT))
+            consume(); // eat DEDENT
+        return std::make_unique<ASTNode>(std::move(block), ln);
+    }
+    throw ParseError("Expected '{' or indented block", current().line, current().col);
 }
 
-// Accepts either a { block } or a single statement — enables brace-free if/while/for
+// Accepts { block }, INDENT block, or a single statement
 ASTNodePtr Parser::parseBodyOrStatement()
 {
-    if (check(TokenType::LBRACE))
+    if (check(TokenType::LBRACE) || check(TokenType::INDENT))
         return parseBlock();
-    // Single statement — wrap in a BlockStmt so callers always get a block
     int ln = current().line;
     BlockStmt block;
     block.statements.push_back(parseStatement());
@@ -209,6 +229,8 @@ ASTNodePtr Parser::parseIfStmt()
 {
     int ln = current().line;
     auto cond = parseExpr();
+    // consume optional colon (Python style: "if x > 0:")
+    match(TokenType::COLON);
     skipNewlines();
     auto then = parseBodyOrStatement();
     skipNewlines();
@@ -216,13 +238,13 @@ ASTNodePtr Parser::parseIfStmt()
     if (check(TokenType::ELIF))
     {
         consume();
+        // optional colon after elif condition is handled inside recursive call
         elseBranch = parseIfStmt();
     }
     else if (check(TokenType::ELSE))
     {
         consume();
         skipNewlines();
-        // Support both "else if" and "elif"
         if (check(TokenType::IF))
         {
             consume();
@@ -230,6 +252,8 @@ ASTNodePtr Parser::parseIfStmt()
         }
         else
         {
+            match(TokenType::COLON); // optional colon: "else:"
+            skipNewlines();
             elseBranch = parseBodyOrStatement();
         }
     }
@@ -240,6 +264,7 @@ ASTNodePtr Parser::parseWhileStmt()
 {
     int ln = current().line;
     auto cond = parseExpr();
+    match(TokenType::COLON); // optional Python-style colon
     skipNewlines();
     auto body = parseBodyOrStatement();
     return std::make_unique<ASTNode>(WhileStmt{std::move(cond), std::move(body)}, ln);
@@ -251,6 +276,7 @@ ASTNodePtr Parser::parseForStmt()
     auto var = expect(TokenType::IDENTIFIER, "Expected variable in for loop").value;
     expect(TokenType::IN, "Expected 'in'");
     auto iterable = parseExpr();
+    match(TokenType::COLON); // optional Python-style colon
     skipNewlines();
     auto body = parseBodyOrStatement();
     return std::make_unique<ASTNode>(ForStmt{var, std::move(iterable), std::move(body)}, ln);

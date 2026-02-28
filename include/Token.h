@@ -97,7 +97,9 @@ enum class TokenType
 
     // Special
     EOF_TOKEN,
-    UNKNOWN
+    UNKNOWN,
+    INDENT, // Python-style indentation block start
+    DEDENT, // Python-style indentation block end
 };
 
 struct Token

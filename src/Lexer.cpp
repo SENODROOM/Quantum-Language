@@ -179,7 +179,7 @@ Token Lexer::readIdentifierOrKeyword()
 
 std::vector<Token> Lexer::tokenize()
 {
-    std::vector<Token> tokens;
+    std::vector<Token> rawTokens;
 
     while (pos < src.size())
     {
@@ -192,7 +192,7 @@ std::vector<Token> Lexer::tokenize()
 
         if (c == '\n')
         {
-            tokens.emplace_back(TokenType::NEWLINE, "\\n", startLine, startCol);
+            rawTokens.emplace_back(TokenType::NEWLINE, "\\n", startLine, startCol);
             advance();
             continue;
         }
@@ -205,17 +205,17 @@ std::vector<Token> Lexer::tokenize()
 
         if (std::isdigit(c))
         {
-            tokens.push_back(readNumber());
+            rawTokens.push_back(readNumber());
             continue;
         }
         if (c == '"' || c == '\'')
         {
-            tokens.push_back(readString(c));
+            rawTokens.push_back(readString(c));
             continue;
         }
         if (std::isalpha(c) || c == '_')
         {
-            tokens.push_back(readIdentifierOrKeyword());
+            rawTokens.push_back(readIdentifierOrKeyword());
             continue;
         }
 
@@ -227,48 +227,48 @@ std::vector<Token> Lexer::tokenize()
             if (current() == '+')
             {
                 advance();
-                tokens.emplace_back(TokenType::PLUS_PLUS, "++", startLine, startCol);
+                rawTokens.emplace_back(TokenType::PLUS_PLUS, "++", startLine, startCol);
             }
             else if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::PLUS_ASSIGN, "+=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::PLUS_ASSIGN, "+=", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::PLUS, "+", startLine, startCol);
+                rawTokens.emplace_back(TokenType::PLUS, "+", startLine, startCol);
             break;
         case '-':
             if (current() == '-')
             {
                 advance();
-                tokens.emplace_back(TokenType::MINUS_MINUS, "--", startLine, startCol);
+                rawTokens.emplace_back(TokenType::MINUS_MINUS, "--", startLine, startCol);
             }
             else if (current() == '>')
             {
                 advance();
-                tokens.emplace_back(TokenType::ARROW, "->", startLine, startCol);
+                rawTokens.emplace_back(TokenType::ARROW, "->", startLine, startCol);
             }
             else if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::MINUS_ASSIGN, "-=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::MINUS_ASSIGN, "-=", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::MINUS, "-", startLine, startCol);
+                rawTokens.emplace_back(TokenType::MINUS, "-", startLine, startCol);
             break;
         case '*':
             if (current() == '*')
             {
                 advance();
-                tokens.emplace_back(TokenType::POWER, "**", startLine, startCol);
+                rawTokens.emplace_back(TokenType::POWER, "**", startLine, startCol);
             }
             else if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::STAR_ASSIGN, "*=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::STAR_ASSIGN, "*=", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::STAR, "*", startLine, startCol);
+                rawTokens.emplace_back(TokenType::STAR, "*", startLine, startCol);
             break;
         case '/':
             if (current() == '/')
@@ -278,122 +278,218 @@ std::vector<Token> Lexer::tokenize()
             else if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::SLASH_ASSIGN, "/=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::SLASH_ASSIGN, "/=", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::SLASH, "/", startLine, startCol);
+                rawTokens.emplace_back(TokenType::SLASH, "/", startLine, startCol);
             break;
         case '%':
-            tokens.emplace_back(TokenType::PERCENT, "%", startLine, startCol);
+            rawTokens.emplace_back(TokenType::PERCENT, "%", startLine, startCol);
             break;
         case '=':
             if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::EQ, "==", startLine, startCol);
+                rawTokens.emplace_back(TokenType::EQ, "==", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::ASSIGN, "=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::ASSIGN, "=", startLine, startCol);
             break;
         case '!':
             if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::NEQ, "!=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::NEQ, "!=", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::NOT, "!", startLine, startCol);
+                rawTokens.emplace_back(TokenType::NOT, "!", startLine, startCol);
             break;
         case '<':
             if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::LTE, "<=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::LTE, "<=", startLine, startCol);
             }
             else if (current() == '<')
             {
                 advance();
-                tokens.emplace_back(TokenType::LSHIFT, "<<", startLine, startCol);
+                rawTokens.emplace_back(TokenType::LSHIFT, "<<", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::LT, "<", startLine, startCol);
+                rawTokens.emplace_back(TokenType::LT, "<", startLine, startCol);
             break;
         case '>':
             if (current() == '=')
             {
                 advance();
-                tokens.emplace_back(TokenType::GTE, ">=", startLine, startCol);
+                rawTokens.emplace_back(TokenType::GTE, ">=", startLine, startCol);
             }
             else if (current() == '>')
             {
                 advance();
-                tokens.emplace_back(TokenType::RSHIFT, ">>", startLine, startCol);
+                rawTokens.emplace_back(TokenType::RSHIFT, ">>", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::GT, ">", startLine, startCol);
+                rawTokens.emplace_back(TokenType::GT, ">", startLine, startCol);
             break;
         case '&':
             if (current() == '&')
             {
                 advance();
-                tokens.emplace_back(TokenType::AND_AND, "&&", startLine, startCol);
+                rawTokens.emplace_back(TokenType::AND_AND, "&&", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::BIT_AND, "&", startLine, startCol);
+                rawTokens.emplace_back(TokenType::BIT_AND, "&", startLine, startCol);
             break;
         case '|':
             if (current() == '|')
             {
                 advance();
-                tokens.emplace_back(TokenType::OR_OR, "||", startLine, startCol);
+                rawTokens.emplace_back(TokenType::OR_OR, "||", startLine, startCol);
             }
             else
-                tokens.emplace_back(TokenType::BIT_OR, "|", startLine, startCol);
+                rawTokens.emplace_back(TokenType::BIT_OR, "|", startLine, startCol);
             break;
         case '^':
-            tokens.emplace_back(TokenType::BIT_XOR, "^", startLine, startCol);
+            rawTokens.emplace_back(TokenType::BIT_XOR, "^", startLine, startCol);
             break;
         case '~':
-            tokens.emplace_back(TokenType::BIT_NOT, "~", startLine, startCol);
+            rawTokens.emplace_back(TokenType::BIT_NOT, "~", startLine, startCol);
             break;
         case '(':
-            tokens.emplace_back(TokenType::LPAREN, "(", startLine, startCol);
+            rawTokens.emplace_back(TokenType::LPAREN, "(", startLine, startCol);
             break;
         case ')':
-            tokens.emplace_back(TokenType::RPAREN, ")", startLine, startCol);
+            rawTokens.emplace_back(TokenType::RPAREN, ")", startLine, startCol);
             break;
         case '{':
-            tokens.emplace_back(TokenType::LBRACE, "{", startLine, startCol);
+            rawTokens.emplace_back(TokenType::LBRACE, "{", startLine, startCol);
             break;
         case '}':
-            tokens.emplace_back(TokenType::RBRACE, "}", startLine, startCol);
+            rawTokens.emplace_back(TokenType::RBRACE, "}", startLine, startCol);
             break;
         case '[':
-            tokens.emplace_back(TokenType::LBRACKET, "[", startLine, startCol);
+            rawTokens.emplace_back(TokenType::LBRACKET, "[", startLine, startCol);
             break;
         case ']':
-            tokens.emplace_back(TokenType::RBRACKET, "]", startLine, startCol);
+            rawTokens.emplace_back(TokenType::RBRACKET, "]", startLine, startCol);
             break;
         case ',':
-            tokens.emplace_back(TokenType::COMMA, ",", startLine, startCol);
+            rawTokens.emplace_back(TokenType::COMMA, ",", startLine, startCol);
             break;
         case ';':
-            tokens.emplace_back(TokenType::SEMICOLON, ";", startLine, startCol);
+            rawTokens.emplace_back(TokenType::SEMICOLON, ";", startLine, startCol);
             break;
         case ':':
-            tokens.emplace_back(TokenType::COLON, ":", startLine, startCol);
+            rawTokens.emplace_back(TokenType::COLON, ":", startLine, startCol);
             break;
         case '.':
-            tokens.emplace_back(TokenType::DOT, ".", startLine, startCol);
+            rawTokens.emplace_back(TokenType::DOT, ".", startLine, startCol);
             break;
         case '?':
-            tokens.emplace_back(TokenType::QUESTION, "?", startLine, startCol);
+            rawTokens.emplace_back(TokenType::QUESTION, "?", startLine, startCol);
             break;
         default:
             throw QuantumError("LexError", std::string("Unexpected character: ") + c, startLine);
         }
     }
 
-    tokens.emplace_back(TokenType::EOF_TOKEN, "", line, col);
+    rawTokens.emplace_back(TokenType::EOF_TOKEN, "", line, col);
+
+    // ── Python-style INDENT/DEDENT post-processing ───────────────────────────
+    // Scan for COLON + NEWLINE + more-indented line → inject INDENT/DEDENT tokens.
+    // Brace-style { } files are completely unaffected.
+
+    std::vector<Token> tokens;
+    tokens.reserve(rawTokens.size() + 32);
+
+    // Precompute leading-space count for each line (tabs = 4 spaces)
+    std::vector<int> indentOf(line + 2, 0);
+    {
+        int curLine = 1, curIndent = 0;
+        bool lineStart = true;
+        for (size_t i = 0; i < src.size(); ++i)
+        {
+            char ch = src[i];
+            if (ch == '\n')
+            {
+                indentOf[curLine] = curIndent;
+                curLine++;
+                curIndent = 0;
+                lineStart = true;
+            }
+            else if (lineStart)
+            {
+                if (ch == ' ')
+                    curIndent++;
+                else if (ch == '\t')
+                    curIndent += 4;
+                else
+                    lineStart = false;
+            }
+        }
+        indentOf[curLine] = curIndent;
+    }
+
+    std::vector<int> indentStack = {0};
+
+    for (size_t i = 0; i < rawTokens.size(); ++i)
+    {
+        Token &tok = rawTokens[i];
+
+        // COLON followed by NEWLINE + deeper indent → open Python block
+        if (tok.type == TokenType::COLON)
+        {
+            size_t j = i + 1;
+            while (j < rawTokens.size() && rawTokens[j].type == TokenType::NEWLINE)
+                ++j;
+            if (j < rawTokens.size() && rawTokens[j].type != TokenType::EOF_TOKEN)
+            {
+                int nextIndent = indentOf[rawTokens[j].line];
+                if (nextIndent > indentStack.back())
+                {
+                    tokens.push_back(tok);
+                    for (size_t k = i + 1; k < j; ++k)
+                        tokens.push_back(rawTokens[k]);
+                    i = j - 1;
+                    indentStack.push_back(nextIndent);
+                    tokens.emplace_back(TokenType::INDENT, "INDENT", tok.line, tok.col);
+                    continue;
+                }
+            }
+            tokens.push_back(tok);
+            continue;
+        }
+
+        // After NEWLINE, emit DEDENTs if next line is less indented
+        if (tok.type == TokenType::NEWLINE)
+        {
+            tokens.push_back(tok);
+            size_t j = i + 1;
+            while (j < rawTokens.size() && rawTokens[j].type == TokenType::NEWLINE)
+                ++j;
+            if (j < rawTokens.size() && rawTokens[j].type != TokenType::EOF_TOKEN)
+            {
+                int nextIndent = indentOf[rawTokens[j].line];
+                while (indentStack.size() > 1 && nextIndent < indentStack.back())
+                {
+                    indentStack.pop_back();
+                    tokens.emplace_back(TokenType::DEDENT, "DEDENT", tok.line, tok.col);
+                }
+            }
+            else
+            {
+                while (indentStack.size() > 1)
+                {
+                    indentStack.pop_back();
+                    tokens.emplace_back(TokenType::DEDENT, "DEDENT", tok.line, tok.col);
+                }
+            }
+            continue;
+        }
+
+        tokens.push_back(tok);
+    }
+
     return tokens;
 }

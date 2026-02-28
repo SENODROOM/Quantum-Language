@@ -1,0 +1,15 @@
+a = 69;
+kutta = 'horny'
+chucha = 'shareef'
+# C / C++ / JavaScript
+if(a>50){
+    print(kutta)
+}else{
+    print(chucha);
+}
+
+# Python
+if a>50:
+    print(chucha)
+else
+    print(kutta)
