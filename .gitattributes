@@ -1,4 +1,4 @@
-# Quantum language (.sa files) - try different languages
-*.sa linguist-language=F#
+# Quantum language (.sa files) - mapped to F#
+*.sa linguist-language=FSharp
 *.sa linguist-vendored=false
 *.sa linguist-generated=false
