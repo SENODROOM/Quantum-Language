@@ -3,3 +3,7 @@
 *.sa linguist-vendored=false
 *.sa linguist-generated=false
 *.sa linguist-detectable=true
+
+# Override any other detection
+*.sa -linguist-language
+*.sa linguist-language=Python
