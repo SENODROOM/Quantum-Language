@@ -1,2 +1,4 @@
-# Quantum language (.sa files) - mapped to OpenQASM for GitHub stats
-*.sa linguist-language=OpenQASM
+# Quantum language (.sa files) - try different languages
+*.sa linguist-language=F#   # Try F# (functional, similar to Q#)
+*.sa linguist-vendored=false
+*.sa linguist-generated=false
