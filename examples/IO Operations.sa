@@ -4,11 +4,10 @@
 print("=== Pattern Printer ===")
 print("Enter number of rows for pattern:")
 
-let rows = input()
-rows = num(rows)  # Convert input to number
-
-print("Printing pattern with " + str(rows) + " rows:")
-print("")
+# rows = num(rows)  # Convert input to number
+let rows;
+scanf("%d",&rows);
+print("Printing pattern with " + rows + " rows:")
 
 # Print increasing pattern
 for i in range(1, rows + 1) {
@@ -18,6 +17,4 @@ for i in range(1, rows + 1) {
     }
     print(line)
 }
-
-print("")
 print("Pattern completed!")
