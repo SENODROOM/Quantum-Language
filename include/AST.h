@@ -62,6 +62,15 @@ struct IndexExpr
     ASTNodePtr index;
 };
 
+// Python slice: obj[start:stop:step]  — any part may be null (omitted)
+struct SliceExpr
+{
+    ASTNodePtr object;
+    ASTNodePtr start; // may be null → 0
+    ASTNodePtr stop;  // may be null → end
+    ASTNodePtr step;  // may be null → 1
+};
+
 struct MemberExpr
 {
     ASTNodePtr object;
@@ -182,6 +191,20 @@ struct RaiseStmt
     ASTNodePtr value; // the exception value/message
 };
 
+struct ExceptClause
+{
+    std::string errorType; // e.g. "ValueError" — empty = bare except
+    std::string alias;     // "as e" — empty if none
+    std::shared_ptr<ASTNode> body;
+};
+
+struct TryStmt
+{
+    std::shared_ptr<ASTNode> body;
+    std::vector<ExceptClause> handlers;
+    std::shared_ptr<ASTNode> finallyBody; // may be null
+};
+
 struct ImportStmt
 {
     std::string module;
@@ -202,14 +225,14 @@ using NodeVariant = std::variant<
     NumberLiteral, StringLiteral, BoolLiteral, NilLiteral,
     Identifier,
     BinaryExpr, UnaryExpr, AssignExpr,
-    CallExpr, IndexExpr, MemberExpr,
+    CallExpr, IndexExpr, SliceExpr, MemberExpr,
     ArrayLiteral, DictLiteral, LambdaExpr, ListComp, TupleLiteral,
     VarDecl, FunctionDecl, ReturnStmt,
     IfStmt, WhileStmt, ForStmt,
     BlockStmt, ExprStmt,
     PrintStmt, InputStmt,
     BreakStmt, ContinueStmt,
-    RaiseStmt,
+    RaiseStmt, TryStmt,
     ImportStmt, ClassDecl,
     TernaryExpr>;
 

@@ -34,6 +34,10 @@ enum class TokenType
     BREAK,
     CONTINUE,
     RAISE,
+    TRY,
+    EXCEPT,
+    FINALLY,
+    AS,
     PRINT,
     INPUT,
     COUT, // cout

@@ -1,4 +1,4 @@
-def caesar(text, shift, encrypt=True):
+def caesar(text, shift, encryptt=True):
     if not isinstance(shift, int):
         return "Shift must be an integer value."
 
@@ -7,7 +7,7 @@ def caesar(text, shift, encrypt=True):
 
     alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-    if not encrypt:
+    if not encryptt:
         shift = -shift
 
     shifted_alphabet = alphabet[shift:] + alphabet[:shift]
@@ -19,14 +19,14 @@ def caesar(text, shift, encrypt=True):
     return text.translate(translation_table)
 
 
-def encrypt(text, shift):
+def encryptt(text, shift):
     return caesar(text, shift)
 
 
-def decrypt(text, shift):
-    return caesar(text, shift, encrypt=False)
+def decryptt(text, shift):
+    return caesar(text, shift, encryptt=False)
 
 
 encrypted_text = "Pbhentr vf sbhaq va hayvxryl cynprf."
-decrypted_text = decrypt(encrypted_text, 13)
+decrypted_text = decryptt(encrypted_text, 13)
 print(decrypted_text)

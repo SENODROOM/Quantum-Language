@@ -346,6 +346,13 @@ void Interpreter::registerNatives()
         std::getline(std::cin, line);
         return QuantumValue(line); });
 
+    reg("input", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (!args.empty()) std::cout << args[0].toString();
+        std::string line;
+        std::getline(std::cin, line);
+        return QuantumValue(line); });
+
     reg("scanf", [](std::vector<QuantumValue> args) -> QuantumValue
         {
         if (args.size() == 1) {
@@ -521,6 +528,63 @@ void Interpreter::registerNatives()
         auto arr = std::make_shared<Array>();
         if (step > 0) for (double i = start; i < end_; i += step) arr->push_back(QuantumValue(i));
         else          for (double i = start; i > end_; i += step) arr->push_back(QuantumValue(i));
+        return QuantumValue(arr); });
+
+    // enumerate(iterable, start=0) → array of [index, value] pairs
+    reg("enumerate", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty()) throw RuntimeError("enumerate() requires an argument");
+        double startIdx = args.size() > 1 ? toNum(args[1], "enumerate") : 0;
+        auto result = std::make_shared<Array>();
+        auto addPair = [&](double i, QuantumValue v) {
+            auto pair = std::make_shared<Array>();
+            pair->push_back(QuantumValue(i));
+            pair->push_back(std::move(v));
+            result->push_back(QuantumValue(pair));
+        };
+        if (args[0].isArray()) {
+            double i = startIdx;
+            for (auto &v : *args[0].asArray()) addPair(i++, v);
+        } else if (args[0].isString()) {
+            double i = startIdx;
+            for (char c : args[0].asString()) addPair(i++, QuantumValue(std::string(1,c)));
+        }
+        return QuantumValue(result); });
+
+    // sum(iterable, start=0)
+    reg("sum", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty()) throw RuntimeError("sum() requires an argument");
+        double total = args.size() > 1 ? toNum(args[1], "sum") : 0.0;
+        if (args[0].isArray())
+            for (auto &v : *args[0].asArray()) total += toNum(v, "sum");
+        return QuantumValue(total); });
+
+    // any(iterable) / all(iterable)
+    reg("any", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty() || !args[0].isArray()) return QuantumValue(false);
+        for (auto &v : *args[0].asArray()) if (v.isTruthy()) return QuantumValue(true);
+        return QuantumValue(false); });
+    reg("all", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty() || !args[0].isArray()) return QuantumValue(true);
+        for (auto &v : *args[0].asArray()) if (!v.isTruthy()) return QuantumValue(false);
+        return QuantumValue(true); });
+
+    // sorted(iterable, reverse=False)
+    reg("sorted", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty()) throw RuntimeError("sorted() requires an argument");
+        std::shared_ptr<Array> arr;
+        if (args[0].isArray()) arr = std::make_shared<Array>(*args[0].asArray());
+        else { arr = std::make_shared<Array>(); }
+        bool rev = args.size() > 1 && args[1].isTruthy();
+        std::sort(arr->begin(), arr->end(), [&](const QuantumValue &a, const QuantumValue &b) {
+            if (a.isNumber() && b.isNumber())
+                return rev ? a.asNumber() > b.asNumber() : a.asNumber() < b.asNumber();
+            return rev ? a.toString() > b.toString() : a.toString() < b.toString();
+        });
         return QuantumValue(arr); });
 
     reg("rand", [](std::vector<QuantumValue> args) -> QuantumValue
@@ -971,13 +1035,56 @@ void Interpreter::execute(ASTNode &node)
         else if constexpr (std::is_same_v<T, BreakStmt>)     throw BreakSignal{};
         else if constexpr (std::is_same_v<T, ContinueStmt>)  throw ContinueSignal{};
         else if constexpr (std::is_same_v<T, RaiseStmt>) {
-            // raise / throw: evaluate the expression and throw a RuntimeError
             std::string msg = "Exception raised";
             if (n.value) {
                 auto val = evaluate(*n.value);
                 msg = val.toString();
             }
             throw RuntimeError(msg, node.line);
+        }
+        else if constexpr (std::is_same_v<T, TryStmt>) {
+            auto runFinally = [&]() {
+                if (n.finallyBody) execute(*n.finallyBody);
+            };
+            try {
+                execute(*n.body);
+            }
+            catch (ReturnSignal&)  { runFinally(); throw; }
+            catch (BreakSignal&)   { runFinally(); throw; }
+            catch (ContinueSignal&){ runFinally(); throw; }
+            catch (QuantumError &e) {
+                bool handled = false;
+                for (auto &h : n.handlers) {
+                    // Match if no type specified (bare except) or type name matches
+                    if (h.errorType.empty() || h.errorType == e.kind ||
+                        h.errorType == "Exception" || h.errorType == "Error") {
+                        if (!h.alias.empty()) {
+                            if (!env->has(h.alias)) env->define(h.alias, QuantumValue(std::string(e.what())));
+                            else env->set(h.alias, QuantumValue(std::string(e.what())));
+                        }
+                        execute(*h.body);
+                        handled = true;
+                        break;
+                    }
+                }
+                if (!handled) { runFinally(); throw; }
+            }
+            catch (std::exception &e) {
+                bool handled = false;
+                for (auto &h : n.handlers) {
+                    if (h.errorType.empty() || h.errorType == "Exception" || h.errorType == "Error") {
+                        if (!h.alias.empty()) {
+                            if (!env->has(h.alias)) env->define(h.alias, QuantumValue(std::string(e.what())));
+                            else env->set(h.alias, QuantumValue(std::string(e.what())));
+                        }
+                        execute(*h.body);
+                        handled = true;
+                        break;
+                    }
+                }
+                if (!handled) { runFinally(); throw; }
+            }
+            runFinally();
         }
         else {
             // Could be an expression node used as statement
@@ -1511,6 +1618,53 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
         else if constexpr (std::is_same_v<T, AssignExpr>)    return evalAssign(n);
         else if constexpr (std::is_same_v<T, CallExpr>)      return evalCall(n);
         else if constexpr (std::is_same_v<T, IndexExpr>)     return evalIndex(n);
+        else if constexpr (std::is_same_v<T, SliceExpr>)
+        {
+            auto obj = evaluate(*n.object);
+            // Resolve start / stop / step with Python semantics
+            auto applySlice = [&](int len) -> std::tuple<int,int,int>
+            {
+                int step  = n.step  ? (int)toNum(evaluate(*n.step),  "slice step")  : 1;
+                int start, stop;
+                if (!n.start) start = (step > 0) ? 0 : len - 1;
+                else {
+                    start = (int)toNum(evaluate(*n.start), "slice start");
+                    if (start < 0) start += len;
+                    if (start < 0) start = 0;
+                    if (start > len) start = len;
+                }
+                if (!n.stop) stop = (step > 0) ? len : -1;
+                else {
+                    stop = (int)toNum(evaluate(*n.stop), "slice stop");
+                    if (stop < 0) stop += len;
+                    if (step > 0) { if (stop < 0) stop = 0; if (stop > len) stop = len; }
+                    else          { if (stop < -1) stop = -1; }
+                }
+                return {start, stop, step};
+            };
+
+            if (obj.isString())
+            {
+                const auto &s = obj.asString();
+                int len = (int)s.size();
+                auto [start, stop, step] = applySlice(len);
+                std::string result;
+                if (step > 0) { for (int i = start; i < stop;  i += step) if (i >= 0 && i < len) result += s[i]; }
+                else          { for (int i = start; i > stop;  i += step) if (i >= 0 && i < len) result += s[i]; }
+                return QuantumValue(result);
+            }
+            if (obj.isArray())
+            {
+                auto &arr = *obj.asArray();
+                int len = (int)arr.size();
+                auto [start, stop, step] = applySlice(len);
+                auto result = std::make_shared<Array>();
+                if (step > 0) { for (int i = start; i < stop;  i += step) if (i >= 0 && i < len) result->push_back(arr[i]); }
+                else          { for (int i = start; i > stop;  i += step) if (i >= 0 && i < len) result->push_back(arr[i]); }
+                return QuantumValue(result);
+            }
+            throw TypeError("Cannot slice " + obj.typeName());
+        }
         else if constexpr (std::is_same_v<T, MemberExpr>)    return evalMember(n);
         else if constexpr (std::is_same_v<T, ArrayLiteral>)  return evalArray(n);
         else if constexpr (std::is_same_v<T, DictLiteral>)   return evalDict(n);
@@ -1647,14 +1801,61 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
         }
         return QuantumValue(!eq_res);
     }
+    // Numeric comparisons — coerce bool to number so chained comparisons
+    // like (0 <= start) < n work correctly (True/False become 1/0).
+    auto toNumOrBool = [](const QuantumValue &v, const std::string &ctx) -> double
+    {
+        if (v.isNumber())
+            return v.asNumber();
+        if (v.isBool())
+            return v.asBool() ? 1.0 : 0.0;
+        throw TypeError("Expected number in " + ctx + ", got " + v.typeName());
+    };
     if (op == "<")
-        return QuantumValue(toNum(lv, "<") < toNum(rv, "<"));
+        return QuantumValue(toNumOrBool(lv, "<") < toNumOrBool(rv, "<"));
     if (op == ">")
-        return QuantumValue(toNum(lv, ">") > toNum(rv, ">"));
+        return QuantumValue(toNumOrBool(lv, ">") > toNumOrBool(rv, ">"));
     if (op == "<=")
-        return QuantumValue(toNum(lv, "<=") <= toNum(rv, "<="));
+        return QuantumValue(toNumOrBool(lv, "<=") <= toNumOrBool(rv, "<="));
     if (op == ">=")
-        return QuantumValue(toNum(lv, ">=") >= toNum(rv, ">="));
+        return QuantumValue(toNumOrBool(lv, ">=") >= toNumOrBool(rv, ">="));
+
+    // Membership: x in collection,  x not in collection
+    if (op == "in" || op == "not in")
+    {
+        bool found = false;
+        if (rv.isArray())
+        {
+            for (auto &elem : *rv.asArray())
+            {
+                if (elem.isNumber() && lv.isNumber() && elem.asNumber() == lv.asNumber())
+                {
+                    found = true;
+                    break;
+                }
+                if (elem.isString() && lv.isString() && elem.asString() == lv.asString())
+                {
+                    found = true;
+                    break;
+                }
+                if (elem.isBool() && lv.isBool() && elem.asBool() == lv.asBool())
+                {
+                    found = true;
+                    break;
+                }
+                if (elem.isNil() && lv.isNil())
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        else if (rv.isString())
+            found = rv.asString().find(lv.toString()) != std::string::npos;
+        else if (rv.isDict())
+            found = rv.asDict()->count(lv.toString()) > 0;
+        return QuantumValue(op == "in" ? found : !found);
+    }
 
     // Bitwise
     if (op == "&")
@@ -2023,6 +2224,24 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
         return callArrayMethod(obj.asArray(), method, std::move(args));
     if (obj.isString())
         return callStringMethod(obj.asString(), method, std::move(args));
+    // str.maketrans(from, to) — called on the str type native itself
+    if (obj.isFunction() && std::holds_alternative<std::shared_ptr<QuantumNative>>(obj.data))
+    {
+        auto nat = obj.asNative();
+        if ((nat->name == "str" || nat->name == "string") && method == "maketrans")
+        {
+            // maketrans(from_str, to_str) → dict mapping each char in from to corresponding in to
+            if (args.size() < 2 || !args[0].isString() || !args[1].isString())
+                throw RuntimeError("str.maketrans() requires two string arguments");
+            const std::string &from = args[0].asString();
+            const std::string &to = args[1].asString();
+            auto table = std::make_shared<Dict>();
+            size_t len = std::min(from.size(), to.size());
+            for (size_t i = 0; i < len; i++)
+                (*table)[std::string(1, from[i])] = QuantumValue(std::string(1, to[i]));
+            return QuantumValue(table);
+        }
+    }
     if (obj.isDict())
     {
         // First check if the dict has a callable stored under that key
@@ -2362,6 +2581,110 @@ QuantumValue Interpreter::callStringMethod(const std::string &str, const std::st
         if (idx < 0 || idx >= (int)str.size())
             return QuantumValue();
         return QuantumValue(std::string(1, str[idx]));
+    }
+
+    // translate(table) — apply a char-mapping dict produced by maketrans
+    if (m == "translate")
+    {
+        if (args.empty() || !args[0].isDict())
+            throw RuntimeError("translate() requires a dict translation table");
+        auto &table = *args[0].asDict();
+        std::string result;
+        for (char c : str)
+        {
+            std::string key(1, c);
+            auto it = table.find(key);
+            if (it != table.end())
+                result += it->second.toString();
+            else
+                result += c;
+        }
+        return QuantumValue(result);
+    }
+    if (m == "isdigit" || m == "isnumeric")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (!std::isdigit((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "isalpha")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (!std::isalpha((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "isalnum")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (!std::isalnum((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "isspace")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (!std::isspace((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "isupper")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (std::isalpha((unsigned char)c) && !std::isupper((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "islower")
+    {
+        if (str.empty())
+            return QuantumValue(false);
+        for (char c : str)
+            if (std::isalpha((unsigned char)c) && !std::islower((unsigned char)c))
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "strip")
+    {
+        std::string chars = args.empty() ? " \t\n\r" : args[0].asString();
+        std::string r = str;
+        auto isChars = [&](char c)
+        { return chars.find(c) != std::string::npos; };
+        size_t s = 0, e = r.size();
+        while (s < e && isChars(r[s]))
+            s++;
+        while (e > s && isChars(r[e - 1]))
+            e--;
+        return QuantumValue(r.substr(s, e - s));
+    }
+    if (m == "lstrip")
+    {
+        std::string chars = args.empty() ? " \t\n\r" : args[0].asString();
+        std::string r = str;
+        size_t s = 0;
+        while (s < r.size() && chars.find(r[s]) != std::string::npos)
+            s++;
+        return QuantumValue(r.substr(s));
+    }
+    if (m == "rstrip")
+    {
+        std::string chars = args.empty() ? " \t\n\r" : args[0].asString();
+        std::string r = str;
+        size_t e = r.size();
+        while (e > 0 && chars.find(r[e - 1]) != std::string::npos)
+            e--;
+        return QuantumValue(r.substr(0, e));
     }
 
     throw TypeError("String has no method '" + m + "'");

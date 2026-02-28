@@ -145,13 +145,66 @@ ASTNodePtr Parser::parseStatement()
     case TokenType::RAISE:
     {
         consume();
-        // raise  or  raise SomeError(msg)  or  raise ValueError("msg")
         ASTNodePtr val;
         if (!check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !atEnd())
             val = parseExpr();
         while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
             consume();
         return std::make_unique<ASTNode>(RaiseStmt{std::move(val)}, ln);
+    }
+    case TokenType::TRY:
+    {
+        consume();
+        match(TokenType::COLON);
+        skipNewlines();
+        auto body = parseBlock();
+        TryStmt ts;
+        ts.body = std::move(body);
+        // Parse except/catch clauses
+        while (check(TokenType::EXCEPT))
+        {
+            consume(); // eat 'except'
+            ExceptClause clause;
+            // Optional error type: except ValueError or except (ValueError, TypeError)
+            if (!check(TokenType::COLON) && !check(TokenType::NEWLINE) && !check(TokenType::INDENT))
+            {
+                // skip optional '(' around type list
+                match(TokenType::LPAREN);
+                if (check(TokenType::IDENTIFIER))
+                    clause.errorType = consume().value;
+                else if (isCTypeKeyword(current().type))
+                    clause.errorType = consume().value;
+                // skip extra types: except (A, B) — just use first
+                while (check(TokenType::COMMA))
+                {
+                    consume();
+                    if (check(TokenType::IDENTIFIER))
+                        consume();
+                }
+                match(TokenType::RPAREN);
+                // optional 'as e'
+                if (check(TokenType::AS))
+                {
+                    consume();
+                    if (check(TokenType::IDENTIFIER))
+                        clause.alias = consume().value;
+                }
+            }
+            match(TokenType::COLON);
+            skipNewlines();
+            clause.body = parseBlock();
+            ts.handlers.push_back(std::move(clause));
+            skipNewlines();
+        }
+        // Optional finally
+        if (check(TokenType::FINALLY))
+        {
+            consume();
+            match(TokenType::COLON);
+            skipNewlines();
+            ts.finallyBody = parseBlock();
+        }
+        return std::make_unique<ASTNode>(std::move(ts), ln);
     }
     case TokenType::LBRACE:
         return parseBlock();
@@ -577,11 +630,14 @@ ASTNodePtr Parser::parsePrintStmt()
     if (check(TokenType::LPAREN))
     {
         consume();
+        skipNewlines();
         while (!check(TokenType::RPAREN) && !atEnd())
         {
             args.push_back(parseExpr());
+            skipNewlines();
             if (!match(TokenType::COMMA))
                 break;
+            skipNewlines();
         }
         expect(TokenType::RPAREN, "Expected ')'");
     }
@@ -888,9 +944,30 @@ ASTNodePtr Parser::parseEquality()
 ASTNodePtr Parser::parseComparison()
 {
     auto left = parseShift();
-    while (check(TokenType::LT) || check(TokenType::GT) || check(TokenType::LTE) || check(TokenType::GTE))
+    while (check(TokenType::LT) || check(TokenType::GT) || check(TokenType::LTE) || check(TokenType::GTE) || check(TokenType::IN) || check(TokenType::NOT))
     {
         int ln = current().line;
+
+        // 'not in' — two-token operator
+        if (check(TokenType::NOT))
+        {
+            consume(); // eat 'not'
+            if (!match(TokenType::IN))
+                throw ParseError("Expected 'in' after 'not'", current().line, current().col);
+            auto right = parseShift();
+            left = std::make_unique<ASTNode>(BinaryExpr{"not in", std::move(left), std::move(right)}, ln);
+            continue;
+        }
+
+        // 'in' — membership test
+        if (check(TokenType::IN))
+        {
+            consume();
+            auto right = parseShift();
+            left = std::make_unique<ASTNode>(BinaryExpr{"in", std::move(left), std::move(right)}, ln);
+            continue;
+        }
+
         auto op = consume().value;
         auto right = parseShift();
         left = std::make_unique<ASTNode>(BinaryExpr{op, std::move(left), std::move(right)}, ln);
@@ -1030,10 +1107,46 @@ ASTNodePtr Parser::parsePostfix()
         }
         else if (check(TokenType::LBRACKET))
         {
-            consume();
-            auto idx = parseExpr();
-            expect(TokenType::RBRACKET, "Expected ']'");
-            expr = std::make_unique<ASTNode>(IndexExpr{std::move(expr), std::move(idx)}, ln);
+            consume(); // eat '['
+            // Detect slice: [start:stop:step] — any part optional
+            // A leading ':' means start is omitted
+            bool isSlice = false;
+            ASTNodePtr idxOrStart;
+
+            if (check(TokenType::COLON))
+                isSlice = true; // [:...]  — start omitted
+            else
+            {
+                idxOrStart = parseExpr();
+                if (check(TokenType::COLON))
+                    isSlice = true; // [expr:...]
+            }
+
+            if (isSlice)
+            {
+                // consume the first ':'
+                consume();
+                ASTNodePtr stop, step;
+                if (!check(TokenType::RBRACKET) && !check(TokenType::COLON))
+                    stop = parseExpr();
+                if (match(TokenType::COLON))
+                {
+                    if (!check(TokenType::RBRACKET))
+                        step = parseExpr();
+                }
+                expect(TokenType::RBRACKET, "Expected ']'");
+                SliceExpr sl;
+                sl.object = std::move(expr);
+                sl.start = std::move(idxOrStart);
+                sl.stop = std::move(stop);
+                sl.step = std::move(step);
+                expr = std::make_unique<ASTNode>(std::move(sl), ln);
+            }
+            else
+            {
+                expect(TokenType::RBRACKET, "Expected ']'");
+                expr = std::make_unique<ASTNode>(IndexExpr{std::move(expr), std::move(idxOrStart)}, ln);
+            }
         }
         else if (check(TokenType::DOT))
         {
@@ -1254,6 +1367,28 @@ ASTNodePtr Parser::parsePrimary()
         return std::make_unique<ASTNode>(Identifier{name}, ln);
     }
 
+    // Built-in keyword tokens that can appear as callable expressions in rhs context.
+    // e.g.  x = input("prompt")   result = print(...)   val = len(arr)
+    // We treat them as identifiers so parsePostfix can handle the call.
+    switch (tok.type)
+    {
+    case TokenType::INPUT:
+    case TokenType::PRINT:
+    case TokenType::SCAN:
+    case TokenType::PAYLOAD:
+    case TokenType::ENCRYPT:
+    case TokenType::DECRYPT:
+    case TokenType::HASH:
+    case TokenType::IMPORT:
+    {
+        auto name = tok.value;
+        consume();
+        return std::make_unique<ASTNode>(Identifier{name}, ln);
+    }
+    default:
+        break;
+    }
+
     throw ParseError("Unexpected token: '" + tok.value + "'", tok.line, tok.col);
 }
 
@@ -1420,7 +1555,65 @@ std::vector<ASTNodePtr> Parser::parseArgList()
     skipNewlines();
     while (!check(TokenType::RPAREN) && !atEnd())
     {
-        args.push_back(parseExpr());
+        int argLn = current().line;
+        // keyword argument: name=expr — skip the name= and just use the value
+        if (check(TokenType::IDENTIFIER))
+        {
+            size_t la = pos + 1;
+            while (la < tokens.size() && tokens[la].type == TokenType::NEWLINE)
+                ++la;
+            if (la < tokens.size() && tokens[la].type == TokenType::ASSIGN)
+            {
+                consume(); // name
+                while (check(TokenType::NEWLINE))
+                    consume();
+                consume(); // '='
+                skipNewlines();
+            }
+        }
+
+        auto expr = parseExpr();
+        skipNewlines();
+
+        // Generator expression: f(expr for var in iterable)
+        if (check(TokenType::FOR))
+        {
+            consume();
+            std::vector<std::string> vars;
+            auto readVar = [&]()
+            {
+                if (check(TokenType::IDENTIFIER))
+                    vars.push_back(consume().value);
+                else if (isCTypeKeyword(current().type))
+                    vars.push_back(consume().value);
+                else
+                    vars.push_back(expect(TokenType::IDENTIFIER, "Expected variable").value);
+            };
+            readVar();
+            while (match(TokenType::COMMA))
+                readVar();
+            if (!match(TokenType::IN) && !match(TokenType::OF))
+                throw ParseError("Expected 'in' in generator expression", current().line, current().col);
+            auto iterable = parseExpr();
+            skipNewlines();
+            ASTNodePtr condition;
+            if (check(TokenType::IF))
+            {
+                consume();
+                condition = parseExpr();
+                skipNewlines();
+            }
+            ListComp lc;
+            lc.expr = std::move(expr);
+            lc.vars = std::move(vars);
+            lc.iterable = std::move(iterable);
+            lc.condition = std::move(condition);
+            args.push_back(std::make_unique<ASTNode>(std::move(lc), argLn));
+            skipNewlines();
+            break; // generator consumes entire arg list
+        }
+
+        args.push_back(std::move(expr));
         skipNewlines();
         if (!match(TokenType::COMMA))
             break;

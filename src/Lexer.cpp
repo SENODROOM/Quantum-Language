@@ -27,7 +27,12 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"break", TokenType::BREAK},
     {"continue", TokenType::CONTINUE},
     {"raise", TokenType::RAISE},
-    {"throw", TokenType::RAISE}, // JS alias
+    {"throw", TokenType::RAISE},
+    {"try", TokenType::TRY},
+    {"except", TokenType::EXCEPT},
+    {"catch", TokenType::EXCEPT}, // JS alias
+    {"finally", TokenType::FINALLY},
+    {"as", TokenType::AS}, // JS alias
     {"print", TokenType::PRINT},
     {"printf", TokenType::PRINT},
     {"input", TokenType::INPUT},
@@ -36,10 +41,13 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"cin", TokenType::CIN},
     {"import", TokenType::IMPORT},
     {"true", TokenType::BOOL_TRUE},
+    {"True", TokenType::BOOL_TRUE}, // Python
     {"false", TokenType::BOOL_FALSE},
+    {"False", TokenType::BOOL_FALSE}, // Python
     {"nil", TokenType::NIL},
     {"null", TokenType::NIL},      // JavaScript alias
     {"undefined", TokenType::NIL}, // JavaScript alias
+    {"None", TokenType::NIL},      // Python alias
     {"and", TokenType::AND},
     {"or", TokenType::OR},
     {"not", TokenType::NOT},
