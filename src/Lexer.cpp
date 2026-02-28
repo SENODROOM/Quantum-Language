@@ -26,6 +26,8 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"of", TokenType::OF},
     {"break", TokenType::BREAK},
     {"continue", TokenType::CONTINUE},
+    {"raise", TokenType::RAISE},
+    {"throw", TokenType::RAISE}, // JS alias
     {"print", TokenType::PRINT},
     {"printf", TokenType::PRINT},
     {"input", TokenType::INPUT},
@@ -328,6 +330,56 @@ Token Lexer::readIdentifierOrKeyword()
     std::string id;
     while (pos < src.size() && (std::isalnum(current()) || current() == '_'))
         id += advance();
+
+    // f-string prefix: f"..." or f'...'  — treat like a backtick template literal
+    if ((id == "f" || id == "F") && pos < src.size() && (current() == '"' || current() == '\''))
+    {
+        char quote = current();
+        advance(); // skip opening quote
+        // Convert {expr} → ${expr} then re-lex as template
+        std::string raw;
+        while (pos < src.size() && current() != quote)
+        {
+            if (current() == '{')
+            {
+                raw += "${";
+                advance();
+            }
+            else if (current() == '\\')
+            {
+                raw += current();
+                advance();
+                if (pos < src.size())
+                {
+                    raw += current();
+                    advance();
+                }
+            }
+            else
+            {
+                raw += current();
+                advance();
+            }
+        }
+        if (pos < src.size())
+            advance(); // skip closing quote
+        // Re-lex wrapped in backticks using the existing template literal engine
+        std::string backtickSrc = "`" + raw + "`";
+        Lexer subLex(backtickSrc);
+        // We can't return multiple tokens from here — caller handles this
+        // Store pending tokens and return a sentinel; instead, use a different approach:
+        // Return a special STRING token with the expanded value by evaluating immediately
+        // Actually the cleanest: tokenize the backtick source and push into the caller's stream
+        // Since we can't do that from here, return a placeholder and let tokenize() handle it
+        // INSTEAD: we set a member flag with the pending tokens
+        pendingTokens_ = subLex.tokenize();
+        // Remove EOF from pending
+        if (!pendingTokens_.empty() && pendingTokens_.back().type == TokenType::EOF_TOKEN)
+            pendingTokens_.pop_back();
+        // Return a dummy that tokenize() will replace with pendingTokens_
+        return Token(TokenType::UNKNOWN, "__fstring__", startLine, startCol);
+    }
+
     auto it = keywords.find(id);
     TokenType type = (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
     return Token(type, id, startLine, startCol);
@@ -376,7 +428,16 @@ std::vector<Token> Lexer::tokenize()
         }
         if (std::isalpha(c) || c == '_')
         {
-            rawTokens.push_back(readIdentifierOrKeyword());
+            auto tok = readIdentifierOrKeyword();
+            if (tok.type == TokenType::UNKNOWN && tok.value == "__fstring__")
+            {
+                // f-string expansion — flush pending tokens
+                for (auto &pt : pendingTokens_)
+                    rawTokens.push_back(pt);
+                pendingTokens_.clear();
+            }
+            else
+                rawTokens.push_back(tok);
             continue;
         }
 
@@ -434,7 +495,33 @@ std::vector<Token> Lexer::tokenize()
         case '/':
             if (current() == '/')
             {
-                skipComment();
+                // Distinguish Python floor-division // from C/JS // line comment.
+                // Strategy: only treat // as floor-div when the immediately preceding
+                // token is a value-producing token (number, string, identifier, ), ]).
+                // In all other positions (start of line, after operator, etc.) it is
+                // a comment.  This matches real-world usage across languages.
+                {
+                    bool prevIsValue = false;
+                    if (!rawTokens.empty())
+                    {
+                        TokenType pt = rawTokens.back().type;
+                        prevIsValue = (pt == TokenType::NUMBER ||
+                                       pt == TokenType::STRING ||
+                                       pt == TokenType::BOOL_TRUE ||
+                                       pt == TokenType::BOOL_FALSE ||
+                                       pt == TokenType::NIL ||
+                                       pt == TokenType::IDENTIFIER ||
+                                       pt == TokenType::RPAREN ||
+                                       pt == TokenType::RBRACKET);
+                    }
+                    if (prevIsValue)
+                    {
+                        advance(); // consume second '/'
+                        rawTokens.emplace_back(TokenType::FLOOR_DIV, "//", startLine, startCol);
+                    }
+                    else
+                        skipComment();
+                }
             }
             else if (current() == '*')
             {

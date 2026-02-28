@@ -142,6 +142,17 @@ ASTNodePtr Parser::parseStatement()
             consume();
         return std::make_unique<ASTNode>(ContinueStmt{}, ln);
     }
+    case TokenType::RAISE:
+    {
+        consume();
+        // raise  or  raise SomeError(msg)  or  raise ValueError("msg")
+        ASTNodePtr val;
+        if (!check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !atEnd())
+            val = parseExpr();
+        while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+            consume();
+        return std::make_unique<ASTNode>(RaiseStmt{std::move(val)}, ln);
+    }
     case TokenType::LBRACE:
         return parseBlock();
     // ── C/C++ style typed declarations ────────────────────────────────────
@@ -537,7 +548,22 @@ ASTNodePtr Parser::parseReturnStmt()
     int ln = current().line;
     ASTNodePtr val;
     if (!check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !atEnd())
+    {
         val = parseExpr();
+        // Tuple return: return a, b  or  return a, b, c
+        if (check(TokenType::COMMA))
+        {
+            TupleLiteral tup;
+            tup.elements.push_back(std::move(val));
+            while (match(TokenType::COMMA))
+            {
+                if (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON) || atEnd())
+                    break;
+                tup.elements.push_back(parseExpr());
+            }
+            val = std::make_unique<ASTNode>(std::move(tup), ln);
+        }
+    }
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
     return std::make_unique<ASTNode>(ReturnStmt{std::move(val)}, ln);
@@ -715,7 +741,19 @@ ASTNodePtr Parser::parseAssignment()
 {
     int ln = current().line;
     auto left = parseOr();
-    // Ternary: condition ? thenExpr : elseExpr
+    // Python inline ternary: expr IF condition ELSE other_expr
+    // e.g.  high = number if number > 1 else 1
+    if (check(TokenType::IF))
+    {
+        consume(); // eat 'if'
+        auto condition = parseOr();
+        if (!check(TokenType::ELSE))
+            throw ParseError("Expected 'else' in Python ternary expression", current().line, current().col);
+        consume(); // eat 'else'
+        auto elseExpr = parseAssignment();
+        return std::make_unique<ASTNode>(TernaryExpr{std::move(condition), std::move(left), std::move(elseExpr)}, ln);
+    }
+    // JS/C ternary: condition ? thenExpr : elseExpr
     if (check(TokenType::QUESTION))
     {
         consume();
@@ -724,6 +762,63 @@ ASTNodePtr Parser::parseAssignment()
         auto elseExpr = parseExpr();
         return std::make_unique<ASTNode>(TernaryExpr{std::move(left), std::move(thenExpr), std::move(elseExpr)}, ln);
     }
+
+    // Tuple-unpacking assignment: a, b, c = expr
+    // ONLY activate when we can confirm via non-consuming lookahead that the
+    // pattern is:  IDENT , IDENT , ... IDENT =
+    // This prevents false-positives inside argument lists like f(a, b).
+    if (check(TokenType::COMMA) && left->is<Identifier>())
+    {
+        // Lookahead: scan forward to confirm all commas are followed by
+        // identifiers and the sequence ends with '='
+        bool isUnpack = false;
+        {
+            size_t scan = pos; // points at the first COMMA
+            while (scan < tokens.size() && tokens[scan].type == TokenType::COMMA)
+            {
+                ++scan; // skip comma
+                while (scan < tokens.size() && tokens[scan].type == TokenType::NEWLINE)
+                    ++scan;
+                // must be an identifier
+                if (scan >= tokens.size() || tokens[scan].type != TokenType::IDENTIFIER)
+                    break;
+                ++scan; // skip identifier
+                while (scan < tokens.size() && tokens[scan].type == TokenType::NEWLINE)
+                    ++scan;
+                // if next is '=' (not '=='), this is a tuple-unpack assignment
+                if (scan < tokens.size() && tokens[scan].type == TokenType::ASSIGN)
+                {
+                    isUnpack = true;
+                    break;
+                }
+                // if next is another comma, keep scanning; otherwise stop
+                if (scan >= tokens.size() || tokens[scan].type != TokenType::COMMA)
+                    break;
+            }
+        }
+
+        if (isUnpack)
+        {
+            std::vector<std::string> targets;
+            targets.push_back(left->as<Identifier>().name);
+            while (match(TokenType::COMMA))
+            {
+                skipNewlines();
+                if (check(TokenType::IDENTIFIER))
+                    targets.push_back(consume().value);
+                else
+                    break;
+            }
+            expect(TokenType::ASSIGN, "Expected '=' in tuple unpacking");
+            auto right = parseAssignment();
+            TupleLiteral lhsTuple;
+            for (auto &t : targets)
+                lhsTuple.elements.push_back(std::make_unique<ASTNode>(Identifier{t}, ln));
+            auto lhsNode = std::make_unique<ASTNode>(std::move(lhsTuple), ln);
+            return std::make_unique<ASTNode>(AssignExpr{"unpack", std::move(lhsNode), std::move(right)}, ln);
+        }
+    }
+
     if (check(TokenType::ASSIGN) || check(TokenType::PLUS_ASSIGN) ||
         check(TokenType::MINUS_ASSIGN) || check(TokenType::STAR_ASSIGN) ||
         check(TokenType::SLASH_ASSIGN))
@@ -832,7 +927,7 @@ ASTNodePtr Parser::parseAddSub()
 ASTNodePtr Parser::parseMulDiv()
 {
     auto left = parsePower();
-    while (check(TokenType::STAR) || check(TokenType::SLASH) || check(TokenType::PERCENT))
+    while (check(TokenType::STAR) || check(TokenType::SLASH) || check(TokenType::PERCENT) || check(TokenType::FLOOR_DIV))
     {
         int ln = current().line;
         auto op = consume().value;
@@ -1108,9 +1203,27 @@ ASTNodePtr Parser::parsePrimary()
             return parseArrowFunction(std::move(arrowParams), ln);
         }
 
-        // Normal parenthesised expression
+        // Normal parenthesised expression (or tuple literal)
         auto expr = parseExpr();
         skipNewlines();
+
+        // Tuple literal: (a, b, c)  — comma after first expr
+        if (check(TokenType::COMMA))
+        {
+            TupleLiteral tup;
+            tup.elements.push_back(std::move(expr));
+            while (match(TokenType::COMMA))
+            {
+                skipNewlines();
+                if (check(TokenType::RPAREN))
+                    break; // trailing comma
+                tup.elements.push_back(parseExpr());
+                skipNewlines();
+            }
+            expect(TokenType::RPAREN, "Expected ')'");
+            return std::make_unique<ASTNode>(std::move(tup), ln);
+        }
+
         expect(TokenType::RPAREN, "Expected ')'");
         return expr;
     }

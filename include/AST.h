@@ -144,6 +144,11 @@ struct ListComp
     ASTNodePtr condition; // optional if-filter (may be null)
 };
 
+struct TupleLiteral
+{
+    std::vector<ASTNodePtr> elements;
+};
+
 struct BlockStmt
 {
     std::vector<ASTNodePtr> statements;
@@ -172,6 +177,10 @@ struct BreakStmt
 struct ContinueStmt
 {
 };
+struct RaiseStmt
+{
+    ASTNodePtr value; // the exception value/message
+};
 
 struct ImportStmt
 {
@@ -194,12 +203,13 @@ using NodeVariant = std::variant<
     Identifier,
     BinaryExpr, UnaryExpr, AssignExpr,
     CallExpr, IndexExpr, MemberExpr,
-    ArrayLiteral, DictLiteral, LambdaExpr, ListComp,
+    ArrayLiteral, DictLiteral, LambdaExpr, ListComp, TupleLiteral,
     VarDecl, FunctionDecl, ReturnStmt,
     IfStmt, WhileStmt, ForStmt,
     BlockStmt, ExprStmt,
     PrintStmt, InputStmt,
     BreakStmt, ContinueStmt,
+    RaiseStmt,
     ImportStmt, ClassDecl,
     TernaryExpr>;
 

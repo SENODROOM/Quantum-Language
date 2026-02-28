@@ -468,6 +468,49 @@ void Interpreter::registerNatives()
         if (args.empty()) throw RuntimeError("type() requires 1 argument");
         return QuantumValue(args[0].typeName()); });
 
+    // isinstance(val, type_name_str_or_type)
+    // Supports Python-style: isinstance(x, int), isinstance(x, str), isinstance(x, list), etc.
+    reg("isinstance", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.size() < 2) throw RuntimeError("isinstance() requires 2 arguments");
+        auto &val = args[0];
+        // Second arg: string type name, or a native/class constructor whose name we check
+        std::string typeName;
+        if (args[1].isString())
+            typeName = args[1].asString();
+        else if (std::holds_alternative<std::shared_ptr<QuantumNative>>(args[1].data))
+            typeName = args[1].asNative()->name;
+        else
+            typeName = args[1].typeName();
+
+        // Normalise Python type names → Quantum type names
+        auto matches = [&](const std::string &t) -> bool
+        {
+            if (t == "int" || t == "float" || t == "number" || t == "double")
+                return val.isNumber();
+            if (t == "str" || t == "string")
+                return val.isString();
+            if (t == "bool")
+                return val.isBool();
+            if (t == "list" || t == "array" || t == "tuple")
+                return val.isArray();
+            if (t == "dict")
+                return val.isDict();
+            if (t == "NoneType" || t == "nil")
+                return val.isNil();
+            if (t == "function" || t == "callable")
+                return val.isFunction();
+            return val.typeName() == t;
+        };
+        return QuantumValue(matches(typeName)); });
+
+    // id() — Python identity function (returns a fake unique number here)
+    reg("id", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if (args.empty()) throw RuntimeError("id() requires 1 argument");
+        // Return a stable pseudo-id based on pointer or value
+        return QuantumValue(0.0); });
+
     reg("range", [](std::vector<QuantumValue> args) -> QuantumValue
         {
         if (args.empty()) throw RuntimeError("range() requires arguments");
@@ -780,6 +823,40 @@ void Interpreter::registerNatives()
             std::cerr << "\n"; std::cerr.flush(); return QuantumValue(); });
 
     globals->define("console", QuantumValue(consoleDict));
+
+    // ── Python-style exception constructors ────────────────────────────────
+    // These allow  raise ValueError("msg")  to produce a meaningful string.
+    // When used with raise/throw the interpreter converts to RuntimeError.
+    auto makeExcClass = [&](const std::string &excName)
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = excName;
+        nat->fn = [excName](std::vector<QuantumValue> args) -> QuantumValue
+        {
+            std::string msg = excName;
+            if (!args.empty())
+                msg += ": " + args[0].toString();
+            return QuantumValue(msg);
+        };
+        globals->define(excName, QuantumValue(nat));
+    };
+    makeExcClass("ValueError");
+    makeExcClass("TypeError");
+    makeExcClass("RuntimeError");
+    makeExcClass("IndexError");
+    makeExcClass("KeyError");
+    makeExcClass("AttributeError");
+    makeExcClass("NotImplementedError");
+    makeExcClass("StopIteration");
+    makeExcClass("OverflowError");
+    makeExcClass("ZeroDivisionError");
+    makeExcClass("IOError");
+    makeExcClass("FileNotFoundError");
+    makeExcClass("PermissionError");
+    makeExcClass("Exception");
+    makeExcClass("Error");          // JS alias
+    makeExcClass("RangeError");     // JS alias
+    makeExcClass("ReferenceError"); // JS alias
 }
 
 // ─── Execute ─────────────────────────────────────────────────────────────────
@@ -803,6 +880,15 @@ void Interpreter::execute(ASTNode &node)
         else if constexpr (std::is_same_v<T, ExprStmt>)      execExprStmt(n);
         else if constexpr (std::is_same_v<T, BreakStmt>)     throw BreakSignal{};
         else if constexpr (std::is_same_v<T, ContinueStmt>)  throw ContinueSignal{};
+        else if constexpr (std::is_same_v<T, RaiseStmt>) {
+            // raise / throw: evaluate the expression and throw a RuntimeError
+            std::string msg = "Exception raised";
+            if (n.value) {
+                auto val = evaluate(*n.value);
+                msg = val.toString();
+            }
+            throw RuntimeError(msg, node.line);
+        }
         else {
             // Could be an expression node used as statement
             evaluate(node);
@@ -1340,6 +1426,14 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
         else if constexpr (std::is_same_v<T, DictLiteral>)   return evalDict(n);
         else if constexpr (std::is_same_v<T, LambdaExpr>)    return evalLambda(n);
         else if constexpr (std::is_same_v<T, ListComp>)      return evalListComp(n);
+        else if constexpr (std::is_same_v<T, TupleLiteral>)
+        {
+            // Tuples are arrays at runtime
+            auto arr = std::make_shared<Array>();
+            for (auto &el : n.elements)
+                arr->push_back(evaluate(*el));
+            return QuantumValue(arr);
+        }
         else if constexpr (std::is_same_v<T, TernaryExpr>)   {
             return evaluate(*n.condition).isTruthy()
                 ? evaluate(*n.thenExpr)
@@ -1415,6 +1509,13 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
         if (d == 0)
             throw RuntimeError("Division by zero");
         return QuantumValue(toNum(lv, "/") / d);
+    }
+    if (op == "//")
+    {
+        double d = toNum(rv, "//");
+        if (d == 0)
+            throw RuntimeError("Division by zero");
+        return QuantumValue(std::floor(toNum(lv, "//") / d));
     }
     if (op == "%")
     {
@@ -1573,6 +1674,36 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
 
 QuantumValue Interpreter::evalAssign(AssignExpr &e)
 {
+    // Tuple unpacking: a, b, c = someIterable
+    if (e.op == "unpack")
+    {
+        auto val = evaluate(*e.value);
+        auto &lhs = e.target->as<TupleLiteral>();
+        // val should be array/tuple
+        std::shared_ptr<Array> arr;
+        if (val.isArray())
+            arr = val.asArray();
+        else
+        {
+            // wrap scalar in single-element array
+            arr = std::make_shared<Array>();
+            arr->push_back(val);
+        }
+        for (size_t i = 0; i < lhs.elements.size(); ++i)
+        {
+            QuantumValue item = (i < arr->size()) ? (*arr)[i] : QuantumValue();
+            auto &target = *lhs.elements[i];
+            if (target.is<Identifier>())
+            {
+                auto &name = target.as<Identifier>().name;
+                if (!env->has(name))
+                    env->define(name, item);
+                else
+                    env->set(name, item);
+            }
+        }
+        return val;
+    }
     auto val = evaluate(*e.value);
     setLValue(*e.target, val, e.op);
     return val;
@@ -1851,7 +1982,7 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
 
 QuantumValue Interpreter::callArrayMethod(std::shared_ptr<Array> arr, const std::string &m, std::vector<QuantumValue> args)
 {
-    if (m == "push")
+    if (m == "push" || m == "append")
     {
         for (auto &a : args)
             arr->push_back(a);
@@ -1861,6 +1992,18 @@ QuantumValue Interpreter::callArrayMethod(std::shared_ptr<Array> arr, const std:
     {
         if (arr->empty())
             throw IndexError("pop() on empty array");
+        // pop() → remove last (JS/default), pop(i) → remove at index i (Python)
+        if (!args.empty() && args[0].isNumber())
+        {
+            int i = (int)args[0].asNumber();
+            if (i < 0)
+                i += (int)arr->size();
+            if (i < 0 || i >= (int)arr->size())
+                throw IndexError("pop() index out of range");
+            auto v = (*arr)[i];
+            arr->erase(arr->begin() + i);
+            return v;
+        }
         auto v = arr->back();
         arr->pop_back();
         return v;

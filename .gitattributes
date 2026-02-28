@@ -1,2 +1,2 @@
-# Quantum language (.sa files) - mapped to Python for GitHub stats
-*.sa linguist-language=Q#
+# Quantum language (.sa files) - mapped to OpenQASM for GitHub stats
+*.sa linguist-language=OpenQASM

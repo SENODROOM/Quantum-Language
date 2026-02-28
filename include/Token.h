@@ -33,6 +33,7 @@ enum class TokenType
     OF, // JavaScript for...of
     BREAK,
     CONTINUE,
+    RAISE,
     PRINT,
     INPUT,
     COUT, // cout
@@ -62,6 +63,7 @@ enum class TokenType
     MINUS,
     STAR,
     SLASH,
+    FLOOR_DIV, // // integer division (Python)
     PERCENT,
     POWER,
     EQ,         // ==

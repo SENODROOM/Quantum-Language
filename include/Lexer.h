@@ -17,6 +17,8 @@ private:
 
     static const std::unordered_map<std::string, TokenType> keywords;
 
+    std::vector<Token> pendingTokens_; // used for f-string expansion
+
     char current() const;
     char peek(int offset = 1) const;
     char advance();
