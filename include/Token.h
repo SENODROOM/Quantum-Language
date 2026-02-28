@@ -18,6 +18,11 @@ enum class TokenType
     FN,
     DEF,      // Python: def
     FUNCTION, // JavaScript: function
+    CLASS,    // class keyword
+    EXTENDS,  // extends / inherits
+    NEW,      // new keyword
+    THIS,     // this (JS alias for self)
+    SUPER,    // super keyword
     RETURN,
     IF,
     ELSE,

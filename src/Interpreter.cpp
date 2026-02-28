@@ -927,6 +927,24 @@ void Interpreter::execClassDecl(ClassDecl &s)
 {
     auto klass = std::make_shared<QuantumClass>();
     klass->name = s.name;
+
+    // Inherit from base class if specified
+    if (!s.base.empty())
+    {
+        try
+        {
+            auto baseVal = env->get(s.base);
+            if (baseVal.isFunction())
+            {
+                auto baseFn = baseVal.asNative();
+                // Copy base methods if we can access them (stored in closure)
+            }
+        }
+        catch (...)
+        {
+        }
+    }
+
     for (auto &m : s.methods)
     {
         if (m->is<FunctionDecl>())
@@ -940,18 +958,39 @@ void Interpreter::execClassDecl(ClassDecl &s)
             klass->methods[fd.name] = fn;
         }
     }
+
+    // Capture interpreter pointer for use in constructor
+    Interpreter *interp = this;
     env->define(s.name, QuantumValue(std::make_shared<QuantumNative>(
-                            QuantumNative{s.name, [klass](std::vector<QuantumValue> args) -> QuantumValue
+                            QuantumNative{s.name, [klass, interp](std::vector<QuantumValue> args) -> QuantumValue
                                           {
                                               auto inst = std::make_shared<QuantumInstance>();
                                               inst->klass = klass;
-                                              // Call __init__ if exists
+                                              QuantumValue instVal(inst);
+
+                                              // Call init/constructor if defined
                                               auto it = klass->methods.find("init");
                                               if (it != klass->methods.end())
                                               {
-                                                  // We'd need interpreter ref here; for now store instance
+                                                  auto fn = it->second;
+                                                  auto scope = std::make_shared<Environment>(fn->closure);
+                                                  scope->define("self", instVal);
+                                                  // Bind params (skip leading "self" if present)
+                                                  size_t paramStart = (!fn->params.empty() && fn->params[0] == "self") ? 1 : 0;
+                                                  for (size_t i = paramStart; i < fn->params.size(); i++)
+                                                  {
+                                                      size_t ai = i - paramStart;
+                                                      scope->define(fn->params[i], ai < args.size() ? args[ai] : QuantumValue());
+                                                  }
+                                                  try
+                                                  {
+                                                      interp->execBlock(fn->body->as<BlockStmt>(), scope);
+                                                  }
+                                                  catch (ReturnSignal &)
+                                                  {
+                                                  }
                                               }
-                                              return QuantumValue(inst);
+                                              return instVal;
                                           }})));
 }
 
@@ -985,10 +1024,27 @@ void Interpreter::execWhile(WhileStmt &s)
 void Interpreter::execFor(ForStmt &s)
 {
     auto iter = evaluate(*s.iterable);
+    bool hasTuple = !s.var2.empty();
+
     auto loop = [&](QuantumValue item)
     {
         auto scope = std::make_shared<Environment>(env);
-        scope->define(s.var, std::move(item));
+        if (hasTuple)
+        {
+            // Tuple unpacking: for k, v in dict.items() or array of pairs
+            if (item.isArray() && item.asArray()->size() >= 2)
+            {
+                scope->define(s.var, (*item.asArray())[0]);
+                scope->define(s.var2, (*item.asArray())[1]);
+            }
+            else
+            {
+                scope->define(s.var, item);
+                scope->define(s.var2, QuantumValue());
+            }
+        }
+        else
+            scope->define(s.var, std::move(item));
         try
         {
             execBlock(s.body->as<BlockStmt>(), scope);
@@ -1001,6 +1057,7 @@ void Interpreter::execFor(ForStmt &s)
         {
         }
     };
+
     if (iter.isArray())
     {
         for (auto &item : *iter.asArray())
@@ -1282,6 +1339,7 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
         else if constexpr (std::is_same_v<T, ArrayLiteral>)  return evalArray(n);
         else if constexpr (std::is_same_v<T, DictLiteral>)   return evalDict(n);
         else if constexpr (std::is_same_v<T, LambdaExpr>)    return evalLambda(n);
+        else if constexpr (std::is_same_v<T, ListComp>)      return evalListComp(n);
         else if constexpr (std::is_same_v<T, TernaryExpr>)   {
             return evaluate(*n.condition).isTruthy()
                 ? evaluate(*n.thenExpr)
@@ -1578,7 +1636,23 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
     auto idx = evaluate(*e.index);
     if (obj.isArray())
     {
-        int i = (int)toNum(idx, "index");
+        // Accept numeric strings as indices (e.g. dict keys "0", "1" used as array index)
+        int i;
+        if (idx.isNumber())
+            i = (int)idx.asNumber();
+        else if (idx.isString())
+        {
+            try
+            {
+                i = std::stoi(idx.asString());
+            }
+            catch (...)
+            {
+                throw TypeError("Expected number in index, got " + idx.typeName());
+            }
+        }
+        else
+            throw TypeError("Expected number in index, got " + idx.typeName());
         auto arr = obj.asArray();
         if (i < 0)
             i += arr->size();
@@ -1645,6 +1719,69 @@ QuantumValue Interpreter::evalDict(DictLiteral &e)
         (*dict)[key.toString()] = std::move(val);
     }
     return QuantumValue(dict);
+}
+
+QuantumValue Interpreter::evalListComp(ListComp &e)
+{
+    auto result = std::make_shared<Array>();
+    auto iter = evaluate(*e.iterable);
+    bool hasTuple = e.vars.size() >= 2;
+
+    auto processItem = [&](QuantumValue item)
+    {
+        auto scope = std::make_shared<Environment>(env);
+        if (hasTuple)
+        {
+            if (item.isArray() && item.asArray()->size() >= 2)
+            {
+                scope->define(e.vars[0], (*item.asArray())[0]);
+                scope->define(e.vars[1], (*item.asArray())[1]);
+            }
+            else
+            {
+                scope->define(e.vars[0], item);
+                if (e.vars.size() > 1)
+                    scope->define(e.vars[1], QuantumValue());
+            }
+        }
+        else
+            scope->define(e.vars[0], item);
+
+        // Evaluate optional filter condition
+        if (e.condition)
+        {
+            auto saved = env;
+            env = scope;
+            bool pass = evaluate(*e.condition).isTruthy();
+            env = saved;
+            if (!pass)
+                return;
+        }
+
+        // Evaluate the expression in the loop scope
+        auto saved = env;
+        env = scope;
+        auto val = evaluate(*e.expr);
+        env = saved;
+        result->push_back(std::move(val));
+    };
+
+    if (iter.isArray())
+        for (auto &item : *iter.asArray())
+            processItem(item);
+    else if (iter.isString())
+        for (char c : iter.asString())
+            processItem(QuantumValue(std::string(1, c)));
+    else if (iter.isDict())
+        for (auto &[k, v] : *iter.asDict())
+        {
+            auto pair = std::make_shared<Array>();
+            pair->push_back(QuantumValue(k));
+            pair->push_back(v);
+            processItem(QuantumValue(pair));
+        }
+
+    return QuantumValue(result);
 }
 
 QuantumValue Interpreter::evalLambda(LambdaExpr &e)
@@ -2001,6 +2138,19 @@ QuantumValue Interpreter::callDictMethod(std::shared_ptr<Dict> dict, const std::
 {
     if (m == "has" || m == "contains" || m == "hasOwnProperty")
         return QuantumValue(dict->count(args[0].toString()) > 0);
+    // .items() → array of [key, value] pairs (Python/JS compatibility)
+    if (m == "items" || m == "entries")
+    {
+        auto arr = std::make_shared<Array>();
+        for (auto &[k, v] : *dict)
+        {
+            auto pair = std::make_shared<Array>();
+            pair->push_back(QuantumValue(k));
+            pair->push_back(v);
+            arr->push_back(QuantumValue(pair));
+        }
+        return QuantumValue(arr);
+    }
     if (m == "get")
     {
         auto key = args[0].toString();

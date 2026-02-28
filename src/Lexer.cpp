@@ -10,6 +10,12 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"fn", TokenType::FN},
     {"def", TokenType::DEF},
     {"function", TokenType::FUNCTION},
+    {"class", TokenType::CLASS},
+    {"extends", TokenType::EXTENDS},
+    {"new", TokenType::NEW},
+    {"this", TokenType::THIS},
+    {"self", TokenType::THIS}, // Quantum alias → same token
+    {"super", TokenType::SUPER},
     {"return", TokenType::RETURN},
     {"if", TokenType::IF},
     {"else", TokenType::ELSE},
