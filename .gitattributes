@@ -1,9 +1,2 @@
-# Quantum language (.sa files) - force detection as Python
-*.sa linguist-language=Python
-*.sa linguist-vendored=false
-*.sa linguist-generated=false
-*.sa linguist-detectable=true
-
-# Override any other detection
-*.sa -linguist-language
-*.sa linguist-language=Python
+# Force .sa files to be detected as C (definitely supported)
+*.sa linguist-language=C
