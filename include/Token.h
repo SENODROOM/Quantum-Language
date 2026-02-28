@@ -29,6 +29,7 @@ enum class TokenType
     COUT, // cout
     CIN,  // cin
     IMPORT,
+
     // C/C++ style type keywords
     TYPE_INT,
     TYPE_FLOAT,
