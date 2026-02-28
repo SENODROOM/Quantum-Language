@@ -1,6 +1,6 @@
 kutta='shararti'
 bandru='bhula'
 kaka='cute'
-print(kutta+bandru+kaka);    #Python
+print(kutta,bandru,kaka);    #Python
 printf(kutta+bandru+kaka);   #C
 cout << kutta << bandru << kaka; #C++
