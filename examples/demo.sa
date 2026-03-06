@@ -1,4 +1,4 @@
-function test() {
+function test() { #Javascript
     x = 10          # Python style
 
     if (x > 5) {    // C / C++ / JS style

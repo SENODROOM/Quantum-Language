@@ -249,6 +249,7 @@ ASTNodePtr Parser::parseStatement()
     {
         // Only treat as a C-type declaration if followed by an identifier.
         // e.g.  "int x = 5"  → declaration
+        //       "int main()" → function declaration
         //       "string = x" → plain assignment (string used as variable name)
         // Peek past any chained type qualifiers to find the next real token.
         size_t lookahead = pos + 1;
@@ -256,6 +257,17 @@ ASTNodePtr Parser::parseStatement()
             ++lookahead;
         if (lookahead < tokens.size() && tokens[lookahead].type == TokenType::IDENTIFIER)
         {
+            // Check if this is actually a function definition: ReturnType funcName(params)
+            size_t la2 = lookahead + 1;
+            while (la2 < tokens.size() && tokens[la2].type == TokenType::NEWLINE)
+                la2++;
+            if (la2 < tokens.size() && tokens[la2].type == TokenType::LPAREN)
+            {
+                // It's a function definition — consume return type and parse as function
+                while (isCTypeKeyword(current().type))
+                    consume(); // eat return type
+                return parseFunctionDecl();
+            }
             auto typeHint = consume().value;
             while (isCTypeKeyword(current().type))
                 typeHint += " " + consume().value;
@@ -265,6 +277,71 @@ ASTNodePtr Parser::parseStatement()
         return parseExprStmt();
     }
     default:
+        // Handle C++ "using namespace X;" as a no-op
+        if (check(TokenType::IDENTIFIER) && current().value == "using")
+        {
+            while (!atEnd() && !check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON))
+                consume();
+            while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                consume();
+            // Return an empty block as a no-op
+            return std::make_unique<ASTNode>(BlockStmt{}, ln);
+        }
+        // Handle C++ class-type variable declaration: "ClassName varName;" or "ClassName varName(args);"
+        if (check(TokenType::IDENTIFIER))
+        {
+            size_t la = pos + 1;
+            if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER)
+            {
+                // Two identifiers in a row: could be "ClassName varName" or "ClassName varName(args)"
+                size_t la2 = la + 1;
+                // If varName is followed by ; or = or (, it's a declaration
+                if (la2 < tokens.size() &&
+                    (tokens[la2].type == TokenType::SEMICOLON ||
+                     tokens[la2].type == TokenType::NEWLINE ||
+                     tokens[la2].type == TokenType::ASSIGN ||
+                     tokens[la2].type == TokenType::LPAREN))
+                {
+                    std::string typeName = consume().value; // eat type name
+                    std::string varName = consume().value;  // eat var name
+                    ASTNodePtr init;
+                    if (check(TokenType::LPAREN))
+                    {
+                        // ClassName varName(args) — constructor call as initializer
+                        // Build a call to ClassName(args) as the init
+                        auto callee = std::make_unique<ASTNode>(Identifier{typeName}, ln);
+                        CallExpr ce;
+                        ce.callee = std::move(callee);
+                        consume(); // eat (
+                        while (!check(TokenType::RPAREN) && !atEnd())
+                        {
+                            ce.args.push_back(parseExpr());
+                            if (!match(TokenType::COMMA))
+                                break;
+                        }
+                        if (check(TokenType::RPAREN))
+                            consume();
+                        init = std::make_unique<ASTNode>(std::move(ce), ln);
+                    }
+                    else if (match(TokenType::ASSIGN))
+                    {
+                        init = parseExpr();
+                    }
+                    else
+                    {
+                        // ClassName varName; — call default constructor TownsvilleGuardian()
+                        auto callee = std::make_unique<ASTNode>(Identifier{typeName}, ln);
+                        CallExpr ce;
+                        ce.callee = std::move(callee);
+                        // no args
+                        init = std::make_unique<ASTNode>(std::move(ce), ln);
+                    }
+                    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                        consume();
+                    return std::make_unique<ASTNode>(VarDecl{false, varName, std::move(init), typeName}, ln);
+                }
+            }
+        }
         return parseExprStmt();
     }
 }
@@ -454,16 +531,21 @@ ASTNodePtr Parser::parseClassDecl()
 
             bool isStatic = false;
 
-            // Skip access modifiers, detect static
+            // Skip access modifiers and C++ qualifiers
             while (check(TokenType::IDENTIFIER) &&
                    (current().value == "public" || current().value == "private" ||
                     current().value == "protected" || current().value == "static" ||
-                    current().value == "async"))
+                    current().value == "async" || current().value == "virtual" ||
+                    current().value == "inline" || current().value == "explicit" ||
+                    current().value == "override" || current().value == "final"))
             {
                 if (current().value == "static")
                     isStatic = true;
                 consume();
             }
+            // Skip leading const (e.g. const int foo = 5;)
+            if (check(TokenType::CONST))
+                consume();
 
             // Optional fn/def/function keyword
             if (check(TokenType::FN) || check(TokenType::DEF) || check(TokenType::FUNCTION))
@@ -510,10 +592,124 @@ ASTNodePtr Parser::parseClassDecl()
                 }
                 continue;
             }
+            // --- Detect C++ member variable declarations ---
+            // Pattern: TypeName varName; OR TypeKeyword varName;
+            // This is when we have IDENTIFIER followed by IDENTIFIER (then ; or =)
+            // e.g.  string heroName;   OR   TownsvilleGuardian obj;
+            // Also handles C type keywords: int x; double y;
+            {
+                bool isMemberVar = false;
+                std::string typeToken;
+
+                if (isCTypeKeyword(current().type))
+                {
+                    // e.g. int energyLevel; OR int getEnergyLevel()
+                    // Peek ahead to determine if this is a field or method
+                    size_t la = pos + 1;
+                    while (la < tokens.size() && isCTypeKeyword(tokens[la].type))
+                        la++;
+                    // skip & or *
+                    while (la < tokens.size() && (tokens[la].type == TokenType::BIT_AND || tokens[la].type == TokenType::STAR))
+                        la++;
+                    if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER)
+                    {
+                        // Check if method name is followed by '('
+                        size_t la2 = la + 1;
+                        while (la2 < tokens.size() && tokens[la2].type == TokenType::NEWLINE)
+                            la2++;
+                        if (la2 < tokens.size() && tokens[la2].type == TokenType::LPAREN)
+                        {
+                            // It's a method with return type: "int getEnergyLevel()"
+                            // Consume the type tokens as return type and fall through to method parsing
+                            consume(); // eat first type keyword
+                            while (isCTypeKeyword(current().type))
+                                consume(); // multi-word types
+                            while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+                                consume();
+                            // Fall through to method name parsing
+                        }
+                        else
+                        {
+                            // It's a field: "int energyLevel;"
+                            typeToken = consume().value;
+                            while (isCTypeKeyword(current().type))
+                                typeToken += " " + consume().value;
+                            while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+                                consume();
+                            isMemberVar = true;
+                        }
+                    }
+                    else
+                    {
+                        // No identifier after type — skip
+                        consume();
+                    }
+                }
+                else if (check(TokenType::IDENTIFIER))
+                {
+                    // Peek: if the token after this identifier is another identifier (var name)
+                    // AND that identifier is NOT followed by '(' (i.e. it's a field, not a method)
+                    size_t la = pos + 1;
+                    while (la < tokens.size() && tokens[la].type == TokenType::BIT_AND)
+                        la++;
+                    if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER && tokens[la].value != cd.name) // not constructor pattern
+                    {
+                        // Check if the name token is followed by '(' → it's a method, not a field
+                        size_t la2 = la + 1;
+                        while (la2 < tokens.size() && tokens[la2].type == TokenType::NEWLINE)
+                            la2++;
+                        if (la2 < tokens.size() && tokens[la2].type == TokenType::LPAREN)
+                        {
+                            // This is a return-type + method-name pattern (e.g. "string getHeroName()")
+                            // Don't treat as member var — treat it as method with return type prefix
+                            // We'll consume the type token as a return type hint and fall through to method parsing
+                            consume(); // eat return type (e.g. "string", "int", "void")
+                            while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+                                consume();
+                            // Fall through to method name parsing below
+                        }
+                        else
+                        {
+                            typeToken = consume().value; // eat type name
+                            while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+                                consume();
+                            isMemberVar = true;
+                        }
+                    }
+                }
+
+                if (isMemberVar)
+                {
+                    // It's a field declaration: varName [= init];
+                    if (!check(TokenType::IDENTIFIER))
+                    {
+                        // skip garbage
+                        while (!atEnd() && !check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON))
+                            consume();
+                        while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                            consume();
+                        continue;
+                    }
+                    std::string fieldName = consume().value;
+                    ASTNodePtr init;
+                    if (match(TokenType::ASSIGN))
+                        init = parseExpr();
+                    // store as a VarDecl field
+                    auto fld = std::make_unique<ASTNode>(
+                        VarDecl{false, fieldName, std::move(init), typeToken}, ln);
+                    cd.fields.push_back(std::move(fld));
+                    while (!atEnd() && !check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !check(TokenType::RBRACE) && !check(TokenType::DEDENT))
+                        consume(); // skip anything remaining on line
+                    while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                        consume();
+                    continue;
+                }
+            }
+
             std::string methodName = consume().value;
 
             // Normalize constructor names
-            if (methodName == "constructor" || methodName == "__init__")
+            if (methodName == "constructor" || methodName == "__init__" || methodName == cd.name)
                 methodName = "init";
             // Normalize destructor names
             if (methodName == "destructor")
@@ -522,7 +718,31 @@ ASTNodePtr Parser::parseClassDecl()
             if (methodName == "toString" || methodName == "to_string" || methodName == "to_str")
                 methodName = "__str__";
 
+            // Check for method vs field: if next token is NOT '(' it might be a field
+            if (!check(TokenType::LPAREN))
+            {
+                // Skip the rest of the line as a field/statement we can't parse
+                while (!atEnd() && !check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !check(TokenType::RBRACE))
+                    consume();
+                while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                    consume();
+                skipNewlines();
+                continue;
+            }
+
             auto params = parseParamList();
+
+            // Skip trailing C++ const: method() const { }
+            if (check(TokenType::CONST))
+                consume();
+            // Also handle if 'const' appears as identifier token somehow
+            if (check(TokenType::IDENTIFIER) && current().value == "const")
+                consume();
+            // Skip noexcept, override, final qualifiers
+            while (check(TokenType::IDENTIFIER) &&
+                   (current().value == "noexcept" || current().value == "override" ||
+                    current().value == "final"))
+                consume();
 
             // Skip optional return type annotation: -> ReturnType  (Python style)
             if (check(TokenType::ARROW))
@@ -553,6 +773,9 @@ ASTNodePtr Parser::parseClassDecl()
         consume();
         parseClassBody();
         expect(TokenType::RBRACE, "Expected \'}\'");
+        // C++ style: class Foo { }; — skip trailing semicolon
+        while (check(TokenType::SEMICOLON))
+            consume();
     }
     else if (check(TokenType::INDENT))
     {
@@ -1878,6 +2101,10 @@ std::vector<std::string> Parser::parseParamList()
     std::vector<std::string> params;
     while (!check(TokenType::RPAREN) && !atEnd())
     {
+        // C++ style: "const" modifier before type
+        if (check(TokenType::CONST))
+            consume(); // eat const
+
         // C-style: "int x" — type keyword before name
         if (isCTypeKeyword(current().type))
         {
@@ -1885,6 +2112,24 @@ std::vector<std::string> Parser::parseParamList()
             while (isCTypeKeyword(current().type))
                 consume(); // multi-word types
         }
+
+        // C++ style: identifier type before name (e.g. "string name", "TownsvilleGuardian &other")
+        // Detect: IDENTIFIER followed by (BIT_AND or IDENTIFIER) — means it's a type name
+        if (check(TokenType::IDENTIFIER))
+        {
+            // Peek ahead: if next non-& token is an identifier, this token is a type name
+            size_t la = pos + 1;
+            while (la < tokens.size() && tokens[la].type == TokenType::BIT_AND)
+                la++;
+            if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER)
+            {
+                consume(); // eat type name (e.g. "string", "TownsvilleGuardian")
+            }
+        }
+
+        // Skip reference/pointer qualifiers: & or *
+        while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+            consume();
 
         if (check(TokenType::IDENTIFIER))
         {

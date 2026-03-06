@@ -1378,7 +1378,29 @@ void Interpreter::execClassDecl(ClassDecl &s)
             fn->params = fd.params;
             fn->body = fd.body.get();
             fn->closure = env;
+
+            // Support method overloading: if name already exists, also store under name#argcount
+            if (klass->methods.count(fd.name))
+            {
+                // Store the existing one under name#argcount if not already done
+                auto existing = klass->methods[fd.name];
+                size_t existingParamStart = (!existing->params.empty() &&
+                                             (existing->params[0] == "self" || existing->params[0] == "this"))
+                                                ? 1
+                                                : 0;
+                std::string existingKey = fd.name + "#" + std::to_string(existing->params.size() - existingParamStart);
+                if (!klass->methods.count(existingKey))
+                    klass->methods[existingKey] = existing;
+            }
             klass->methods[fd.name] = fn;
+
+            // Always store an overload-specific version
+            size_t paramStart = (!fd.params.empty() &&
+                                 (fd.params[0] == "self" || fd.params[0] == "this"))
+                                    ? 1
+                                    : 0;
+            std::string overloadKey = fd.name + "#" + std::to_string(fd.params.size() - paramStart);
+            klass->methods[overloadKey] = fn;
         }
     }
 
@@ -2039,7 +2061,44 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
 
 QuantumValue Interpreter::evalIdentifier(Identifier &e)
 {
-    return env->get(e.name);
+    // Try regular env lookup first
+    try
+    {
+        return env->get(e.name);
+    }
+    catch (NameError &)
+    {
+        // Fall back: if "self" is in scope and has this field or method, return it
+        try
+        {
+            auto selfVal = env->get("self");
+            if (selfVal.isInstance())
+            {
+                auto inst = selfVal.asInstance();
+                // Check instance fields
+                auto fit = inst->fields.find(e.name);
+                if (fit != inst->fields.end())
+                    return fit->second;
+                // Check class methods (for C++ style bare method calls like defeatVillain())
+                auto k = inst->klass.get();
+                while (k)
+                {
+                    auto mit = k->methods.find(e.name);
+                    if (mit != k->methods.end())
+                    {
+                        // Return as a bound-method-like function
+                        // We wrap it so callFunction works, binding self
+                        return QuantumValue(mit->second);
+                    }
+                    k = k->base.get();
+                }
+            }
+        }
+        catch (...)
+        {
+        }
+        throw; // re-throw original NameError
+    }
 }
 
 QuantumValue Interpreter::evalBinary(BinaryExpr &e)
@@ -2264,13 +2323,55 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         if (op == "=")
         {
             // Python-style: if variable doesn't exist anywhere, define it in current scope
+            // But if we're inside a method (self exists) and variable not yet in any scope,
+            // store as instance field (C++ style: heroName = value is equivalent to self.heroName = value)
             if (!env->has(name))
+            {
+                // Check if self exists — if so, store as instance field (C++ method style)
+                try
+                {
+                    auto selfVal = env->get("self");
+                    if (selfVal.isInstance())
+                    {
+                        selfVal.asInstance()->fields[name] = std::move(val);
+                        return;
+                    }
+                }
+                catch (...)
+                {
+                }
                 env->define(name, std::move(val));
+            }
             else
                 env->set(name, std::move(val));
         }
         else
-            env->set(name, applyOp(env->get(name)));
+        {
+            // Compound assignment: try env first, then self fields
+            try
+            {
+                env->set(name, applyOp(env->get(name)));
+            }
+            catch (NameError &)
+            {
+                try
+                {
+                    auto selfVal = env->get("self");
+                    if (selfVal.isInstance())
+                    {
+                        auto inst = selfVal.asInstance();
+                        auto it = inst->fields.find(name);
+                        QuantumValue old = (it != inst->fields.end()) ? it->second : QuantumValue();
+                        inst->fields[name] = applyOp(old);
+                        return;
+                    }
+                }
+                catch (...)
+                {
+                }
+                throw;
+            }
+        }
     }
     else if (target.is<IndexExpr>())
     {
@@ -2423,11 +2524,20 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
         inst->env = std::make_shared<Environment>(env);
         QuantumValue instVal(inst);
 
-        // Find init in class hierarchy
+        // Find init in class hierarchy — prefer exact arg-count match for overloading
         auto k = klass.get();
         std::shared_ptr<QuantumFunction> initFn;
+        std::string overloadKey = "init#" + std::to_string(args.size());
         while (k && !initFn)
         {
+            // Try exact overload match first
+            auto oit = k->methods.find(overloadKey);
+            if (oit != k->methods.end())
+            {
+                initFn = oit->second;
+                break;
+            }
+            // Fall back to generic init
             auto it = k->methods.find("init");
             if (it != k->methods.end())
                 initFn = it->second;
@@ -2460,7 +2570,34 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
     if (callee.isFunction())
     {
         if (std::holds_alternative<std::shared_ptr<QuantumFunction>>(callee.data))
+        {
+            // C++ style: if we're inside a method and called a bare function name,
+            // and that function is a class method (not in regular env), call it as instance method
+            if (e.callee->is<Identifier>())
+            {
+                const std::string &fname = e.callee->as<Identifier>().name;
+                try
+                {
+                    env->get(fname); // if this succeeds, it's a regular function — call normally
+                    return callFunction(callee.asFunction(), std::move(args));
+                }
+                catch (NameError &)
+                {
+                    // It came from self — call as instance method
+                    try
+                    {
+                        auto selfVal = env->get("self");
+                        if (selfVal.isInstance())
+                            return callInstanceMethod(selfVal.asInstance(), callee.asFunction(), std::move(args));
+                    }
+                    catch (...)
+                    {
+                    }
+                    return callFunction(callee.asFunction(), std::move(args));
+                }
+            }
             return callFunction(callee.asFunction(), std::move(args));
+        }
         if (std::holds_alternative<std::shared_ptr<QuantumNative>>(callee.data))
             return callNative(callee.asNative(), std::move(args));
     }
@@ -2475,15 +2612,44 @@ QuantumValue Interpreter::callFunction(std::shared_ptr<QuantumFunction> fn, std:
         QuantumValue v = i < args.size() ? args[i] : QuantumValue();
         scope->define(fn->params[i], std::move(v));
     }
+    QuantumValue result;
     try
     {
         execBlock(fn->body->as<BlockStmt>(), scope);
     }
     catch (ReturnSignal &r)
     {
-        return std::move(r.value);
+        result = std::move(r.value);
     }
-    return QuantumValue();
+
+    // C++ destructor simulation: call __del__ on any instances defined in this scope
+    // that have a __del__ method (e.g. objects going out of scope)
+    for (auto &[varName, val] : scope->getVars())
+    {
+        if (val.isInstance())
+        {
+            auto inst = val.asInstance();
+            auto k = inst->klass.get();
+            while (k)
+            {
+                auto it = k->methods.find("__del__");
+                if (it != k->methods.end())
+                {
+                    try
+                    {
+                        callInstanceMethod(inst, it->second, {});
+                    }
+                    catch (...)
+                    {
+                    }
+                    break;
+                }
+                k = k->base.get();
+            }
+        }
+    }
+
+    return result;
 }
 
 QuantumValue Interpreter::callNative(std::shared_ptr<QuantumNative> fn, std::vector<QuantumValue> args)
@@ -2746,10 +2912,15 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
     if (obj.isInstance())
     {
         auto inst = obj.asInstance();
-        // Look up method in class hierarchy
+        // Look up method in class hierarchy — prefer exact arg-count match for overloading
+        std::string overloadKey = method + "#" + std::to_string(args.size());
         auto k = inst->klass.get();
         while (k)
         {
+            // Try exact overload match first
+            auto oit = k->methods.find(overloadKey);
+            if (oit != k->methods.end())
+                return callInstanceMethod(inst, oit->second, std::move(args));
             auto it = k->methods.find(method);
             if (it != k->methods.end())
                 return callInstanceMethod(inst, it->second, std::move(args));

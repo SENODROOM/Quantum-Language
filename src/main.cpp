@@ -2,6 +2,7 @@
 #include "../include/Parser.h"
 #include "../include/Interpreter.h"
 #include "../include/Error.h"
+#include "../include/Value.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -141,7 +142,53 @@ static void runFile(const std::string &path)
         auto ast = parser.parse();
 
         Interpreter interp;
-        interp.execute(*ast);
+        // Execute in globals scope so top-level functions/classes are accessible
+        if (ast->is<BlockStmt>())
+        {
+            interp.execBlock(ast->as<BlockStmt>(), interp.globals);
+        }
+        else
+        {
+            interp.execute(*ast);
+        }
+
+        // C/C++ style: if a top-level "main" function was defined, call it automatically
+        // (only if it wasn't already called during execution)
+        try
+        {
+            auto mainFn = interp.globals->get("main");
+            if (mainFn.isFunction() &&
+                std::holds_alternative<std::shared_ptr<QuantumFunction>>(mainFn.data))
+            {
+                // Build a call expression node and evaluate it
+                CallExpr ce;
+                ce.callee = std::make_unique<ASTNode>(Identifier{"main"}, 0);
+                ASTNode callNode(std::move(ce), 0);
+                interp.evaluate(callNode);
+            }
+        }
+        catch (const ReturnSignal &)
+        {
+        } // main returned normally
+        catch (const NameError &)
+        {
+        } // main not defined — normal for Quantum scripts
+        catch (const QuantumError &e)
+        {
+            // Report errors that happen INSIDE main()
+            if (std::string(e.what()).find("main") == std::string::npos)
+            {
+                std::cerr << Colors::RED << Colors::BOLD
+                          << "\n  \u2717 " << e.kind << Colors::RESET;
+                if (e.line > 0)
+                    std::cerr << " at line " << e.line;
+                std::cerr << "\n    " << e.what() << "\n\n";
+                std::exit(1);
+            }
+        }
+        catch (...)
+        {
+        } // main not defined or other non-critical issue
     }
     catch (const ParseError &e)
     {
