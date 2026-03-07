@@ -139,6 +139,11 @@ ASTNodePtr Parser::parseStatement()
         consume();
         return parseInputStmt();
     }
+    case TokenType::CIN:
+    {
+        consume();
+        return parseCinStmt();
+    }
     case TokenType::COUT:
     {
         consume();
@@ -271,7 +276,27 @@ ASTNodePtr Parser::parseStatement()
             auto typeHint = consume().value;
             while (isCTypeKeyword(current().type))
                 typeHint += " " + consume().value;
-            return parseCTypeVarDecl(typeHint);
+
+            // Consume pointer stars that come BEFORE any name, e.g. "int* a, *b, c"
+            // We let parseCTypeVarDecl handle per-name stars; here we just check
+            // if this is a multi-variable declaration: int a, b, c;
+            // Build a block of VarDecls for comma-separated names.
+            {
+                auto firstDecl = parseCTypeVarDecl(typeHint);
+                if (!check(TokenType::COMMA))
+                    return firstDecl;
+                // Multi-var: int a, b, c;  or  int a, *b, c = 5;
+                auto block = std::make_unique<ASTNode>(BlockStmt{}, ln);
+                block->as<BlockStmt>().statements.push_back(std::move(firstDecl));
+                while (check(TokenType::COMMA))
+                {
+                    consume(); // eat ','
+                    block->as<BlockStmt>().statements.push_back(parseCTypeVarDecl(typeHint));
+                }
+                while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                    consume();
+                return block;
+            }
         }
         // Not a declaration — fall through to expression statement
         return parseExprStmt();
@@ -1518,11 +1543,21 @@ ASTNodePtr Parser::parseUnary()
         consume();
         return std::make_unique<ASTNode>(UnaryExpr{"~", parseUnary()}, ln);
     }
-    // C-style address-of: &var — silently strip & and treat as the variable itself
+    // C-style address-of: &var → AddressOfExpr
     if (check(TokenType::BIT_AND))
     {
         consume();
-        return parseUnary();
+        int ln2 = current().line;
+        auto operand = parseUnary();
+        return std::make_unique<ASTNode>(AddressOfExpr{std::move(operand)}, ln2);
+    }
+    // C-style dereference: *ptr → DerefExpr
+    if (check(TokenType::STAR))
+    {
+        consume();
+        int ln2 = current().line;
+        auto operand = parseUnary();
+        return std::make_unique<ASTNode>(DerefExpr{std::move(operand)}, ln2);
     }
     return parsePostfix();
 }
@@ -1539,7 +1574,7 @@ ASTNodePtr Parser::parsePostfix()
         size_t savedPos = pos;
         while (check(TokenType::NEWLINE))
             consume();
-        if (!check(TokenType::DOT) && !check(TokenType::LBRACKET) && !check(TokenType::LPAREN) && !check(TokenType::PLUS_PLUS) && !check(TokenType::MINUS_MINUS))
+        if (!check(TokenType::DOT) && !check(TokenType::ARROW) && !check(TokenType::LBRACKET) && !check(TokenType::LPAREN) && !check(TokenType::PLUS_PLUS) && !check(TokenType::MINUS_MINUS))
         {
             pos = savedPos; // restore so newline terminates the statement
             break;
@@ -1604,6 +1639,29 @@ ASTNodePtr Parser::parsePostfix()
             {
                 expect(TokenType::RBRACKET, "Expected ']'");
                 expr = std::make_unique<ASTNode>(IndexExpr{std::move(expr), std::move(idxOrStart)}, ln);
+            }
+        }
+        else if (check(TokenType::ARROW))
+        {
+            consume(); // eat ->
+            std::string mem;
+            if (check(TokenType::IDENTIFIER))
+                mem = consume().value;
+            else if (isCTypeKeyword(current().type))
+                mem = consume().value;
+            else
+                mem = expect(TokenType::IDENTIFIER, "Expected member name after ->").value;
+            if (check(TokenType::LPAREN))
+            {
+                // ptr->method(args) — treat as method call on dereferenced object
+                auto deref = std::make_unique<ASTNode>(DerefExpr{std::move(expr)}, ln);
+                auto memExpr = std::make_unique<ASTNode>(MemberExpr{std::move(deref), mem}, ln);
+                auto args = parseArgList();
+                expr = std::make_unique<ASTNode>(CallExpr{std::move(memExpr), std::move(args)}, ln);
+            }
+            else
+            {
+                expr = std::make_unique<ASTNode>(ArrowExpr{std::move(expr), mem}, ln);
             }
         }
         else if (check(TokenType::DOT))
@@ -2221,11 +2279,30 @@ bool Parser::isCTypeKeyword(TokenType t) const
 ASTNodePtr Parser::parseCTypeVarDecl(const std::string &typeHint)
 {
     int ln = current().line;
+    // Consume any pointer stars between type and name: int* p  or  int *p  or  int**p
+    bool isPointer = false;
+    while (check(TokenType::STAR))
+    {
+        consume();
+        isPointer = true;
+    }
     auto nameToken = expect(TokenType::IDENTIFIER, "Expected variable name after type");
     ASTNodePtr init;
     if (match(TokenType::ASSIGN))
         init = parseExpr();
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    return std::make_unique<ASTNode>(VarDecl{false, nameToken.value, std::move(init), typeHint}, ln);
+    auto decl = VarDecl{false, nameToken.value, std::move(init), typeHint};
+    decl.isPointer = isPointer;
+    auto node = std::make_unique<ASTNode>(std::move(decl), ln);
+    // Consume trailing semicolon/newline only when NOT in a comma list
+    // (the caller handles termination for multi-var declarations)
+    // We stop here so the caller can check for ',' before consuming.
+    // But if there's a semicolon right now and no comma coming, eat it.
+    if (!check(TokenType::COMMA))
+    {
+        while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+            consume();
+    }
+    return node;
 }

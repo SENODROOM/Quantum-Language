@@ -3,23 +3,28 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <cstdint>
 
 // ─── QuantumValue ─────────────────────────────────────────────────────────────
 
-bool QuantumValue::isTruthy() const {
-    return std::visit([](const auto& v) -> bool {
+bool QuantumValue::isTruthy() const
+{
+    return std::visit([](const auto &v) -> bool
+                      {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QuantumNil>)    return false;
         if constexpr (std::is_same_v<T, bool>)          return v;
         if constexpr (std::is_same_v<T, double>)        return v != 0.0;
         if constexpr (std::is_same_v<T, std::string>)   return !v.empty();
         if constexpr (std::is_same_v<T, std::shared_ptr<Array>>) return !v->empty();
-        return true;
-    }, data);
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumPointer>>) return v && !v->isNull();
+        return true; }, data);
 }
 
-std::string QuantumValue::toString() const {
-    return std::visit([](const auto& v) -> std::string {
+std::string QuantumValue::toString() const
+{
+    return std::visit([](const auto &v) -> std::string
+                      {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QuantumNil>)  return "nil";
         if constexpr (std::is_same_v<T, bool>)        return v ? "true" : "false";
@@ -60,8 +65,6 @@ std::string QuantumValue::toString() const {
             while (k) {
                 auto mit = k->methods.find("__str__");
                 if (mit != k->methods.end()) {
-                    // __str__ found — we can't call it here without an interpreter,
-                    // so fall back to default representation
                     break;
                 }
                 k = k->base.get();
@@ -69,12 +72,22 @@ std::string QuantumValue::toString() const {
             return "<instance:" + v->klass->name + ">";
         }
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumClass>>)    return "<class:" + v->name + ">";
-        return "?";
-    }, data);
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumPointer>>) {
+            if (!v || v->isNull()) return "0x0";
+            // Show a deterministic fake address based on cell pointer value
+            // so repeated prints of the same pointer give the same address
+            std::ostringstream oss;
+            oss << "0x" << std::hex << std::uppercase
+                << (reinterpret_cast<uintptr_t>(v->cell.get()) + (size_t)v->offset * 8);
+            return oss.str();
+        }
+        return "?"; }, data);
 }
 
-std::string QuantumValue::typeName() const {
-    return std::visit([](const auto& v) -> std::string {
+std::string QuantumValue::typeName() const
+{
+    return std::visit([](const auto &v) -> std::string
+                      {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QuantumNil>)   return "nil";
         if constexpr (std::is_same_v<T, bool>)         return "bool";
@@ -86,52 +99,96 @@ std::string QuantumValue::typeName() const {
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumNative>>)   return "native";
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumInstance>>) return v->klass->name;
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumClass>>)    return "class";
-        return "unknown";
-    }, data);
+        if constexpr (std::is_same_v<T, std::shared_ptr<QuantumPointer>>)  return "pointer";
+        return "unknown"; }, data);
 }
 
 // ─── Environment ─────────────────────────────────────────────────────────────
 
 Environment::Environment(std::shared_ptr<Environment> p) : parent(std::move(p)) {}
 
-void Environment::define(const std::string& name, QuantumValue val, bool isConst) {
+void Environment::define(const std::string &name, QuantumValue val, bool isConst)
+{
     vars[name] = std::move(val);
-    if (isConst) constants[name] = true;
+    if (isConst)
+        constants[name] = true;
 }
 
-QuantumValue Environment::get(const std::string& name) const {
+QuantumValue Environment::get(const std::string &name) const
+{
     auto it = vars.find(name);
-    if (it != vars.end()) return it->second;
-    if (parent) return parent->get(name);
+    if (it != vars.end())
+        return it->second;
+    if (parent)
+        return parent->get(name);
     throw NameError("Undefined variable: '" + name + "'");
 }
 
-void Environment::set(const std::string& name, QuantumValue val) {
+void Environment::set(const std::string &name, QuantumValue val)
+{
     auto it = vars.find(name);
-    if (it != vars.end()) {
+    if (it != vars.end())
+    {
         if (constants.count(name))
             throw RuntimeError("Cannot reassign constant '" + name + "'");
-        it->second = std::move(val);
+        it->second = val; // copy to local
+        // Also update any live shared cell for this name so pointers see the new value
+        auto cit = cells.find(name);
+        if (cit != cells.end())
+            *cit->second = val;
         return;
     }
-    if (parent) { parent->set(name, std::move(val)); return; }
+    if (parent)
+    {
+        parent->set(name, std::move(val));
+        return;
+    }
     throw NameError("Undefined variable: '" + name + "'");
 }
 
-bool Environment::has(const std::string& name) const {
-    if (vars.count(name)) return true;
-    if (parent) return parent->has(name);
+bool Environment::has(const std::string &name) const
+{
+    if (vars.count(name))
+        return true;
+    if (parent)
+        return parent->has(name);
     return false;
+}
+
+std::shared_ptr<QuantumValue> Environment::getCell(const std::string &name)
+{
+    // Look for existing cell in this scope
+    auto cit = cells.find(name);
+    if (cit != cells.end())
+        return cit->second;
+
+    // Look for the variable in this scope
+    auto it = vars.find(name);
+    if (it != vars.end())
+    {
+        // Create a shared cell synced to the current value
+        auto cell = std::make_shared<QuantumValue>(it->second);
+        cells[name] = cell;
+        return cell;
+    }
+
+    // Walk parent scopes
+    if (parent)
+        return parent->getCell(name);
+    return nullptr;
 }
 
 // ─── QuantumInstance ─────────────────────────────────────────────────────────
 
-QuantumValue QuantumInstance::getField(const std::string& name) const {
+QuantumValue QuantumInstance::getField(const std::string &name) const
+{
     auto it = fields.find(name);
-    if (it != fields.end()) return it->second;
+    if (it != fields.end())
+        return it->second;
     // Check methods
     auto k = klass.get();
-    while (k) {
+    while (k)
+    {
         auto mit = k->methods.find(name);
         if (mit != k->methods.end())
             return QuantumValue(mit->second);
@@ -140,6 +197,7 @@ QuantumValue QuantumInstance::getField(const std::string& name) const {
     throw NameError("No field/method '" + name + "' on instance of " + klass->name);
 }
 
-void QuantumInstance::setField(const std::string& name, QuantumValue val) {
+void QuantumInstance::setField(const std::string &name, QuantumValue val)
+{
     fields[name] = std::move(val);
 }

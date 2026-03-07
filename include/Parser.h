@@ -49,7 +49,7 @@ private:
     ASTNodePtr parseCinStmt();  // cin >> x >> y
     ASTNodePtr parseImportStmt(bool isFrom = false);
     ASTNodePtr parseExprStmt();
-    ASTNodePtr parseCTypeVarDecl(const std::string &typeHint); // int x = ...
+    ASTNodePtr parseCTypeVarDecl(const std::string &typeHint); // int x = ...  / int* p = ...
     bool isCTypeKeyword(TokenType t) const;
 
     // Expression parsing (Pratt-style precedence)

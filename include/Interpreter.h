@@ -44,6 +44,11 @@ private:
     QuantumValue evalListComp(ListComp &e);
     QuantumValue evalIdentifier(Identifier &e);
 
+    // ── C++ Pointer evaluators ─────────────────────────────────────────────
+    QuantumValue evalAddressOf(AddressOfExpr &e); // &var
+    QuantumValue evalDeref(DerefExpr &e);         // *ptr
+    QuantumValue evalArrow(ArrowExpr &e);         // ptr->member
+
     QuantumValue callFunction(std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);
     QuantumValue callNative(std::shared_ptr<QuantumNative> fn, std::vector<QuantumValue> args);
     QuantumValue callInstanceMethod(std::shared_ptr<QuantumInstance> inst, std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);

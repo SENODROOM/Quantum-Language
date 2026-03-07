@@ -41,6 +41,26 @@ struct QuantumValue;
 using Array = std::vector<QuantumValue>;
 using Dict = std::unordered_map<std::string, QuantumValue>;
 
+// ─── Pointer Type ─────────────────────────────────────────────────────────────
+
+struct QuantumPointer
+{
+    std::shared_ptr<QuantumValue> cell; // live reference to variable storage
+    std::string varName;                // for display/debug
+    int offset = 0;                     // for pointer arithmetic
+
+    QuantumPointer() : cell(nullptr), varName(""), offset(0) {}
+
+    bool isNull() const { return cell == nullptr; }
+
+    QuantumValue &deref() const
+    {
+        if (!cell)
+            throw std::runtime_error("Null pointer dereference");
+        return *cell;
+    }
+};
+
 struct QuantumValue
 {
     using Data = std::variant<
@@ -53,7 +73,8 @@ struct QuantumValue
         std::shared_ptr<QuantumFunction>,
         std::shared_ptr<QuantumNative>,
         std::shared_ptr<QuantumInstance>,
-        std::shared_ptr<QuantumClass>>;
+        std::shared_ptr<QuantumClass>,
+        std::shared_ptr<QuantumPointer>>;
 
     Data data;
 
@@ -69,6 +90,7 @@ struct QuantumValue
     explicit QuantumValue(std::shared_ptr<QuantumNative> n) : data(std::move(n)) {}
     explicit QuantumValue(std::shared_ptr<QuantumInstance> i) : data(std::move(i)) {}
     explicit QuantumValue(std::shared_ptr<QuantumClass> c) : data(std::move(c)) {}
+    explicit QuantumValue(std::shared_ptr<QuantumPointer> p) : data(std::move(p)) {}
 
     // Type checks
     bool isNil() const { return std::holds_alternative<QuantumNil>(data); }
@@ -80,6 +102,7 @@ struct QuantumValue
     bool isFunction() const { return std::holds_alternative<std::shared_ptr<QuantumFunction>>(data) || std::holds_alternative<std::shared_ptr<QuantumNative>>(data); }
     bool isInstance() const { return std::holds_alternative<std::shared_ptr<QuantumInstance>>(data); }
     bool isClass() const { return std::holds_alternative<std::shared_ptr<QuantumClass>>(data); }
+    bool isPointer() const { return std::holds_alternative<std::shared_ptr<QuantumPointer>>(data); }
 
     // Accessors
     bool asBool() const { return std::get<bool>(data); }
@@ -91,6 +114,7 @@ struct QuantumValue
     std::shared_ptr<QuantumNative> asNative() const { return std::get<std::shared_ptr<QuantumNative>>(data); }
     std::shared_ptr<QuantumInstance> asInstance() const { return std::get<std::shared_ptr<QuantumInstance>>(data); }
     std::shared_ptr<QuantumClass> asClass() const { return std::get<std::shared_ptr<QuantumClass>>(data); }
+    std::shared_ptr<QuantumPointer> asPointer() const { return std::get<std::shared_ptr<QuantumPointer>>(data); }
 
     bool isTruthy() const;
     std::string toString() const;
@@ -110,11 +134,16 @@ public:
     bool has(const std::string &name) const;
     const std::unordered_map<std::string, QuantumValue> &getVars() const { return vars; }
 
+    // Pointer support: get a shared cell for a variable so &var returns a live reference
+    std::shared_ptr<QuantumValue> getCell(const std::string &name);
+
     std::shared_ptr<Environment> parent;
 
 private:
     std::unordered_map<std::string, QuantumValue> vars;
     std::unordered_map<std::string, bool> constants;
+    // Shared cells — created on first &var, keeps pointer alive
+    std::unordered_map<std::string, std::shared_ptr<QuantumValue>> cells;
 };
 
 // ─── Class & Instance ────────────────────────────────────────────────────────

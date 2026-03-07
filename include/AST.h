@@ -106,6 +106,27 @@ struct SuperExpr
     std::string method; // empty = super constructor call
 };
 
+// ─── C++ Pointer Expression Types ────────────────────────────────────────────
+
+// &var — address-of operator
+struct AddressOfExpr
+{
+    ASTNodePtr operand;
+};
+
+// *ptr — dereference operator
+struct DerefExpr
+{
+    ASTNodePtr operand;
+};
+
+// ptr->member — arrow (member access through pointer)
+struct ArrowExpr
+{
+    ASTNodePtr object;
+    std::string member;
+};
+
 // ─── Statement Types ─────────────────────────────────────────────────────────
 
 struct VarDecl
@@ -114,6 +135,7 @@ struct VarDecl
     std::string name;
     ASTNodePtr initializer; // may be null
     std::string typeHint;   // e.g. "int", "float", "char", "" = none
+    bool isPointer = false; // int* p = ...
 };
 
 struct FunctionDecl
@@ -214,7 +236,8 @@ struct TryStmt
 struct ImportStmt
 {
     std::string module; // e.g. "abc" for `from abc import...`, empty for `import sys`
-    struct Item {
+    struct Item
+    {
         std::string name;
         std::string alias; // empty if no alias
     };
@@ -245,7 +268,8 @@ using NodeVariant = std::variant<
     BreakStmt, ContinueStmt, SuperExpr,
     RaiseStmt, TryStmt,
     ImportStmt, ClassDecl,
-    TernaryExpr>;
+    TernaryExpr,
+    AddressOfExpr, DerefExpr, ArrowExpr>;
 
 struct ASTNode
 {

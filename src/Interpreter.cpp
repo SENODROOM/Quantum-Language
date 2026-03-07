@@ -1149,6 +1149,16 @@ void Interpreter::registerNatives()
         };
         globals->define("__format__", QuantumValue(nat));
     }
+
+    // ── nullptr and NULL constants ─────────────────────────────────────────
+    {
+        auto nullPtr = std::make_shared<QuantumPointer>();
+        nullPtr->cell = nullptr;
+        nullPtr->varName = "nullptr";
+        nullPtr->offset = 0;
+        globals->define("nullptr", QuantumValue(nullPtr));
+        globals->define("NULL", QuantumValue(nullPtr));
+    }
 }
 
 // ─── Execute ─────────────────────────────────────────────────────────────────
@@ -1158,7 +1168,7 @@ void Interpreter::execute(ASTNode &node)
     std::visit([&](auto &n)
                {
         using T = std::decay_t<decltype(n)>;
-        if constexpr (std::is_same_v<T, BlockStmt>)      execBlock(n);
+        if constexpr (std::is_same_v<T, BlockStmt>)      execBlock(n, env); // same scope — no new env
         else if constexpr (std::is_same_v<T, VarDecl>)       execVarDecl(n);
         else if constexpr (std::is_same_v<T, FunctionDecl>)  execFunctionDecl(n);
         else if constexpr (std::is_same_v<T, ClassDecl>)     execClassDecl(n);
@@ -2053,6 +2063,9 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
             // If we get here, it's a bare super reference
             throw RuntimeError("Cannot use 'super' outside of a method call");
         }
+        else if constexpr (std::is_same_v<T, AddressOfExpr>) return evalAddressOf(n);
+        else if constexpr (std::is_same_v<T, DerefExpr>)     return evalDeref(n);
+        else if constexpr (std::is_same_v<T, ArrowExpr>)     return evalArrow(n);
         else {
             execute(node);
             return QuantumValue();
@@ -2276,6 +2289,46 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
     if (op == ">>")
         return QuantumValue((double)(toInt(lv, ">>") >> toInt(rv, ">>")));
 
+    // ── Pointer arithmetic ────────────────────────────────────────────────
+    if (lv.isPointer() && rv.isNumber())
+    {
+        auto ptr = lv.asPointer();
+        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
+        if (op == "+")
+            newPtr->offset += (int)rv.asNumber();
+        else if (op == "-")
+            newPtr->offset -= (int)rv.asNumber();
+        else
+            throw RuntimeError("Unsupported pointer operator: " + op);
+        return QuantumValue(newPtr);
+    }
+    if (rv.isPointer() && lv.isNumber() && op == "+")
+    {
+        auto ptr = rv.asPointer();
+        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
+        newPtr->offset += (int)lv.asNumber();
+        return QuantumValue(newPtr);
+    }
+    // Pointer difference
+    if (lv.isPointer() && rv.isPointer() && op == "-")
+        return QuantumValue((double)(lv.asPointer()->offset - rv.asPointer()->offset));
+    // Pointer comparison (ptr == nullptr, ptr == ptr, ptr != nullptr)
+    if (lv.isPointer() || rv.isPointer())
+    {
+        if (op == "==" || op == "!=")
+        {
+            bool eq = false;
+            if (lv.isPointer() && rv.isNil())
+                eq = lv.asPointer()->isNull();
+            else if (rv.isPointer() && lv.isNil())
+                eq = rv.asPointer()->isNull();
+            else if (lv.isPointer() && rv.isPointer())
+                eq = (lv.asPointer()->cell == rv.asPointer()->cell &&
+                      lv.asPointer()->offset == rv.asPointer()->offset);
+            return QuantumValue(op == "==" ? eq : !eq);
+        }
+    }
+
     throw RuntimeError("Unknown operator: " + op);
 }
 
@@ -2288,6 +2341,9 @@ QuantumValue Interpreter::evalUnary(UnaryExpr &e)
         return QuantumValue(!v.isTruthy());
     if (e.op == "~")
         return QuantumValue((double)~toInt(v, "~"));
+    // Pointer-aware increment/decrement (operand already evaluated above as 'v')
+    // The orignal parsePostfix already converts p++ into AssignExpr(+=, p, 1)
+    // so we only need to handle pointer arithmetic for any raw unary ++ that might arrive
     throw RuntimeError("Unknown unary op: " + e.op);
 }
 
@@ -2409,6 +2465,42 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         {
             (*obj.asDict())[me.member] = applyOp(obj.asDict()->count(me.member) ? (*obj.asDict())[me.member] : QuantumValue());
         }
+    }
+    else if (target.is<DerefExpr>())
+    {
+        // *ptr = value
+        auto &de = target.as<DerefExpr>();
+        auto ptrVal = evaluate(*de.operand);
+        if (!ptrVal.isPointer())
+            throw RuntimeError("Cannot dereference non-pointer");
+        auto ptr = ptrVal.asPointer();
+        if (ptr->isNull())
+            throw RuntimeError("Null pointer dereference");
+        *ptr->cell = applyOp(*ptr->cell);
+    }
+    else if (target.is<ArrowExpr>())
+    {
+        // ptr->member = value
+        auto &ae = target.as<ArrowExpr>();
+        auto ptrVal = evaluate(*ae.object);
+        if (!ptrVal.isPointer())
+            throw RuntimeError("Arrow operator requires pointer");
+        auto ptr = ptrVal.asPointer();
+        if (ptr->isNull())
+            throw RuntimeError("Null pointer dereference via ->");
+        auto &cell = *ptr->cell;
+        if (cell.isInstance())
+        {
+            auto inst = cell.asInstance();
+            auto cur = inst->fields.count(ae.member) ? inst->fields[ae.member] : QuantumValue();
+            inst->setField(ae.member, applyOp(cur));
+        }
+        else if (cell.isDict())
+        {
+            (*cell.asDict())[ae.member] = applyOp(cell.asDict()->count(ae.member) ? (*cell.asDict())[ae.member] : QuantumValue());
+        }
+        else
+            throw RuntimeError("Cannot use -> on non-struct type");
     }
 }
 
@@ -2865,6 +2957,73 @@ QuantumValue Interpreter::evalLambda(LambdaExpr &e)
     fn->body = e.body.get();
     fn->closure = env;
     return QuantumValue(fn);
+}
+
+// ─── C++ Pointer Operators ────────────────────────────────────────────────────
+
+QuantumValue Interpreter::evalAddressOf(AddressOfExpr &e)
+{
+    // &var — returns a live shared pointer to the variable's cell
+    if (!e.operand->is<Identifier>())
+        throw RuntimeError("Address-of operator requires an lvalue variable");
+    const std::string &name = e.operand->as<Identifier>().name;
+
+    // Ensure variable exists
+    if (!env->has(name))
+        env->define(name, QuantumValue());
+
+    auto cell = env->getCell(name);
+    if (!cell)
+        throw RuntimeError("Could not get address of '" + name + "'");
+
+    auto ptr = std::make_shared<QuantumPointer>();
+    ptr->cell = cell;
+    ptr->varName = name;
+    ptr->offset = 0;
+    return QuantumValue(ptr);
+}
+
+QuantumValue Interpreter::evalDeref(DerefExpr &e)
+{
+    // *ptr — read the value the pointer points to
+    auto ptrVal = evaluate(*e.operand);
+    if (!ptrVal.isPointer())
+        throw RuntimeError("Cannot dereference non-pointer (type: " + ptrVal.typeName() + ")");
+    auto ptr = ptrVal.asPointer();
+    if (ptr->isNull())
+        throw RuntimeError("Null pointer dereference");
+    return *ptr->cell;
+}
+
+QuantumValue Interpreter::evalArrow(ArrowExpr &e)
+{
+    // ptr->member — dereference pointer then access member
+    auto ptrVal = evaluate(*e.object);
+    if (!ptrVal.isPointer())
+        throw RuntimeError("Arrow operator requires a pointer (type: " + ptrVal.typeName() + ")");
+    auto ptr = ptrVal.asPointer();
+    if (ptr->isNull())
+        throw RuntimeError("Null pointer dereference via ->");
+    auto &cell = *ptr->cell;
+    if (cell.isInstance())
+    {
+        auto inst = cell.asInstance();
+        try
+        {
+            return inst->getField(e.member);
+        }
+        catch (...)
+        {
+            throw TypeError("No member '" + e.member + "' on pointed-to instance");
+        }
+    }
+    if (cell.isDict())
+    {
+        auto dict = cell.asDict();
+        auto it = dict->find(e.member);
+        return it != dict->end() ? it->second : QuantumValue();
+    }
+    throw RuntimeError("Cannot use -> on type " + cell.typeName());
 }
 
 // ─── Built-in Method Dispatch ────────────────────────────────────────────────
