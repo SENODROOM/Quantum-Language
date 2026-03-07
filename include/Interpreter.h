@@ -48,6 +48,7 @@ private:
     QuantumValue evalAddressOf(AddressOfExpr &e); // &var
     QuantumValue evalDeref(DerefExpr &e);         // *ptr
     QuantumValue evalArrow(ArrowExpr &e);         // ptr->member
+    QuantumValue evalNewExpr(NewExpr &e);         // new T(args)
 
     QuantumValue callFunction(std::shared_ptr<QuantumFunction> fn, std::vector<QuantumValue> args);
     QuantumValue callNative(std::shared_ptr<QuantumNative> fn, std::vector<QuantumValue> args);

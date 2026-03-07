@@ -21,7 +21,8 @@ struct QuantumFunction
 {
     std::string name;
     std::vector<std::string> params;
-    ASTNode *body; // non-owning ptr
+    std::vector<bool> paramIsRef; // true = pass-by-reference (int& r)
+    ASTNode *body;                // non-owning ptr
     std::shared_ptr<Environment> closure;
 };
 
@@ -129,6 +130,8 @@ public:
     explicit Environment(std::shared_ptr<Environment> parent = nullptr);
 
     void define(const std::string &name, QuantumValue val, bool isConst = false);
+    // defineRef: bind a parameter name directly to a shared cell (pass-by-reference)
+    void defineRef(const std::string &name, std::shared_ptr<QuantumValue> cell);
     QuantumValue get(const std::string &name) const;
     void set(const std::string &name, QuantumValue val);
     bool has(const std::string &name) const;

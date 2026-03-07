@@ -142,7 +142,8 @@ struct FunctionDecl
 {
     std::string name;
     std::vector<std::string> params;
-    ASTNodePtr body; // BlockStmt
+    std::vector<bool> paramIsRef; // true = pass-by-reference (int& r), false = by-value
+    ASTNodePtr body;              // BlockStmt
 };
 
 struct ReturnStmt
@@ -253,6 +254,12 @@ struct ClassDecl
     std::vector<ASTNodePtr> fields;
 };
 
+struct NewExpr
+{
+    std::string typeName; // "int", "float", "MyClass", etc.
+    std::vector<ASTNodePtr> args;
+};
+
 // ─── ASTNode variant ─────────────────────────────────────────────────────────
 
 using NodeVariant = std::variant<
@@ -269,7 +276,8 @@ using NodeVariant = std::variant<
     RaiseStmt, TryStmt,
     ImportStmt, ClassDecl,
     TernaryExpr,
-    AddressOfExpr, DerefExpr, ArrowExpr>;
+    AddressOfExpr, DerefExpr, ArrowExpr,
+    NewExpr>;
 
 struct ASTNode
 {

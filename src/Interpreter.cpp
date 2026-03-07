@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <unordered_set>
 #include <sstream>
 #include <fstream>
 #include <chrono>
@@ -1341,6 +1342,21 @@ void Interpreter::execVarDecl(VarDecl &s)
         }
     }
 
+    // ── Pointer variable: int* p = new int(100) / int* p = &a ────────────────
+    // If the VarDecl is declared as a pointer (int* p) and the initializer
+    // produced a plain value (not already a pointer), wrap it in a heap cell.
+    if (s.isPointer && !val.isPointer())
+    {
+        if (!val.isNil())
+        {
+            auto cell = std::make_shared<QuantumValue>(val);
+            auto ptr = std::make_shared<QuantumPointer>();
+            ptr->cell = cell;
+            ptr->varName = s.name;
+            val = QuantumValue(ptr);
+        }
+    }
+
     env->define(s.name, std::move(val), s.isConst);
 }
 
@@ -1349,6 +1365,7 @@ void Interpreter::execFunctionDecl(FunctionDecl &s)
     auto fn = std::make_shared<QuantumFunction>();
     fn->name = s.name;
     fn->params = s.params;
+    fn->paramIsRef = s.paramIsRef;
     fn->body = s.body.get();
     fn->closure = env;
     env->define(s.name, QuantumValue(fn));
@@ -2066,6 +2083,7 @@ QuantumValue Interpreter::evaluate(ASTNode &node)
         else if constexpr (std::is_same_v<T, AddressOfExpr>) return evalAddressOf(n);
         else if constexpr (std::is_same_v<T, DerefExpr>)     return evalDeref(n);
         else if constexpr (std::is_same_v<T, ArrowExpr>)     return evalArrow(n);
+        else if constexpr (std::is_same_v<T, NewExpr>)       return evalNewExpr(n);
         else {
             execute(node);
             return QuantumValue();
@@ -2378,6 +2396,26 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         auto &name = target.as<Identifier>().name;
         if (op == "=")
         {
+            // If assigning a plain value to an existing pointer variable (e.g. c = new int(300)),
+            // wrap the value in a new heap cell so the pointer stays valid.
+            if (env->has(name) && !val.isPointer() && !val.isNil())
+            {
+                try
+                {
+                    auto existing = env->get(name);
+                    if (existing.isPointer())
+                    {
+                        auto cell = std::make_shared<QuantumValue>(val);
+                        auto ptr = std::make_shared<QuantumPointer>();
+                        ptr->cell = cell;
+                        ptr->varName = name;
+                        val = QuantumValue(ptr);
+                    }
+                }
+                catch (...)
+                {
+                }
+            }
             // Python-style: if variable doesn't exist anywhere, define it in current scope
             // But if we're inside a method (self exists) and variable not yet in any scope,
             // store as instance field (C++ style: heroName = value is equivalent to self.heroName = value)
@@ -2604,8 +2642,37 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
 
     auto callee = evaluate(*e.callee);
     std::vector<QuantumValue> args;
-    for (auto &a : e.args)
-        args.push_back(evaluate(*a));
+
+    // For QuantumFunctions with reference params, pass live cells for ref args
+    // so the callee can write back through them
+    if (callee.isFunction() && std::holds_alternative<std::shared_ptr<QuantumFunction>>(callee.data))
+    {
+        auto fn = callee.asFunction();
+        for (size_t i = 0; i < e.args.size(); i++)
+        {
+            bool isRef = (i < fn->paramIsRef.size()) && fn->paramIsRef[i];
+            if (isRef && e.args[i]->is<Identifier>())
+            {
+                // Pass by reference: wrap in a pointer to the caller's live cell
+                const std::string &varName = e.args[i]->as<Identifier>().name;
+                auto cell = env->getCell(varName);
+                if (cell)
+                {
+                    auto ptr = std::make_shared<QuantumPointer>();
+                    ptr->cell = cell;
+                    ptr->varName = varName;
+                    args.push_back(QuantumValue(ptr));
+                    continue;
+                }
+            }
+            args.push_back(evaluate(*e.args[i]));
+        }
+    }
+    else
+    {
+        for (auto &a : e.args)
+            args.push_back(evaluate(*a));
+    }
 
     // Class construction: ClassName(args)
     if (callee.isClass())
@@ -2701,7 +2768,35 @@ QuantumValue Interpreter::callFunction(std::shared_ptr<QuantumFunction> fn, std:
     auto scope = std::make_shared<Environment>(fn->closure);
     for (size_t i = 0; i < fn->params.size(); i++)
     {
+        bool isRef = (i < fn->paramIsRef.size()) && fn->paramIsRef[i];
         QuantumValue v = i < args.size() ? args[i] : QuantumValue();
+
+        if (isRef)
+        {
+            // Pass-by-reference: the arg must be a QuantumPointer (from &var or the var's cell).
+            // If the caller already passed a pointer, use its cell directly in scope.
+            // If the caller passed a plain value (e.g. cubeByRef(b) without explicit &),
+            // we need the caller's env to have a live cell for 'b'. We wrap the value
+            // in a new shared cell and bind it — then sync back after the call.
+            if (v.isPointer())
+            {
+                // Already a pointer — bind param name to a local that shares the cell
+                auto ptr = v.asPointer();
+                if (!ptr->isNull())
+                {
+                    scope->defineRef(fn->params[i], ptr->cell);
+                    continue;
+                }
+            }
+            // Plain value passed for a ref param: create a cell, bind it, sync after call
+            auto cell = std::make_shared<QuantumValue>(v);
+            scope->defineRef(fn->params[i], cell);
+            // After the call we'll write *cell back to the caller arg — but we can't
+            // reach caller's env here. The cell IS shared though, so if the caller
+            // passed via getCell the sync is automatic.
+            continue;
+        }
+
         scope->define(fn->params[i], std::move(v));
     }
     QuantumValue result;
@@ -3024,6 +3119,115 @@ QuantumValue Interpreter::evalArrow(ArrowExpr &e)
         return it != dict->end() ? it->second : QuantumValue();
     }
     throw RuntimeError("Cannot use -> on type " + cell.typeName());
+}
+
+QuantumValue Interpreter::evalNewExpr(NewExpr &e)
+{
+    // Evaluate constructor arguments
+    std::vector<QuantumValue> args;
+    for (auto &a : e.args)
+        args.push_back(evaluate(*a));
+
+    // For primitive types (int, float, double, char, bool),
+    // allocate a heap cell and return a pointer to it
+    static const std::unordered_set<std::string> primitives = {
+        "int", "long", "short", "unsigned", "float", "double", "char", "bool"};
+
+    QuantumValue val;
+    if (primitives.count(e.typeName))
+    {
+        // Cast the first arg to the right type
+        val = args.empty() ? QuantumValue(0.0) : args[0];
+        if (e.typeName == "int" || e.typeName == "long" || e.typeName == "short" || e.typeName == "unsigned")
+        {
+            if (val.isNumber())
+                val = QuantumValue((double)(long long)val.asNumber());
+        }
+        else if (e.typeName == "char")
+        {
+            if (val.isNumber())
+                val = QuantumValue(std::string(1, (char)(int)val.asNumber()));
+            else if (val.isString())
+                val = QuantumValue(val.asString().empty() ? std::string("") : std::string(1, val.asString()[0]));
+        }
+        else if (e.typeName == "bool")
+            val = QuantumValue(val.isTruthy());
+    }
+    else
+    {
+        // Class type: look up the class and construct an instance
+        QuantumValue classVal;
+        try
+        {
+            classVal = env->get(e.typeName);
+        }
+        catch (...)
+        {
+        }
+        if (classVal.isClass())
+        {
+            auto calleeNode = std::make_unique<ASTNode>(Identifier{e.typeName}, 0);
+            CallExpr ce;
+            ce.callee = std::move(calleeNode);
+            for (auto &a : e.args)
+                ce.args.push_back(std::make_unique<ASTNode>(NilLiteral{}, 0)); // placeholder
+            // Re-evaluate for class construction
+            auto klass = classVal.asClass();
+            auto inst = std::make_shared<QuantumInstance>();
+            inst->klass = klass;
+            inst->env = std::make_shared<Environment>(env);
+            QuantumValue instVal(inst);
+            auto k = klass.get();
+            std::shared_ptr<QuantumFunction> initFn;
+            std::string overloadKey = "init#" + std::to_string(args.size());
+            while (k && !initFn)
+            {
+                auto oit = k->methods.find(overloadKey);
+                if (oit != k->methods.end())
+                {
+                    initFn = oit->second;
+                    break;
+                }
+                auto it = k->methods.find("init");
+                if (it != k->methods.end())
+                    initFn = it->second;
+                k = k->base.get();
+            }
+            if (initFn)
+            {
+                auto scope = std::make_shared<Environment>(initFn->closure);
+                scope->define("self", instVal);
+                scope->define("this", instVal);
+                size_t paramStart = (!initFn->params.empty() && (initFn->params[0] == "self" || initFn->params[0] == "this")) ? 1 : 0;
+                for (size_t i = paramStart; i < initFn->params.size(); i++)
+                {
+                    size_t ai = i - paramStart;
+                    scope->define(initFn->params[i], ai < args.size() ? args[ai] : QuantumValue());
+                }
+                try
+                {
+                    execBlock(initFn->body->as<BlockStmt>(), scope);
+                }
+                catch (ReturnSignal &)
+                {
+                }
+            }
+            // Wrap instance in a pointer cell
+            auto cell = std::make_shared<QuantumValue>(instVal);
+            auto ptr = std::make_shared<QuantumPointer>();
+            ptr->cell = cell;
+            ptr->varName = e.typeName;
+            return QuantumValue(ptr);
+        }
+        val = args.empty() ? QuantumValue() : args[0];
+    }
+
+    // Wrap the primitive value in a heap cell and return a pointer
+    auto cell = std::make_shared<QuantumValue>(val);
+    auto ptr = std::make_shared<QuantumPointer>();
+    ptr->cell = cell;
+    ptr->varName = e.typeName;
+    return QuantumValue(ptr);
 }
 
 // ─── Built-in Method Dispatch ────────────────────────────────────────────────

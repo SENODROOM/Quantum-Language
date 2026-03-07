@@ -114,8 +114,19 @@ void Environment::define(const std::string &name, QuantumValue val, bool isConst
         constants[name] = true;
 }
 
+void Environment::defineRef(const std::string &name, std::shared_ptr<QuantumValue> cell)
+{
+    // Bind name directly to the shared cell — reads/writes go through it automatically
+    cells[name] = cell;
+    vars[name] = *cell; // keep vars in sync for iteration (e.g. getVars())
+}
+
 QuantumValue Environment::get(const std::string &name) const
 {
+    // Check cells first: if a pointer has written through &var, cells holds the live value
+    auto cit = cells.find(name);
+    if (cit != cells.end())
+        return *cit->second;
     auto it = vars.find(name);
     if (it != vars.end())
         return it->second;
@@ -131,8 +142,8 @@ void Environment::set(const std::string &name, QuantumValue val)
     {
         if (constants.count(name))
             throw RuntimeError("Cannot reassign constant '" + name + "'");
-        it->second = val; // copy to local
-        // Also update any live shared cell for this name so pointers see the new value
+        it->second = val; // update local vars map
+        // Sync to any live shared cell (covers both pointer and ref cases)
         auto cit = cells.find(name);
         if (cit != cells.end())
             *cit->second = val;

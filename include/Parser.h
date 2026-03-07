@@ -73,5 +73,6 @@ private:
     ASTNodePtr parseLambda();
     ASTNodePtr parseArrowFunction(std::vector<std::string> params, int ln);
     std::vector<ASTNodePtr> parseArgList();
-    std::vector<std::string> parseParamList();
+    // Returns param names; populates outIsRef with true for each & (reference) param
+    std::vector<std::string> parseParamList(std::vector<bool> *outIsRef = nullptr);
 };

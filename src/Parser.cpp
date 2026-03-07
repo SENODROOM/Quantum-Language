@@ -89,7 +89,34 @@ ASTNodePtr Parser::parseStatement()
     }
     case TokenType::CONST:
     {
-        consume();
+        consume(); // eat 'const'
+        // C-style: "const int* p = &a" — const followed by a type keyword
+        // In this case treat as a C-type var decl (the const is just a qualifier, ignore it)
+        if (isCTypeKeyword(current().type))
+        {
+            // Re-use the TYPE_INT/etc. branch logic inline:
+            // eat all type keywords (e.g. "const int", "const unsigned long")
+            std::string typeHint = consume().value;
+            while (isCTypeKeyword(current().type))
+                typeHint += " " + consume().value;
+            // eat trailing const after type: "int* const ptr"
+            if (check(TokenType::CONST))
+                consume();
+            auto firstDecl = parseCTypeVarDecl(typeHint);
+            if (!check(TokenType::COMMA))
+                return firstDecl;
+            auto block = std::make_unique<ASTNode>(BlockStmt{}, ln);
+            block->as<BlockStmt>().statements.push_back(std::move(firstDecl));
+            while (check(TokenType::COMMA))
+            {
+                consume();
+                block->as<BlockStmt>().statements.push_back(parseCTypeVarDecl(typeHint));
+            }
+            while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                consume();
+            return block;
+        }
+        // Quantum/JS style: "const x = 5"
         return parseVarDecl(true);
     }
     case TokenType::FN:
@@ -258,7 +285,13 @@ ASTNodePtr Parser::parseStatement()
         //       "string = x" → plain assignment (string used as variable name)
         // Peek past any chained type qualifiers to find the next real token.
         size_t lookahead = pos + 1;
-        while (lookahead < tokens.size() && isCTypeKeyword(tokens[lookahead].type))
+        while (lookahead < tokens.size() && (isCTypeKeyword(tokens[lookahead].type) ||
+                                             tokens[lookahead].type == TokenType::CONST))
+            ++lookahead;
+        // Skip pointer/reference qualifiers between type and name: int* funcName, int& ref
+        while (lookahead < tokens.size() &&
+               (tokens[lookahead].type == TokenType::STAR || tokens[lookahead].type == TokenType::BIT_AND ||
+                tokens[lookahead].type == TokenType::CONST))
             ++lookahead;
         if (lookahead < tokens.size() && tokens[lookahead].type == TokenType::IDENTIFIER)
         {
@@ -269,12 +302,15 @@ ASTNodePtr Parser::parseStatement()
             if (la2 < tokens.size() && tokens[la2].type == TokenType::LPAREN)
             {
                 // It's a function definition — consume return type and parse as function
-                while (isCTypeKeyword(current().type))
-                    consume(); // eat return type
+                while (isCTypeKeyword(current().type) || check(TokenType::CONST))
+                    consume(); // eat return type keywords + const
+                // Also eat any pointer/reference qualifiers: int* funcName → eat *
+                while (check(TokenType::STAR) || check(TokenType::BIT_AND) || check(TokenType::CONST))
+                    consume();
                 return parseFunctionDecl();
             }
             auto typeHint = consume().value;
-            while (isCTypeKeyword(current().type))
+            while (isCTypeKeyword(current().type) || check(TokenType::CONST))
                 typeHint += " " + consume().value;
 
             // Consume pointer stars that come BEFORE any name, e.g. "int* a, *b, c"
@@ -302,6 +338,22 @@ ASTNodePtr Parser::parseStatement()
         return parseExprStmt();
     }
     default:
+        // Handle C++ "delete ptr" and "delete[] ptr" as no-ops (GC handles memory)
+        if (check(TokenType::IDENTIFIER) && current().value == "delete")
+        {
+            consume(); // eat 'delete'
+            if (check(TokenType::LBRACKET))
+            {
+                consume();
+                if (check(TokenType::RBRACKET))
+                    consume();
+            }
+            if (!check(TokenType::NEWLINE) && !check(TokenType::SEMICOLON) && !atEnd())
+                parseExpr();
+            while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
+                consume();
+            return std::make_unique<ASTNode>(BlockStmt{}, ln);
+        }
         // Handle C++ "using namespace X;" as a no-op
         if (check(TokenType::IDENTIFIER) && current().value == "using")
         {
@@ -458,7 +510,8 @@ ASTNodePtr Parser::parseFunctionDecl()
 {
     int ln = current().line;
     auto nameToken = expect(TokenType::IDENTIFIER, "Expected function name");
-    auto params = parseParamList();
+    std::vector<bool> paramIsRef;
+    auto params = parseParamList(&paramIsRef);
 
     // Skip optional return type annotation: -> type  or  -> SomeType
     if (check(TokenType::ARROW))
@@ -471,8 +524,32 @@ ASTNodePtr Parser::parseFunctionDecl()
 
     match(TokenType::COLON); // optional Python-style colon
     skipNewlines();
+
+    // ── C++ forward declaration / prototype support ───────────────────────────
+    // If there's no body (just a ';' or end-of-line), this is a forward
+    // declaration like:  void cubeByPtr(int* p);
+    // We treat it as a no-op and return an empty function stub.
+    if (check(TokenType::SEMICOLON) || check(TokenType::NEWLINE) || atEnd())
+    {
+        while (check(TokenType::SEMICOLON) || check(TokenType::NEWLINE))
+            consume();
+        // Return an empty block as the body (no-op prototype)
+        auto emptyBody = std::make_unique<ASTNode>(BlockStmt{}, ln);
+        FunctionDecl fd;
+        fd.name = nameToken.value;
+        fd.params = std::move(params);
+        fd.paramIsRef = std::move(paramIsRef);
+        fd.body = std::move(emptyBody);
+        return std::make_unique<ASTNode>(std::move(fd), ln);
+    }
+
     auto body = parseBlock();
-    return std::make_unique<ASTNode>(FunctionDecl{nameToken.value, std::move(params), std::move(body)}, ln);
+    FunctionDecl fd;
+    fd.name = nameToken.value;
+    fd.params = std::move(params);
+    fd.paramIsRef = std::move(paramIsRef);
+    fd.body = std::move(body);
+    return std::make_unique<ASTNode>(std::move(fd), ln);
 }
 
 ASTNodePtr Parser::parseClassDecl()
@@ -582,7 +659,8 @@ ASTNodePtr Parser::parseClassDecl()
                 consume(); // eat ~
                 if (check(TokenType::IDENTIFIER))
                     consume(); // eat class name
-                auto params = parseParamList();
+                std::vector<bool> destructorParamIsRef;
+                auto params = parseParamList(&destructorParamIsRef);
 
                 // Skip optional return type annotation: -> ReturnType
                 if (check(TokenType::ARROW))
@@ -595,8 +673,11 @@ ASTNodePtr Parser::parseClassDecl()
                 match(TokenType::COLON);
                 skipNewlines();
                 auto body = parseBlock();
-                auto fn = std::make_unique<ASTNode>(
-                    FunctionDecl{"__del__", std::move(params), std::move(body)}, ln);
+                FunctionDecl delFd;
+                delFd.name = "__del__";
+                delFd.params = std::move(params);
+                delFd.body = std::move(body);
+                auto fn = std::make_unique<ASTNode>(std::move(delFd), ln);
                 cd.methods.push_back(std::move(fn));
                 skipNewlines();
                 continue;
@@ -755,7 +836,8 @@ ASTNodePtr Parser::parseClassDecl()
                 continue;
             }
 
-            auto params = parseParamList();
+            std::vector<bool> methodParamIsRef;
+            auto params = parseParamList(&methodParamIsRef);
 
             // Skip trailing C++ const: method() const { }
             if (check(TokenType::CONST))
@@ -782,8 +864,12 @@ ASTNodePtr Parser::parseClassDecl()
             skipNewlines();
             auto body = parseBlock();
 
-            auto fn = std::make_unique<ASTNode>(
-                FunctionDecl{methodName, std::move(params), std::move(body)}, ln);
+            FunctionDecl methodFd;
+            methodFd.name = methodName;
+            methodFd.params = std::move(params);
+            methodFd.paramIsRef = std::move(methodParamIsRef);
+            methodFd.body = std::move(body);
+            auto fn = std::make_unique<ASTNode>(std::move(methodFd), ln);
 
             if (isStatic)
                 cd.staticMethods.push_back(std::move(fn));
@@ -1737,14 +1823,44 @@ ASTNodePtr Parser::parsePrimary()
         return std::make_unique<ASTNode>(Identifier{"self"}, ln);
     }
 
-    // new ClassName(args) → CallExpr on the class constructor
+    // new int(100) / new ClassName(args) / new int[n]
     if (tok.type == TokenType::NEW)
     {
         consume();
-        auto name = expect(TokenType::IDENTIFIER, "Expected class name after \'new\'").value;
-        auto callee = std::make_unique<ASTNode>(Identifier{name}, ln);
-        auto args = parseArgList();
-        return std::make_unique<ASTNode>(CallExpr{std::move(callee), std::move(args)}, ln);
+        // Accept both identifier class names AND C++ primitive type keywords
+        std::string name;
+        if (check(TokenType::IDENTIFIER))
+            name = consume().value;
+        else if (isCTypeKeyword(current().type))
+            name = consume().value;
+        else
+            throw ParseError("Expected type name after 'new'", current().line, current().col);
+
+        // new int[n] — array allocation: treat as a nil/zero value (no real heap)
+        if (check(TokenType::LBRACKET))
+        {
+            consume(); // eat '['
+            // consume size expression
+            int depth = 1;
+            while (!atEnd() && depth > 0)
+            {
+                if (check(TokenType::LBRACKET))
+                    depth++;
+                else if (check(TokenType::RBRACKET))
+                    depth--;
+                consume();
+            }
+            // Return nil — pointer will be assigned separately
+            return std::make_unique<ASTNode>(NilLiteral{}, ln);
+        }
+
+        // new int(100) / new ClassName(args) — heap allocation, always returns a pointer
+        auto argNodes = parseArgList();
+        NewExpr ne;
+        ne.typeName = name;
+        for (auto &a : argNodes)
+            ne.args.push_back(std::move(a));
+        return std::make_unique<ASTNode>(std::move(ne), ln);
     }
 
     // super → super() or super.method()
@@ -2045,7 +2161,7 @@ ASTNodePtr Parser::parseLambda()
 {
     // Called after consuming fn / function / def keyword (anonymous form)
     int ln = current().line;
-    auto params = parseParamList();
+    auto params = parseParamList(nullptr);
     match(TokenType::COLON); // Python: def style
     if (!match(TokenType::FAT_ARROW))
         match(TokenType::ARROW); // JS => or Quantum ->
@@ -2153,7 +2269,7 @@ std::vector<ASTNodePtr> Parser::parseArgList()
     return args;
 }
 
-std::vector<std::string> Parser::parseParamList()
+std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef)
 {
     expect(TokenType::LPAREN, "Expected '('");
     std::vector<std::string> params;
@@ -2172,7 +2288,7 @@ std::vector<std::string> Parser::parseParamList()
         }
 
         // C++ style: identifier type before name (e.g. "string name", "TownsvilleGuardian &other")
-        // Detect: IDENTIFIER followed by (BIT_AND or IDENTIFIER) — means it's a type name
+        // Detect: IDENTIFIER followed by (BIT_AND or STAR or IDENTIFIER) — means it's a type name
         if (check(TokenType::IDENTIFIER))
         {
             // Peek ahead: if next non-& token is an identifier, this token is a type name
@@ -2185,17 +2301,34 @@ std::vector<std::string> Parser::parseParamList()
             }
         }
 
-        // Skip reference/pointer qualifiers: & or *
+        // Detect whether this param is a pointer (*) or reference (&)
+        bool isRef = false;
         while (check(TokenType::BIT_AND) || check(TokenType::STAR))
+        {
+            if (check(TokenType::BIT_AND))
+                isRef = true; // & = pass-by-reference
             consume();
+        }
 
         if (check(TokenType::IDENTIFIER))
         {
             params.push_back(consume().value);
+            if (outIsRef)
+                outIsRef->push_back(isRef);
         }
         else if (check(TokenType::THIS))
         {
             params.push_back(consume().value);
+            if (outIsRef)
+                outIsRef->push_back(false);
+        }
+        else if (check(TokenType::COMMA) || check(TokenType::RPAREN))
+        {
+            // Unnamed parameter: e.g. void foo(int*, int) — just skip, no name to bind
+            // Generate a placeholder name so param count stays consistent
+            params.push_back("__unnamed_" + std::to_string(params.size()));
+            if (outIsRef)
+                outIsRef->push_back(isRef);
         }
         else
         {
@@ -2279,12 +2412,14 @@ bool Parser::isCTypeKeyword(TokenType t) const
 ASTNodePtr Parser::parseCTypeVarDecl(const std::string &typeHint)
 {
     int ln = current().line;
-    // Consume any pointer stars between type and name: int* p  or  int *p  or  int**p
+    // Consume any pointer stars and const qualifiers between type and name:
+    // int* p  /  int *p  /  int* const p  /  const int* const p
     bool isPointer = false;
-    while (check(TokenType::STAR))
+    while (check(TokenType::STAR) || check(TokenType::CONST))
     {
+        if (check(TokenType::STAR))
+            isPointer = true;
         consume();
-        isPointer = true;
     }
     auto nameToken = expect(TokenType::IDENTIFIER, "Expected variable name after type");
     ASTNodePtr init;
