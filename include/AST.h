@@ -205,8 +205,9 @@ struct PrintStmt
 
 struct InputStmt
 {
-    std::string target;
+    std::string target; // simple variable name (legacy)
     ASTNodePtr prompt;
+    ASTNodePtr lvalueTarget; // optional: complex lvalue like arr[i]
 };
 
 struct BreakStmt
@@ -256,8 +257,10 @@ struct ClassDecl
 
 struct NewExpr
 {
-    std::string typeName; // "int", "float", "MyClass", etc.
-    std::vector<ASTNodePtr> args;
+    std::string typeName;         // "int", "float", "MyClass", etc.
+    std::vector<ASTNodePtr> args; // constructor args for new T(args)
+    bool isArray = false;         // true for new T[n]
+    ASTNodePtr sizeExpr;          // size expression for new T[n]
 };
 
 // ─── ASTNode variant ─────────────────────────────────────────────────────────

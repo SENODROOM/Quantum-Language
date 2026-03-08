@@ -1780,6 +1780,13 @@ void Interpreter::execInput(InputStmt &s)
         val = QuantumValue(line);
     }
 
+    if (s.lvalueTarget)
+    {
+        // Complex lvalue: arr[i], obj.field, *ptr, etc.
+        setLValue(*s.lvalueTarget, std::move(val), "=");
+        return;
+    }
+
     if (env->has(s.target))
         env->set(s.target, std::move(val));
     else
@@ -2154,6 +2161,46 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
     auto rv = evaluate(*e.right);
     const std::string &op = e.op;
 
+    // ── Pointer arithmetic (must be checked before generic +/-) ─────────────
+    if (lv.isPointer() && rv.isNumber())
+    {
+        auto ptr = lv.asPointer();
+        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
+        if (op == "+")
+            newPtr->offset += (int)rv.asNumber();
+        else if (op == "-")
+            newPtr->offset -= (int)rv.asNumber();
+        else
+            throw RuntimeError("Unsupported pointer operator: " + op);
+        return QuantumValue(newPtr);
+    }
+    if (rv.isPointer() && lv.isNumber() && op == "+")
+    {
+        auto ptr = rv.asPointer();
+        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
+        newPtr->offset += (int)lv.asNumber();
+        return QuantumValue(newPtr);
+    }
+    // Pointer difference
+    if (lv.isPointer() && rv.isPointer() && op == "-")
+        return QuantumValue((double)(lv.asPointer()->offset - rv.asPointer()->offset));
+    // Pointer comparison (ptr == nullptr, ptr == ptr, ptr != nullptr)
+    if (lv.isPointer() || rv.isPointer())
+    {
+        if (op == "==" || op == "!=")
+        {
+            bool eq = false;
+            if (lv.isPointer() && rv.isNil())
+                eq = lv.asPointer()->isNull();
+            else if (rv.isPointer() && lv.isNil())
+                eq = rv.asPointer()->isNull();
+            else if (lv.isPointer() && rv.isPointer())
+                eq = (lv.asPointer()->cell == rv.asPointer()->cell &&
+                      lv.asPointer()->offset == rv.asPointer()->offset);
+            return QuantumValue(op == "==" ? eq : !eq);
+        }
+    }
+
     if (op == "+")
     {
         if (lv.isString() || rv.isString())
@@ -2307,46 +2354,6 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
     if (op == ">>")
         return QuantumValue((double)(toInt(lv, ">>") >> toInt(rv, ">>")));
 
-    // ── Pointer arithmetic ────────────────────────────────────────────────
-    if (lv.isPointer() && rv.isNumber())
-    {
-        auto ptr = lv.asPointer();
-        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
-        if (op == "+")
-            newPtr->offset += (int)rv.asNumber();
-        else if (op == "-")
-            newPtr->offset -= (int)rv.asNumber();
-        else
-            throw RuntimeError("Unsupported pointer operator: " + op);
-        return QuantumValue(newPtr);
-    }
-    if (rv.isPointer() && lv.isNumber() && op == "+")
-    {
-        auto ptr = rv.asPointer();
-        auto newPtr = std::make_shared<QuantumPointer>(*ptr);
-        newPtr->offset += (int)lv.asNumber();
-        return QuantumValue(newPtr);
-    }
-    // Pointer difference
-    if (lv.isPointer() && rv.isPointer() && op == "-")
-        return QuantumValue((double)(lv.asPointer()->offset - rv.asPointer()->offset));
-    // Pointer comparison (ptr == nullptr, ptr == ptr, ptr != nullptr)
-    if (lv.isPointer() || rv.isPointer())
-    {
-        if (op == "==" || op == "!=")
-        {
-            bool eq = false;
-            if (lv.isPointer() && rv.isNil())
-                eq = lv.asPointer()->isNull();
-            else if (rv.isPointer() && lv.isNil())
-                eq = rv.asPointer()->isNull();
-            else if (lv.isPointer() && rv.isPointer())
-                eq = (lv.asPointer()->cell == rv.asPointer()->cell &&
-                      lv.asPointer()->offset == rv.asPointer()->offset);
-            return QuantumValue(op == "==" ? eq : !eq);
-        }
-    }
-
     throw RuntimeError("Unknown operator: " + op);
 }
 
@@ -2472,6 +2479,13 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         auto &ie = target.as<IndexExpr>();
         auto obj = evaluate(*ie.object);
         auto idx = evaluate(*ie.index);
+        // Unwrap pointer-to-array: float* arr = new float[n]; arr[i] = v
+        if (obj.isPointer())
+        {
+            auto ptr = obj.asPointer();
+            if (!ptr->isNull() && ptr->cell->isArray())
+                obj = *ptr->cell;
+        }
         if (obj.isArray())
         {
             int i = (int)toNum(idx, "index");
@@ -2506,7 +2520,7 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
     }
     else if (target.is<DerefExpr>())
     {
-        // *ptr = value
+        // *ptr = value  /  *(ptr + i) = value
         auto &de = target.as<DerefExpr>();
         auto ptrVal = evaluate(*de.operand);
         if (!ptrVal.isPointer())
@@ -2514,7 +2528,25 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         auto ptr = ptrVal.asPointer();
         if (ptr->isNull())
             throw RuntimeError("Null pointer dereference");
-        *ptr->cell = applyOp(*ptr->cell);
+        // Array-pointer with offset: *(ptr + i) = value
+        // Unwrap one level if cell itself holds a pointer (double-indirection)
+        auto cell = ptr->cell;
+        while (cell->isPointer())
+            cell = cell->asPointer()->cell;
+        if (cell->isArray())
+        {
+            auto arr = cell->asArray();
+            int i = ptr->offset;
+            if (i < 0)
+                i += (int)arr->size();
+            if (i < 0 || i >= (int)arr->size())
+                throw IndexError("Pointer write out of bounds (offset " + std::to_string(ptr->offset) + ")");
+            (*arr)[i] = applyOp((*arr)[i]);
+        }
+        else
+        {
+            *cell = applyOp(*cell);
+        }
     }
     else if (target.is<ArrowExpr>())
     {
@@ -2871,9 +2903,27 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
 {
     auto obj = evaluate(*e.object);
     auto idx = evaluate(*e.index);
+
+    // Pointer-to-array indexing: float* arr = new float[n];  arr[i]
+    if (obj.isPointer())
+    {
+        auto ptr = obj.asPointer();
+        if (!ptr->isNull() && ptr->cell->isArray())
+        {
+            obj = *ptr->cell; // unwrap to the array
+        }
+        else
+        {
+            // Pointer arithmetic: ptr[0] == *ptr
+            int i = idx.isNumber() ? (int)idx.asNumber() : 0;
+            if (i == 0 && !ptr->isNull())
+                return *ptr->cell;
+            throw TypeError("Cannot index pointer with offset " + std::to_string(i));
+        }
+    }
+
     if (obj.isArray())
     {
-        // Accept numeric strings as indices (e.g. dict keys "0", "1" used as array index)
         int i;
         if (idx.isNumber())
             i = (int)idx.asNumber();
@@ -3087,7 +3137,22 @@ QuantumValue Interpreter::evalDeref(DerefExpr &e)
     auto ptr = ptrVal.asPointer();
     if (ptr->isNull())
         throw RuntimeError("Null pointer dereference");
-    return *ptr->cell;
+    // Unwrap one level if cell itself holds a pointer (double-indirection)
+    auto cell = ptr->cell;
+    while (cell->isPointer())
+        cell = cell->asPointer()->cell;
+    // If the cell holds an array, index into it using offset: *(ptr + i)
+    if (cell->isArray())
+    {
+        auto arr = cell->asArray();
+        int i = ptr->offset;
+        if (i < 0)
+            i += (int)arr->size();
+        if (i < 0 || i >= (int)arr->size())
+            throw IndexError("Pointer dereference out of bounds (offset " + std::to_string(ptr->offset) + ")");
+        return (*arr)[i];
+    }
+    return *cell;
 }
 
 QuantumValue Interpreter::evalArrow(ArrowExpr &e)
@@ -3123,20 +3188,37 @@ QuantumValue Interpreter::evalArrow(ArrowExpr &e)
 
 QuantumValue Interpreter::evalNewExpr(NewExpr &e)
 {
-    // Evaluate constructor arguments
+    static const std::unordered_set<std::string> primitives = {
+        "int", "long", "short", "unsigned", "float", "double", "char", "bool"};
+
+    // ── new T[n] — allocate array of n zero-initialised elements ─────────────
+    if (e.isArray)
+    {
+        int n = 0;
+        if (e.sizeExpr)
+        {
+            auto sv = evaluate(*e.sizeExpr);
+            n = sv.isNumber() ? (int)sv.asNumber() : 0;
+        }
+        if (n < 0)
+            n = 0;
+        auto arr = std::make_shared<Array>();
+        arr->resize(n, QuantumValue(0.0));
+        auto cell = std::make_shared<QuantumValue>(QuantumValue(arr));
+        auto ptr = std::make_shared<QuantumPointer>();
+        ptr->cell = cell;
+        ptr->varName = e.typeName + "[]";
+        return QuantumValue(ptr);
+    }
+
+    // ── new T(args) — single-value heap allocation ────────────────────────────
     std::vector<QuantumValue> args;
     for (auto &a : e.args)
         args.push_back(evaluate(*a));
 
-    // For primitive types (int, float, double, char, bool),
-    // allocate a heap cell and return a pointer to it
-    static const std::unordered_set<std::string> primitives = {
-        "int", "long", "short", "unsigned", "float", "double", "char", "bool"};
-
     QuantumValue val;
     if (primitives.count(e.typeName))
     {
-        // Cast the first arg to the right type
         val = args.empty() ? QuantumValue(0.0) : args[0];
         if (e.typeName == "int" || e.typeName == "long" || e.typeName == "short" || e.typeName == "unsigned")
         {
@@ -3155,7 +3237,7 @@ QuantumValue Interpreter::evalNewExpr(NewExpr &e)
     }
     else
     {
-        // Class type: look up the class and construct an instance
+        // Class type — construct instance and wrap in pointer
         QuantumValue classVal;
         try
         {
@@ -3166,12 +3248,6 @@ QuantumValue Interpreter::evalNewExpr(NewExpr &e)
         }
         if (classVal.isClass())
         {
-            auto calleeNode = std::make_unique<ASTNode>(Identifier{e.typeName}, 0);
-            CallExpr ce;
-            ce.callee = std::move(calleeNode);
-            for (auto &a : e.args)
-                ce.args.push_back(std::make_unique<ASTNode>(NilLiteral{}, 0)); // placeholder
-            // Re-evaluate for class construction
             auto klass = classVal.asClass();
             auto inst = std::make_shared<QuantumInstance>();
             inst->klass = klass;
@@ -3212,7 +3288,6 @@ QuantumValue Interpreter::evalNewExpr(NewExpr &e)
                 {
                 }
             }
-            // Wrap instance in a pointer cell
             auto cell = std::make_shared<QuantumValue>(instVal);
             auto ptr = std::make_shared<QuantumPointer>();
             ptr->cell = cell;
@@ -3222,7 +3297,6 @@ QuantumValue Interpreter::evalNewExpr(NewExpr &e)
         val = args.empty() ? QuantumValue() : args[0];
     }
 
-    // Wrap the primitive value in a heap cell and return a pointer
     auto cell = std::make_shared<QuantumValue>(val);
     auto ptr = std::make_shared<QuantumPointer>();
     ptr->cell = cell;
