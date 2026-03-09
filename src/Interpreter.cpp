@@ -2623,8 +2623,11 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
             auto arr = obj.asArray();
             if (i < 0)
                 i += arr->size();
-            if (i < 0 || i >= (int)arr->size())
+            // Auto-extend on out-of-bounds WRITE (C dynamic array pattern: arr[count++]=val)
+            if (i < 0)
                 throw IndexError("Array index out of range");
+            if (i >= (int)arr->size())
+                arr->resize(i + 1, QuantumValue(0.0));
             (*arr)[i] = applyOp((*arr)[i]);
         }
         else if (obj.isString())
@@ -3557,6 +3560,40 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
         if (it != klass->staticMethods.end())
             return callFunction(it->second, std::move(args));
         throw TypeError("No static method '" + method + "' on class " + klass->name);
+    }
+    // smart-pointer / raw-pointer method stubs for weak_ptr, shared_ptr, unique_ptr
+    if (obj.isPointer())
+    {
+        auto ptr = obj.asPointer();
+        if (method == "lock")
+            // weak_ptr::lock() — returns the pointer if valid, nil if expired
+            return ptr->isNull() ? QuantumValue() : obj;
+        if (method == "use_count")
+            return QuantumValue(1.0); // we don't track ref counts; 1 is a safe stub
+        if (method == "expired")
+            return QuantumValue(ptr->isNull()); // null pointer → expired
+        if (method == "get")
+            return obj; // return the pointer itself
+        if (method == "reset")
+        {
+            ptr->cell = nullptr; // nullify the pointer
+            return QuantumValue();
+        }
+        if (method == "release")
+            return obj;
+        // Unknown pointer method — return nil silently (e.g. delete[])
+        return QuantumValue();
+    }
+    // nil value: weak_ptr that was never assigned — .lock() returns nil, etc.
+    if (obj.isNil())
+    {
+        if (method == "lock")
+            return QuantumValue();
+        if (method == "expired")
+            return QuantumValue(true);
+        if (method == "use_count")
+            return QuantumValue(0.0);
+        return QuantumValue();
     }
     throw TypeError("No method '" + method + "' on " + obj.typeName());
 }
