@@ -872,7 +872,8 @@ ASTNodePtr Parser::parseFunctionDecl()
     Token nameToken = check(TokenType::IDENTIFIER) ? consume() : (check(TokenType::INPUT) || check(TokenType::PRINT)) ? consume()
                                                                                                                       : expect(TokenType::IDENTIFIER, "Expected function name");
     std::vector<bool> paramIsRef;
-    auto params = parseParamList(&paramIsRef);
+    std::vector<ASTNodePtr> defaultArgs;
+    auto params = parseParamList(&paramIsRef, &defaultArgs);
 
     // Skip optional return type annotation: -> type  or  -> SomeType
     if (check(TokenType::ARROW))
@@ -887,19 +888,16 @@ ASTNodePtr Parser::parseFunctionDecl()
     skipNewlines();
 
     // ── C++ forward declaration / prototype support ───────────────────────────
-    // If there's no body (just a ';' or end-of-line), this is a forward
-    // declaration like:  void cubeByPtr(int* p);
-    // We treat it as a no-op and return an empty function stub.
     if (check(TokenType::SEMICOLON) || check(TokenType::NEWLINE) || atEnd())
     {
         while (check(TokenType::SEMICOLON) || check(TokenType::NEWLINE))
             consume();
-        // Return an empty block as the body (no-op prototype)
         auto emptyBody = std::make_unique<ASTNode>(BlockStmt{}, ln);
         FunctionDecl fd;
         fd.name = nameToken.value;
         fd.params = std::move(params);
         fd.paramIsRef = std::move(paramIsRef);
+        fd.defaultArgs = std::move(defaultArgs);
         fd.body = std::move(emptyBody);
         return std::make_unique<ASTNode>(std::move(fd), ln);
     }
@@ -909,6 +907,7 @@ ASTNodePtr Parser::parseFunctionDecl()
     fd.name = nameToken.value;
     fd.params = std::move(params);
     fd.paramIsRef = std::move(paramIsRef);
+    fd.defaultArgs = std::move(defaultArgs);
     fd.body = std::move(body);
     return std::make_unique<ASTNode>(std::move(fd), ln);
 }
@@ -1965,7 +1964,7 @@ ASTNodePtr Parser::parseAssignment()
         // Lookahead to ensure this is actually a ternary, not a list comprehension filter:
         // A ternary MUST have an 'else' somewhere before a closing bracket/paren/newline.
         bool hasElse = false;
-        int checkPos = pos + 1;
+        size_t checkPos = pos + 1;
         int depth = 0;
         while (checkPos < tokens.size())
         {
@@ -3033,13 +3032,14 @@ ASTNodePtr Parser::parseLambda()
 {
     // Called after consuming fn / function / def keyword (anonymous form)
     int ln = current().line;
-    auto params = parseParamList(nullptr);
+    std::vector<ASTNodePtr> defaultArgs;
+    auto params = parseParamList(nullptr, &defaultArgs);
     match(TokenType::COLON); // Python: def style
     if (!match(TokenType::FAT_ARROW))
         match(TokenType::ARROW); // JS => or Quantum ->
     skipNewlines();
     auto body = parseBlock();
-    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(body)}, ln);
+    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(defaultArgs), std::move(body)}, ln);
 }
 
 // Arrow function: already consumed '(' params ')' as an expression,
@@ -3054,7 +3054,7 @@ ASTNodePtr Parser::parseArrowFunction(std::vector<std::string> params, int ln)
     if (check(TokenType::LBRACE) || check(TokenType::INDENT))
     {
         auto body = parseBlock();
-        return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(body)}, ln);
+        return std::make_unique<ASTNode>(LambdaExpr{std::move(params), {}, std::move(body)}, ln);
     }
     // Expression body: (x) => x * 2  →  wrap in implicit return block
     auto expr = parseExpr();
@@ -3063,7 +3063,7 @@ ASTNodePtr Parser::parseArrowFunction(std::vector<std::string> params, int ln)
     BlockStmt block;
     block.statements.push_back(std::move(retStmt));
     auto body = std::make_unique<ASTNode>(std::move(block), ln);
-    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(body)}, ln);
+    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), {}, std::move(body)}, ln);
 }
 
 std::vector<ASTNodePtr> Parser::parseArgList()
@@ -3158,7 +3158,7 @@ std::vector<ASTNodePtr> Parser::parseArgList()
     return args;
 }
 
-std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef)
+std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std::vector<ASTNodePtr> *outDefaultArgs)
 {
     expect(TokenType::LPAREN, "Expected '('");
     std::vector<std::string> params;
@@ -3284,46 +3284,38 @@ std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef)
         {
             consume(); // eat :
             // consume the type — could be identifier, type keyword, or generic like List[X]
-            if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type))
-            {
-                consume(); // eat base type name
-                // Handle generic subscript: List[X], Dict[str, int], Optional[X], etc.
-                if (check(TokenType::LBRACKET))
-                {
-                    consume(); // eat '['
-                    int depth = 1;
-                    while (!atEnd() && depth > 0)
-                    {
-                        if (check(TokenType::LBRACKET))
-                            depth++;
-                        else if (check(TokenType::RBRACKET))
-                            depth--;
-                        consume();
-                    }
-                }
-            }
-        }
-
-        // Default value: "x = 5" or "x: int = 5" — skip "= expr"
-        if (check(TokenType::ASSIGN))
-        {
-            consume(); // eat =
-            // consume tokens until comma or closing paren
+            // We just skip until comma, '=', or paren
             int depth = 0;
             while (!atEnd())
             {
-                if (check(TokenType::LPAREN) || check(TokenType::LBRACKET))
+                if (check(TokenType::LBRACKET) || check(TokenType::LPAREN))
                     depth++;
-                else if (check(TokenType::RPAREN) || check(TokenType::RBRACKET))
+                else if (check(TokenType::RBRACKET) || check(TokenType::RPAREN))
                 {
                     if (depth == 0)
                         break;
                     depth--;
                 }
-                else if (check(TokenType::COMMA) && depth == 0)
+                else if (depth == 0 && (check(TokenType::COMMA) || check(TokenType::ASSIGN)))
                     break;
                 consume();
             }
+        }
+
+        // Default value: "x = 5" or "x: int = 5"
+        if (check(TokenType::ASSIGN))
+        {
+            consume(); // eat =
+            auto expr = parseExpr();
+            if (outDefaultArgs) {
+                while (outDefaultArgs->size() < params.size() - 1)
+                    outDefaultArgs->push_back(nullptr);
+                outDefaultArgs->push_back(std::move(expr));
+            }
+        }
+        else if (outDefaultArgs) {
+            while (outDefaultArgs->size() < params.size())
+                outDefaultArgs->push_back(nullptr);
         }
 
         if (!match(TokenType::COMMA))

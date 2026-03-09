@@ -1205,7 +1205,7 @@ void Interpreter::registerNatives()
                     try
                     {
                         int width = std::stoi(spec.substr(widthIdx));
-                        int len = valStr.size();
+                        int len = (int)valStr.size();
                         if (width > len)
                         {
                             if (align == '<')
@@ -1739,6 +1739,8 @@ void Interpreter::execFunctionDecl(FunctionDecl &s)
     fn->name = s.name;
     fn->params = s.params;
     fn->paramIsRef = s.paramIsRef;
+    for (auto &da : s.defaultArgs)
+        fn->defaultArgs.push_back(da.get());
     fn->body = s.body.get();
     fn->closure = env;
     env->define(s.name, QuantumValue(fn));
@@ -3071,7 +3073,7 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
             int i = (int)toNum(idx, "index");
             auto arr = obj.asArray();
             if (i < 0)
-                i += arr->size();
+                i += (int)arr->size();
             // Auto-extend on out-of-bounds WRITE (C dynamic array pattern: arr[count++]=val)
             if (i < 0)
                 throw IndexError("Array index out of range");
@@ -3475,7 +3477,7 @@ QuantumValue Interpreter::callFunction(std::shared_ptr<QuantumFunction> fn, std:
     for (size_t i = 0; i < fn->params.size(); i++)
     {
         bool isRef = (i < fn->paramIsRef.size()) && fn->paramIsRef[i];
-        QuantumValue v = i < args.size() ? args[i] : QuantumValue();
+        QuantumValue v = i < args.size() ? args[i] : (fn->defaultArgs.size() > i && fn->defaultArgs[i] ? evaluate(*(fn->defaultArgs[i])) : QuantumValue());
 
         if (isRef)
         {
@@ -3649,7 +3651,7 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
             throw TypeError("Expected number in index, got " + idx.typeName());
         auto arr = obj.asArray();
         if (i < 0)
-            i += arr->size();
+            i += (int)arr->size();
         if (i < 0 || i >= (int)arr->size())
             return QuantumValue(); // JS: arr[outOfBounds] → undefined (nil)
         return (*arr)[i];
@@ -3668,7 +3670,7 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
         int i = (int)toNum(idx, "index");
         const auto &s = obj.asString();
         if (i < 0)
-            i += s.size();
+            i += (int)s.size();
         // C-style: index == length returns the null terminator '\0'
         if (i == (int)s.size())
             return QuantumValue(std::string(1, '\0'));
@@ -3890,6 +3892,8 @@ QuantumValue Interpreter::evalLambda(LambdaExpr &e)
     auto fn = std::make_shared<QuantumFunction>();
     fn->name = "<lambda>";
     fn->params = e.params;
+    for (auto &da : e.defaultArgs)
+        fn->defaultArgs.push_back(da.get());
     fn->body = e.body.get();
     fn->closure = env;
     return QuantumValue(fn);
@@ -4447,13 +4451,13 @@ QuantumValue Interpreter::callArrayMethod(std::shared_ptr<Array> arr, const std:
         int start = args.size() > 1 && args[1].isNumber() ? (int)args[1].asNumber() : 0;
         int end = args.size() > 2 && args[2].isNumber() ? (int)args[2].asNumber() : (int)arr->size();
         if (start < 0)
-            start += arr->size();
+            start += (int)arr->size();
         if (end < 0)
-            end += arr->size();
+            end += (int)arr->size();
         if (start < 0)
             start = 0;
         if (end > (int)arr->size())
-            end = arr->size();
+            end = (int)arr->size();
         for (int i = start; i < end; i++)
             (*arr)[i] = val;
         return QuantumValue(arr);
@@ -4489,9 +4493,9 @@ QuantumValue Interpreter::callArrayMethod(std::shared_ptr<Array> arr, const std:
         int start = args.empty() ? 0 : (int)toNum(args[0], "slice");
         int end_ = args.size() > 1 ? (int)toNum(args[1], "slice") : (int)arr->size();
         if (start < 0)
-            start += arr->size();
+            start += (int)arr->size();
         if (end_ < 0)
-            end_ += arr->size();
+            end_ += (int)arr->size();
         start = std::max(0, std::min(start, (int)arr->size()));
         end_ = std::max(0, std::min(end_, (int)arr->size()));
         auto res = std::make_shared<Array>(arr->begin() + start, arr->begin() + end_);
@@ -4730,7 +4734,7 @@ QuantumValue Interpreter::callStringMethod(const std::string &str, const std::st
         int start = args.empty() ? 0 : (int)toNum(args[0], "slice");
         int len_ = args.size() > 1 ? (int)toNum(args[1], "slice") : (int)str.size() - start;
         if (start < 0)
-            start += str.size();
+            start += (int)str.size();
         return QuantumValue(str.substr(std::max(0, start), len_));
     }
     if (m == "index")

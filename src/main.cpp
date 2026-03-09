@@ -188,7 +188,7 @@ static void runFile(const std::string &path)
                 msg.find("\"main\"") == std::string::npos)
             {
                 std::cerr << Colors::RED << Colors::BOLD
-                          << "\n  \u2717 " << e.kind << Colors::RESET;
+                          << "\n  X " << e.kind << Colors::RESET;
                 if (e.line > 0)
                     std::cerr << " at line " << e.line;
                 std::cerr << "\n    " << msg << "\n\n";
@@ -199,7 +199,7 @@ static void runFile(const std::string &path)
         {
             // All runtime errors inside main() are real failures.
             std::cerr << Colors::RED << Colors::BOLD
-                      << "\n  \u2717 " << e.kind << Colors::RESET;
+                      << "\n  X " << e.kind << Colors::RESET;
             if (e.line > 0)
                 std::cerr << " at line " << e.line;
             std::cerr << "\n    " << e.what() << "\n\n";
@@ -209,7 +209,7 @@ static void runFile(const std::string &path)
     catch (const ParseError &e)
     {
         std::cerr << Colors::RED << Colors::BOLD
-                  << "\n  ✗ ParseError" << Colors::RESET
+                  << "\n  X ParseError" << Colors::RESET
                   << " in " << path << " at line " << e.line << ":" << e.col << "\n"
                   << "    " << e.what() << "\n\n";
         std::exit(1);
@@ -217,7 +217,7 @@ static void runFile(const std::string &path)
     catch (const QuantumError &e)
     {
         std::cerr << Colors::RED << Colors::BOLD
-                  << "\n  ✗ " << e.kind << Colors::RESET;
+                  << "\n  X " << e.kind << Colors::RESET;
         if (e.line > 0)
             std::cerr << " at line " << e.line;
         std::cerr << "\n    " << e.what() << "\n\n";

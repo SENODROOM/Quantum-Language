@@ -22,6 +22,7 @@ struct QuantumFunction
     std::string name;
     std::vector<std::string> params;
     std::vector<bool> paramIsRef; // true = pass-by-reference (int& r)
+    std::vector<ASTNode*> defaultArgs;
     ASTNode *body;                // non-owning ptr
     std::shared_ptr<Environment> closure;
 };
