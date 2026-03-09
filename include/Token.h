@@ -75,6 +75,7 @@ enum class TokenType
     NEQ,        // !=
     STRICT_EQ,  // ===
     STRICT_NEQ, // !==
+    NULL_COALESCE, // ??
     LT,
     GT,
     LTE,

@@ -341,6 +341,22 @@ Token Lexer::readIdentifierOrKeyword()
     while (pos < src.size() && (std::isalnum(current()) || current() == '_'))
         id += advance();
 
+    // Raw string prefix: r"..." or r'...' — literal string with no escape sequences
+    if ((id == "r" || id == "R") && pos < src.size() && (current() == '"' || current() == '\''))
+    {
+        char quote = current();
+        int strStartLine = line, strStartCol = col;
+        advance(); // skip opening quote
+        std::string raw;
+        while (pos < src.size() && current() != quote)
+        {
+            raw += advance();
+        }
+        if (pos < src.size())
+            advance(); // skip closing quote
+        return Token(TokenType::STRING, raw, strStartLine, strStartCol);
+    }
+
     // f-string prefix: f"..." or f'...'  — treat like a backtick template literal
     if ((id == "f" || id == "F") && pos < src.size() && (current() == '"' || current() == '\''))
     {
@@ -906,6 +922,11 @@ std::vector<Token> Lexer::tokenize()
             {
                 advance(); // consume the '.'
                 rawTokens.emplace_back(TokenType::DOT, ".", startLine, startCol);
+            }
+            else if (current() == '?')
+            {
+                advance(); // consume another '?'
+                rawTokens.emplace_back(TokenType::NULL_COALESCE, "??", startLine, startCol);
             }
             else if (current() == '[')
             {
