@@ -286,30 +286,225 @@ What we _can_ say is that it's the only CLI flag in any programming language run
 
 ---
 
+## Things Quantum Can Do That Python Can't 🏆
+
+After extensive research, we found **one**:
+
+- `quantum --aura`
+
+Python cannot do this. Advantage: Quantum.
+
+---
+
+## The OOP System, Explained 🏛️
+
+Quantum supports classes with inheritance. Here's a real example from the README:
+
+```quantum
+class Animal:
+    fn init(name, sound):
+        self.name  = name
+        self.sound = sound
+
+class Dog extends Animal:
+    fn fetch(item):
+        return self.name + " fetches the " + item
+
+dog = Dog("Rex", "Woof")
+print(dog.speak())
+print(dog.fetch("ball"))
+```
+
+Riveting. A dog fetching a ball. This is the flagship cybersecurity demo.
+
+We assume the next example is:
+
+```quantum
+dog = Dog("Rex", "Woof")
+dog.fetch("your_passwords.txt")
+```
+
+---
+
+## Quantum's Multi-Syntax Support In Practice 🔀
+
+The README proudly claims you can mix Python, JavaScript, and C++ syntax freely. Here's what that looks like in the wild:
+
+```quantum
+// C++ style comment
+const x = 10        # JavaScript const, Python comment
+if x > 5:           # Python colon
+{                   # C++ brace (why not)
+    console.log(x)  # JavaScript console
+}
+print(x)            # Python print
+```
+
+Is this a feature? Is this a cry for help? Is this what happens when you learn three languages at once and refuse to commit? **Yes. Yes to all of it.**
+
+---
+
+## Quantum Through The Ages 📅
+
+**Week 1:** Lexer written. Tokens tokenizing. Saad feeling unstoppable.
+
+**Week 2:** Parser done. Tree walking. `rot13` added at 2am for reasons that made sense at the time.
+
+**Week 3:** OOP, closures, REPL, cybersecurity builtins, VS Code extension, CMake build system, full documentation, examples in three syntax styles, v1.0.0 tagged and shipped to GitHub.
+
+**Week 4:** 0 stars. Saad stares at the ceiling.
+
+**Week 5:** Some guy on the internet writes a roast README. Saad is unsure if this is better or worse than 0 stars.
+
+---
+
+## Things The README Says vs. Reality 🔍
+
+**README says:** _"Quantum is purpose-built for cybersecurity tooling"_
+**Reality:** It has `rot13` and `xor`. Your WiFi password is safe.
+
+**README says:** _"Write it like Python, JavaScript, or C/C++ and it will just work"_
+**Reality:** It will work until it doesn't, at which point you'll get a stack trace in three syntaxes.
+
+**README says:** _"Clean, hackable execution engine"_
+**Reality:** Tree-walk interpreters are the minivans of language runtimes. Reliable. Lovable. Slow.
+
+**README says:** _"Rich Standard Library"_
+**Reality:** It has `random`, `time`, and `rot13`. Shakespeare wrote with less.
+
+**README says:** _"First-class functions"_
+**Reality:** Yes, actually. This part is genuinely good. We're as surprised as you are.
+
+---
+
+## The GitHub Stats 📈
+
+```
+Stars:       0   ██░░░░░░░░░░░░░░░░░░  (progress)
+Forks:       0   ██░░░░░░░░░░░░░░░░░░  (potential)
+Watchers:    0   ██░░░░░░░░░░░░░░░░░░  (stealth mode)
+Issues:      0   ████████████████████  (perfection, allegedly)
+PRs:         0   ████████████████████  (Saad works alone)
+Contributors: 1  ████████████████████  (a legend)
+```
+
+_All zeros except the one that matters: 1 person shipped a whole programming language._
+
+---
+
+## Quantum vs. The Greats: A Philosophical Comparison 🧠
+
+**Linus Torvalds** built Linux because he needed an OS.
+**Saad Amin** built Quantum because he needed `rot13` in a scripting language.
+
+Both are valid motivations. History will judge accordingly.
+
+**Guido van Rossum** spent 4 years on Python before releasing it.
+**Saad Amin** spent 3 weeks on Quantum before releasing it.
+
+Guido had more time. Saad had more **aura**.
+
+**Brendan Eich** built JavaScript in 10 days and the world has been suffering ever since.
+**Saad Amin** built Quantum in 3 weeks and so far only one person is suffering: the person writing this README.
+
+---
+
+## Known Bugs 🐛
+
+| Bug                                        | Status              | Notes                      |
+| ------------------------------------------ | ------------------- | -------------------------- |
+| `rot13` applied twice decrypts itself      | By Design           | This is how math works     |
+| `payload` keyword does nothing             | Planned™            | Coming in v2.0.0, probably |
+| Tree-walk interpreter is slow              | Won't Fix           | It has _character_         |
+| 0 GitHub stars                             | Under Investigation | Possibly a GitHub bug      |
+| Mixing 3 syntaxes causes existential dread | Closed              | That's a you problem       |
+| `--aura` flag shows achievement board      | Working As Intended | We still won't run it      |
+
+---
+
+## Frequently Asked Questions (Extended Edition) ❓
+
+**Q: Can I use Quantum in production?**
+A: Define "production." If you mean "a computer that exists," technically yes.
+
+**Q: Is Quantum faster than Python?**
+A: Quantum is _more artisanal_ than Python.
+
+**Q: Can Quantum replace my SIEM?**
+A: Quantum can `rot13` your SIEM logs, which is arguably worse.
+
+**Q: I found a bug. Where do I report it?**
+A: There are 0 open issues on GitHub. Either Quantum is perfect or nobody is using it. We choose to believe both.
+
+**Q: Why is the file extension `.sa` and not `.quantum`?**
+A: Typing `quantum script.quantum` would have been too on the nose.
+
+**Q: Is this actually a real programming language?**
+A: It has a lexer, parser, AST, interpreter, REPL, OOP, closures, and a VS Code extension. It is more real than most of your side projects.
+
+**Q: Will Quantum get more stars?**
+A: You're reading this README, aren't you? Go star it. Do it. Right now.
+
+**Q: What does SENODROOM mean?**
+A: We looked into it. We found nothing. It's possible Saad is operating on a level we simply cannot comprehend.
+
+---
+
+## How To Contribute 🤝
+
+1. Star the repo (you have no excuse)
+2. Open an issue saying `rot13` is not real encryption
+3. Saad closes the issue as "works as intended"
+4. You gain respect for the process
+5. Submit a PR adding `sha256`
+6. It gets merged at 2am
+7. You are now a core contributor to a programming language
+
+---
+
 ## Conclusion
 
 Look — Quantum is actually impressive. Writing a scripting language from scratch in C++17 with a lexer, parser, tree-walk interpreter, REPL, OOP, closures, AND cybersecurity builtins is genuinely a lot of work. Most people can't do this.
 
-Saad built it anyway.
+Saad built it in **3 weeks**.
 
 Is it going to replace Python? No.
 Is it going to replace Bash? Absolutely not.
 Is `rot13` a serious cryptographic tool? I cannot stress this enough — no.
+Is `SENODROOM` a real word? Unclear.
+Should you star this repo? **Absolutely yes.**
 
-But did one person build an entire programming language from scratch and ship v1.0.0?
+But did one person build an entire programming language from scratch, document it thoroughly, write examples in three different syntax styles, build a VS Code extension, AND ship v1.0.0 in under a month?
 
 **Yes. Yes they did.**
 
 Mad respect. 🫡
 
+The `--aura` was inside us all along.
+
 ---
 
 ## License
 
-MIT — meaning you can use this to do anything, including things that would make Saad regret open-sourcing it.
+MIT — meaning you can use this to do anything, including things that would make Saad regret open-sourcing it. He won't though. He has too much aura for regret.
 
 ---
 
-_Built with love, C++17, and an alarming disregard for the existence of Python._
+## Hall of Fame 🏅
 
-**⚡ Quantum — Write once, run anywhere, hack everything (responsibly, please).**
+| Achievement                                                | Recipient             |
+| ---------------------------------------------------------- | --------------------- |
+| Built a programming language in 3 weeks                    | Muhammad Saad Amin    |
+| Shipped `rot13` as a security feature with a straight face | Muhammad Saad Amin    |
+| Named a language runtime flag `--aura`                     | Muhammad Saad Amin    |
+| Reserved `payload` as a keyword on a public GitHub repo    | Muhammad Saad Amin    |
+| Got 0 stars and kept going                                 | Muhammad Saad Amin 🫡 |
+
+---
+
+_Built with love, C++17, three weeks of sleep deprivation, and an alarming disregard for the existence of Python._
+
+**⚡ Quantum — Write once, run anywhere, hack everything (responsibly, please, we are begging you).**
+
+> _"The only language where your encryption strategy and your cipher are the same function."_
+> — This README
