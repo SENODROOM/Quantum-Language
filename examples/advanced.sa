@@ -4,10 +4,12 @@
 # ── Recursive Data Structures ─────────────────────────────────────────────
 print("=== Linked List via Dicts ===")
 
+# Function to create a new node in the linked list
 fn make_node(val, next) {
     return {"val": val, "next": next}
 }
 
+# Function to convert the linked list to a string
 fn list_to_str(node) {
     if node == nil { return "nil" }
     return str(node["val"]) + " -> " + list_to_str(node["next"])
@@ -19,13 +21,15 @@ print(list_to_str(lst))
 # ── Higher Order Functions ────────────────────────────────────────────────
 print("\n=== Higher Order Functions ===")
 
+# Function to compose two functions
 fn compose(f, g) {
     return fn(x) { return f(g(x)) }
 }
 
-
+# Example usage of the compose function
 print("double(inc(5)) =", doubleAfterInc(5))
 
+# Function to reduce an array using a given function
 fn reduce(arr, fn_, init) {
     let acc = init
     for item in arr {
@@ -43,6 +47,7 @@ print("Sum:", sum, "| Product:", prod)
 print("\n=== Memoized Fibonacci ===")
 let memo = {}
 
+# Function to calculate the nth Fibonacci number with memoization
 fn fib(n) {
     let key = str(n)
     if memo.has(key) { return memo.get(key) }
@@ -59,6 +64,7 @@ for i in range(0, 15) {
 # ── String interpolation helper ───────────────────────────────────────────
 print("\n=== String Operations ===")
 
+# Function to repeat a string n times
 fn repeat_str(s, n) {
     let res = ""
     for _ in range(n) { res += s }
@@ -67,6 +73,7 @@ fn repeat_str(s, n) {
 
 print(repeat_str("=-", 20))
 
+# Function to center a string within a given width
 fn center(s, width) {
     let pad = width - len(s)
     let left = pad / 2
@@ -83,6 +90,7 @@ print(repeat_str("=", banner_width))
 # ── Sorting algorithms ────────────────────────────────────────────────────
 print("\n=== Bubble Sort ===")
 
+# Function to perform bubble sort on an array
 fn bubble_sort(arr) {
     let n = len(arr)
     let i = 0
@@ -109,21 +117,25 @@ print("After: ", unsorted)
 # ── Stack implementation ───────────────────────────────────────────────────
 print("\n=== Stack ===")
 
+# Function to create a new stack
 fn make_stack() {
     return {"items": [], "size": 0}
 }
 
+# Function to push an item onto the stack
 fn stack_push(s, val) {
     s["items"].push(val)
     s["size"] += 1
 }
 
+# Function to pop an item from the stack
 fn stack_pop(s) {
     if s["size"] == 0 { return nil }
     s["size"] -= 1
     return s["items"].pop()
 }
 
+# Function to peek at the top item on the stack
 fn stack_peek(s) {
     if s["size"] == 0 { return nil }
     return s["items"][s["size"] - 1]
@@ -141,15 +153,16 @@ print("Stack:", stack["items"])
 
 # ── Simple State Machine ──────────────────────────────────────────────────
 print("\n=== Traffic Light State Machine ===")
-
 let STATES = ["RED", "GREEN", "YELLOW"]
 let state_idx = 0
 
+# Function to get the next state
 fn next_state() {
     state_idx = (state_idx + 1) % len(STATES)
     return STATES[state_idx]
 }
 
+# Function to get the current state
 fn current_state() {
     return STATES[state_idx]
 }
