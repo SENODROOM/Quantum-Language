@@ -1048,8 +1048,8 @@ ASTNodePtr Parser::parseClassDecl()
             if (check(TokenType::CLASS))
             {
                 consume(); // eat 'class'
-                // Parse and discard the nested class (not currently supported, but consume cleanly)
-                parseClassDecl();
+                // Parse the nested class and add it to the fields array
+                cd.fields.push_back(parseClassDecl());
                 skipNewlines();
                 continue;
             }
@@ -2085,13 +2085,18 @@ ASTNodePtr Parser::parseOr()
     auto left = parseAnd();
     while (true)
     {
+        size_t savedPos = pos;
         skipNewlines();
-        if (!check(TokenType::OR) && !check(TokenType::OR_OR))
+        if (!check(TokenType::OR) && !check(TokenType::OR_OR) && !check(TokenType::NULL_COALESCE))
+        {
+            pos = savedPos;
             break;
+        }
         int ln = current().line;
-        consume(); // eat 'or' or '||'
+        auto opToken = consume(); // eat 'or', '||', or '??'
+        std::string opStr = (opToken.type == TokenType::OR_OR) ? "or" : opToken.value;
         auto right = parseAnd();
-        left = std::make_unique<ASTNode>(BinaryExpr{"or", std::move(left), std::move(right)}, ln);
+        left = std::make_unique<ASTNode>(BinaryExpr{opStr, std::move(left), std::move(right)}, ln);
     }
     return left;
 }
@@ -2101,13 +2106,18 @@ ASTNodePtr Parser::parseAnd()
     auto left = parseBitwise();
     while (true)
     {
+        size_t savedPos = pos;
         skipNewlines();
         if (!check(TokenType::AND) && !check(TokenType::AND_AND))
+        {
+            pos = savedPos;
             break;
+        }
         int ln = current().line;
-        consume(); // eat 'and' or '&&'
+        auto opToken = consume(); // eat 'and' or '&&'
+        std::string opStr = (opToken.type == TokenType::AND_AND) ? "and" : opToken.value;
         auto right = parseBitwise();
-        left = std::make_unique<ASTNode>(BinaryExpr{"and", std::move(left), std::move(right)}, ln);
+        left = std::make_unique<ASTNode>(BinaryExpr{opStr, std::move(left), std::move(right)}, ln);
     }
     return left;
 }
@@ -2992,9 +3002,18 @@ ASTNodePtr Parser::parseDictLiteral()
         }
         else
         {
-            expect(TokenType::COLON, "Expected ':'");
-            skipNewlines();
-            val = parseExpr();
+            if (check(TokenType::COMMA) || check(TokenType::RBRACE))
+            {
+                // Set literal element:  { "a", "b", 3 }
+                // Map to dict with value "true" for membership testing
+                val = std::make_unique<ASTNode>(BoolLiteral{true}, ln);
+            }
+            else
+            {
+                expect(TokenType::COLON, "Expected ':'");
+                skipNewlines();
+                val = parseExpr();
+            }
         }
 
         dict.pairs.emplace_back(std::move(key), std::move(val));
@@ -3055,6 +3074,23 @@ std::vector<ASTNodePtr> Parser::parseArgList()
     while (!check(TokenType::RPAREN) && !atEnd())
     {
         int argLn = current().line;
+        skipNewlines();
+
+        // kwargs unpacking: **expr
+        if (check(TokenType::POWER)) // ** is POWER
+        {
+            int pLn = current().line;
+            consume(); // eat **
+            auto expr = parseExpr();
+            // Wrap in a UnaryExpr{"**", ...} so evalCall knows it's a spread
+            args.push_back(std::make_unique<ASTNode>(UnaryExpr{"**", std::move(expr)}, pLn));
+            skipNewlines();
+            if (!match(TokenType::COMMA))
+                break;
+            skipNewlines();
+            continue;
+        }
+
         // keyword argument: name=expr — skip the name= and just use the value
         if (check(TokenType::IDENTIFIER))
         {

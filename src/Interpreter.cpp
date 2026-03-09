@@ -1097,7 +1097,7 @@ void Interpreter::registerNatives()
     {
         auto nat = std::make_shared<QuantumNative>();
         nat->name = "isinstance";
-        nat->fn = [](std::vector<QuantumValue> args) -> QuantumValue
+        nat->fn = [this](std::vector<QuantumValue> args) -> QuantumValue
         {
             if (args.size() < 2)
                 throw RuntimeError("isinstance() requires 2 arguments");
@@ -1105,39 +1105,47 @@ void Interpreter::registerNatives()
             auto &val = args[0];
             auto &typeVal = args[1];
 
-            // Primitive types represented as native functions ("int", "str", "list", etc.)
-            if (typeVal.isNative())
-            {
-                std::string tname = typeVal.asNative()->name;
-                if (tname == "int" || tname == "long" || tname == "short" || tname == "float" || tname == "double")
-                    return QuantumValue(val.isNumber());
-                if (tname == "str" || tname == "string" || tname == "char")
-                    return QuantumValue(val.isString());
-                if (tname == "list" || tname == "Array")
-                    return QuantumValue(val.isArray());
-                if (tname == "dict" || tname == "Object")
-                    return QuantumValue(val.isDict());
-                if (tname == "bool")
-                    return QuantumValue(val.isBool());
-                if (tname == "function" || tname == "Callable")
-                    return QuantumValue(val.isFunction() || val.isNative());
-            }
+            std::function<bool(const QuantumValue&, const QuantumValue&)> checkType = [&](const QuantumValue& v, const QuantumValue& t) -> bool {
+                if (t.isArray()) {
+                    for (auto &item : *t.asArray()) {
+                        if (checkType(v, item)) return true;
+                    }
+                    return false;
+                }
+                if (t.isNative())
+                {
+                    std::string tname = t.asNative()->name;
+                    if (tname == "int" || tname == "long" || tname == "short" || tname == "float" || tname == "double")
+                        return v.isNumber();
+                    if (tname == "str" || tname == "string" || tname == "char")
+                        return v.isString();
+                    if (tname == "list" || tname == "Array" || tname == "tuple")
+                        return v.isArray();
+                    if (tname == "dict" || tname == "Object")
+                        return v.isDict();
+                    if (tname == "bool")
+                        return v.isBool();
+                    if (tname == "function" || tname == "Callable")
+                        return v.isFunction() || v.isNative();
+                }
 
-            if (!val.isInstance())
-                return QuantumValue(false);
-            if (!typeVal.isClass())
-                return QuantumValue(false);
-            auto inst = val.asInstance();
-            auto targetKlass = typeVal.asClass();
-            // Walk the inheritance chain
-            auto k = inst->klass.get();
-            while (k)
-            {
-                if (k == targetKlass.get())
-                    return QuantumValue(true);
-                k = k->base.get();
-            }
-            return QuantumValue(false);
+                if (!v.isInstance())
+                    return false;
+                if (!t.isClass())
+                    return false;
+                auto inst = v.asInstance();
+                auto targetKlass = t.asClass();
+                auto k = inst->klass.get();
+                while (k)
+                {
+                    if (k == targetKlass.get())
+                        return true;
+                    k = k->base.get();
+                }
+                return false;
+            };
+
+            return QuantumValue(checkType(val, typeVal));
         };
         globals->define("isinstance", QuantumValue(nat));
     }
@@ -1831,6 +1839,16 @@ void Interpreter::execClassDecl(ClassDecl &s)
             }
             klass->staticFields[vd.name] = val;
         }
+        else if (f->is<ClassDecl>())
+        {
+            auto &nestedCd = f->as<ClassDecl>();
+            auto tempEnv = std::make_shared<Environment>(env);
+            auto oldEnv = env;
+            env = tempEnv;
+            execClassDecl(nestedCd); // this defines the class in tempEnv
+            env = oldEnv;
+            klass->staticFields[nestedCd.name] = tempEnv->get(nestedCd.name);
+        }
     }
 
     // Store the class as a first-class value
@@ -2380,12 +2398,17 @@ void Interpreter::execImport(ImportStmt &s)
     };
     auto registerMath = [&]()
     {
+        auto mod = std::make_shared<QuantumClass>();
+        mod->name = "math";
         for (auto &sym : {"sqrt", "floor", "ceil", "log", "log2", "log10",
                           "sin", "cos", "tan", "asin", "acos", "atan", "atan2",
                           "pow", "exp", "fabs", "factorial", "gcd", "lcm",
                           "pi", "e", "inf", "nan", "isnan", "isinf", "isfinite",
-                          "degrees", "radians", "hypot", "trunc", "comb", "perm"})
+                          "degrees", "radians", "hypot", "trunc", "comb", "perm"}) {
             defGlobal(sym, makeStubNative(sym));
+            mod->staticFields.insert({sym, makeStubNative(sym)});
+        }
+        defGlobal("math", QuantumValue(mod));
     };
     auto registerRandom = [&]()
     {
@@ -2395,9 +2418,20 @@ void Interpreter::execImport(ImportStmt &s)
     };
     auto registerDatetime = [&]()
     {
-        for (auto &sym : {"datetime", "date", "time", "timedelta", "timezone",
-                          "MINYEAR", "MAXYEAR"})
-            defGlobal(sym, makeStubClass(sym));
+        auto dtClass = std::make_shared<QuantumClass>();
+        dtClass->name = "datetime";
+        dtClass->staticFields["datetime"] = QuantumValue(dtClass);
+        auto nowFn = std::make_shared<QuantumNative>();
+        nowFn->name = "now";
+        nowFn->fn = [](std::vector<QuantumValue> args) -> QuantumValue { return QuantumValue(); };
+        dtClass->staticFields["now"] = QuantumValue(nowFn);
+        defGlobal("datetime", QuantumValue(dtClass));
+        defGlobal("date", makeStubClass("date"));
+        defGlobal("time", makeStubClass("time"));
+        defGlobal("timedelta", makeStubClass("timedelta"));
+        defGlobal("timezone", makeStubClass("timezone"));
+        defGlobal("MINYEAR", makeStubClass("MINYEAR"));
+        defGlobal("MAXYEAR", makeStubClass("MAXYEAR"));
     };
     auto registerPathlib = [&]()
     {
@@ -2625,7 +2659,7 @@ QuantumValue Interpreter::evalIdentifier(Identifier &e)
 
 QuantumValue Interpreter::evalBinary(BinaryExpr &e)
 {
-    // Short-circuit for and/or
+    // Short-circuit for and/or/??
     if (e.op == "and")
     {
         auto lv = evaluate(*e.left);
@@ -2637,6 +2671,13 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
     {
         auto lv = evaluate(*e.left);
         if (lv.isTruthy())
+            return lv;
+        return evaluate(*e.right);
+    }
+    if (e.op == "??")
+    {
+        auto lv = evaluate(*e.left);
+        if (!lv.isNil())
             return lv;
         return evaluate(*e.right);
     }
@@ -3286,17 +3327,44 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
     auto callee = evaluate(*e.callee);
     std::vector<QuantumValue> args;
 
-    // For QuantumFunctions with reference params, pass live cells for ref args
-    // so the callee can write back through them
-    if (callee.isFunction() && std::holds_alternative<std::shared_ptr<QuantumFunction>>(callee.data))
+    for (size_t i = 0; i < e.args.size(); i++)
     {
-        auto fn = callee.asFunction();
-        for (size_t i = 0; i < e.args.size(); i++)
+        if (e.args[i]->is<UnaryExpr>() && e.args[i]->as<UnaryExpr>().op == "**")
         {
+            auto dictVal = evaluate(*e.args[i]->as<UnaryExpr>().operand);
+            if (dictVal.isDict())
+            {
+                auto map = dictVal.asDict();
+                if (callee.isFunction() && std::holds_alternative<std::shared_ptr<QuantumFunction>>(callee.data))
+                {
+                    auto fn = callee.asFunction();
+                    size_t provided = args.size();
+                    for (size_t p = provided; p < fn->params.size(); p++)
+                    {
+                        auto it = map->find(fn->params[p]);
+                        if (it != map->end())
+                            args.push_back(it->second);
+                        else
+                            args.push_back(QuantumValue());
+                    }
+                }
+                else
+                {
+                    for (auto &pair : *map)
+                        args.push_back(pair.second);
+                }
+            }
+            continue;
+        }
+
+        // For QuantumFunctions with reference params, pass live cells for ref args
+        // so the callee can write back through them
+        if (callee.isFunction() && std::holds_alternative<std::shared_ptr<QuantumFunction>>(callee.data))
+        {
+            auto fn = callee.asFunction();
             bool isRef = (i < fn->paramIsRef.size()) && fn->paramIsRef[i];
             if (isRef && e.args[i]->is<Identifier>())
             {
-                // Pass by reference: wrap in a pointer to the caller's live cell
                 const std::string &varName = e.args[i]->as<Identifier>().name;
                 auto cell = env->getCell(varName);
                 if (cell)
@@ -3308,13 +3376,8 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
                     continue;
                 }
             }
-            args.push_back(evaluate(*e.args[i]));
         }
-    }
-    else
-    {
-        for (auto &a : e.args)
-            args.push_back(evaluate(*a));
+        args.push_back(evaluate(*e.args[i]));
     }
 
     // Class construction: ClassName(args)
@@ -3638,6 +3701,13 @@ QuantumValue Interpreter::evalMember(MemberExpr &e)
         }
         catch (NameError &)
         {
+            auto k = inst->klass.get();
+            while (k) {
+                auto sit = k->staticFields.find(e.member);
+                if (sit != k->staticFields.end())
+                    return sit->second;
+                k = k->base.get();
+            }
             throw TypeError("No member '" + e.member + "' on instance of " + inst->klass->name);
         }
     }
@@ -4225,15 +4295,56 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
                     return callNative(field.asNative(), std::move(args));
             }
         }
+        // Check static fields (for nested classes or static callables)
+        k = inst->klass.get();
+        while (k) {
+            auto fit = k->staticFields.find(method);
+            if (fit != k->staticFields.end()) {
+                auto &field = fit->second;
+                if (field.isFunction())
+                    return callFunction(field.asFunction(), std::move(args));
+                if (field.isNative())
+                    return callNative(field.asNative(), std::move(args));
+                if (field.isClass()) {
+                    auto klass = field.asClass();
+                    auto newInst = std::make_shared<QuantumInstance>();
+                    newInst->klass = klass;
+                    newInst->fields = klass->staticFields; // ensure static fields act as initial instance fields
+                    auto ik = klass.get();
+                    bool calledInit = false;
+                    while (ik) {
+                        auto initIt = ik->methods.find("init");
+                        if (initIt != ik->methods.end()) {
+                            callInstanceMethod(newInst, initIt->second, std::move(args));
+                            calledInit = true;
+                            break;
+                        }
+                        ik = ik->base.get();
+                    }
+                    if (!calledInit && !args.empty())
+                        throw TypeError(klass->name + "() takes no arguments");
+                    return QuantumValue(newInst);
+                }
+            }
+            k = k->base.get();
+        }
         throw TypeError("No method '" + method + "' on instance of " + inst->klass->name);
     }
     if (obj.isClass())
     {
-        // Static method call: ClassName.method(args)
         auto klass = obj.asClass();
         auto it = klass->staticMethods.find(method);
         if (it != klass->staticMethods.end())
             return callFunction(it->second, std::move(args));
+        // Fallback to static fields (e.g. math.sqrt where sqrt is a QuantumNative stored as a field)
+        auto fit = klass->staticFields.find(method);
+        if (fit != klass->staticFields.end())
+        {
+            if (fit->second.isNative())
+                return callNative(fit->second.asNative(), args);
+            if (fit->second.isFunction())
+                return callFunction(fit->second.asFunction(), args);
+        }
         throw TypeError("No static method '" + method + "' on class " + klass->name);
     }
     // smart-pointer / raw-pointer method stubs for weak_ptr, shared_ptr, unique_ptr
