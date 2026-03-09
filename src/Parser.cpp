@@ -1247,6 +1247,57 @@ ASTNodePtr Parser::parseClassDecl()
 ASTNodePtr Parser::parseIfStmt()
 {
     int ln = current().line;
+
+    // C++17 if-with-initializer: if (auto name = expr) { ... }
+    // Token stream after 'if' is consumed: LPAREN IDENTIFIER("auto") IDENTIFIER(name) ASSIGN expr RPAREN
+    if (check(TokenType::LPAREN) &&
+        pos + 2 < tokens.size() &&
+        tokens[pos + 1].type == TokenType::IDENTIFIER && tokens[pos + 1].value == "auto" &&
+        tokens[pos + 2].type == TokenType::IDENTIFIER)
+    {
+        // Check that tokens[pos+3] is ASSIGN (and not == comparison)
+        if (pos + 3 < tokens.size() && tokens[pos + 3].type == TokenType::ASSIGN)
+        {
+            consume();                             // eat '('
+            consume();                             // eat 'auto'
+            std::string varName = consume().value; // eat variable name
+            consume();                             // eat '='
+            auto initExpr = parseExpr();
+            expect(TokenType::RPAREN, "Expected ')'");
+            match(TokenType::COLON);
+            skipNewlines();
+            auto then = parseBodyOrStatement();
+            skipNewlines();
+            ASTNodePtr elseBranch;
+            if (check(TokenType::ELSE))
+            {
+                consume();
+                skipNewlines();
+                if (check(TokenType::IF))
+                {
+                    consume();
+                    elseBranch = parseIfStmt();
+                }
+                else
+                {
+                    match(TokenType::COLON);
+                    skipNewlines();
+                    elseBranch = parseBodyOrStatement();
+                }
+            }
+            // Emit: { auto varName = initExpr; if (varName) { then } else { elseBranch } }
+            auto varDecl = std::make_unique<ASTNode>(
+                VarDecl{false, varName, std::move(initExpr), "auto"}, ln);
+            auto condExpr = std::make_unique<ASTNode>(Identifier{varName}, ln);
+            auto ifNode = std::make_unique<ASTNode>(
+                IfStmt{std::move(condExpr), std::move(then), std::move(elseBranch)}, ln);
+            BlockStmt blk;
+            blk.statements.push_back(std::move(varDecl));
+            blk.statements.push_back(std::move(ifNode));
+            return std::make_unique<ASTNode>(std::move(blk), ln);
+        }
+    }
+
     auto cond = parseExpr();
     // consume optional colon (Python style: "if x > 0:")
     match(TokenType::COLON);
@@ -2366,6 +2417,11 @@ ASTNodePtr Parser::parsePrimary()
             name = consume().value;
         else
             throw ParseError("Expected type name after 'new'", current().line, current().col);
+
+        // new char *[n] — pointer-to-type array: skip any STAR tokens after the type name
+        // e.g. "new char *[size]" → treat as array of pointers (same as new char[size] at runtime)
+        while (check(TokenType::STAR))
+            consume(); // discard pointer qualifier
 
         // new float[n] — array allocation: allocate array of n default-zero elements
         if (check(TokenType::LBRACKET))
