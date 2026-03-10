@@ -82,6 +82,15 @@ ASTNodePtr Parser::parseStatement()
     }
 
     int ln = current().line;
+    // Skip C/C++ storage class specifiers like static, extern, inline, volatile, register
+    while (!atEnd() && check(TokenType::IDENTIFIER) && 
+           (current().value == "static" || current().value == "extern" || 
+            current().value == "inline" || current().value == "volatile" || 
+            current().value == "register" || current().value == "mutable" ||
+            current().value == "constexpr"))
+    {
+        consume();
+    }
     switch (current().type)
     {
     case TokenType::LET:
@@ -2978,10 +2987,23 @@ ASTNodePtr Parser::parsePrimary()
                     bool hasStar = (p2 > p + 1); // at least one star was consumed
                     if (hasStar && valueFollows)
                     {
+                        std::string castType = tokens[p].value;
                         // It's a pointer cast: skip type name, stars, optional const, and ')'
                         pos = p2 + 1; // jump past ')'
                         skipNewlines();
-                        return parseUnary();
+                        auto innerExpr = parseUnary();
+                        
+                        // If it's a cast to a struct/class pointer (not a primitive), simulate malloc by creating a new instance
+                        if (castType != "void" && castType != "char" && castType != "int" && castType != "float" && 
+                            castType != "double" && castType != "long" && castType != "short" && castType != "unsigned")
+                        {
+                            // Generate ast: ClassName()
+                            int castLn = tokens[p].line;
+                            auto typeId = std::make_unique<ASTNode>(Identifier{castType}, castLn);
+                            std::vector<ASTNodePtr> noArgs;
+                            return std::make_unique<ASTNode>(CallExpr{std::move(typeId), std::move(noArgs)}, castLn);
+                        }
+                        return innerExpr;
                     }
                 }
             }
@@ -3822,8 +3844,10 @@ ASTNodePtr Parser::parseCTypeVarDecl(const std::string &typeHint)
     }
 
     // Skip C array dimension brackets: char map[ROWS][COLS], int arr[N], etc.
+    bool isArray = false;
     while (check(TokenType::LBRACKET))
     {
+        isArray = true;
         consume(); // eat '['
         int bdepth = 1;
         while (!atEnd() && bdepth > 0)
@@ -3835,12 +3859,15 @@ ASTNodePtr Parser::parseCTypeVarDecl(const std::string &typeHint)
             consume();
         }
     }
+    std::string finalTypeHint = typeHint;
+    if (isArray)
+        finalTypeHint += "[]";
     ASTNodePtr init;
     if (match(TokenType::ASSIGN))
         init = parseExpr();
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    auto decl = VarDecl{false, nameToken.value, std::move(init), typeHint};
+    auto decl = VarDecl{false, nameToken.value, std::move(init), finalTypeHint};
     decl.isPointer = isPointer;
     auto node = std::make_unique<ASTNode>(std::move(decl), ln);
     // Consume trailing semicolon/newline only when NOT in a comma list

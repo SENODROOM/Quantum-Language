@@ -1470,6 +1470,29 @@ void Interpreter::registerNatives()
     reg("clearTimeout", [](std::vector<QuantumValue>) -> QuantumValue
         { return QuantumValue(); });
 
+    // ---- sizeof, cin, cout ----
+    reg("sizeof", [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(4.0); });
+
+    {
+        auto makePN = [&](const std::string &nm, QuantumNativeFunc fn) -> QuantumValue
+        {
+            auto nat = std::make_shared<QuantumNative>();
+            nat->name = nm;
+            nat->fn = std::move(fn);
+            return QuantumValue(nat);
+        };
+        auto cinDict = std::make_shared<Dict>();
+        (*cinDict)["get"] = makePN("cin.get", [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(false); }); // fail safely
+        (*cinDict)["ignore"] = makePN("cin.ignore", [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(false); });
+        globals->define("cin", QuantumValue(cinDict));
+        
+        auto coutDict = std::make_shared<Dict>();
+        globals->define("cout", QuantumValue(coutDict));
+    }
+
     // ── nullptr and NULL constants ─────────────────────────────────────────
     {
         auto nullPtr = std::make_shared<QuantumPointer>();
@@ -1726,7 +1749,8 @@ void Interpreter::execVarDecl(VarDecl &s)
         // void — just nil; assigning void x = ... is unusual but handled gracefully
         else if (h == "void")
         {
-            val = QuantumValue(); // nil
+            if (!s.isPointer)
+                val = QuantumValue(); // nil
         }
     }
 
@@ -1735,7 +1759,14 @@ void Interpreter::execVarDecl(VarDecl &s)
     // produced a plain value (not already a pointer), wrap it in a heap cell.
     if (s.isPointer && !val.isPointer())
     {
-        if (!val.isNil())
+        if (val.isNumber() && val.asNumber() == 0.0)
+        {
+            auto ptr = std::make_shared<QuantumPointer>();
+            ptr->cell = nullptr;
+            ptr->varName = s.name;
+            val = QuantumValue(ptr);
+        }
+        else if (!val.isNil())
         {
             auto cell = std::make_shared<QuantumValue>(val);
             auto ptr = std::make_shared<QuantumPointer>();
@@ -3062,11 +3093,21 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
                     auto existing = env->get(name);
                     if (existing.isPointer())
                     {
-                        auto cell = std::make_shared<QuantumValue>(val);
-                        auto ptr = std::make_shared<QuantumPointer>();
-                        ptr->cell = cell;
-                        ptr->varName = name;
-                        val = QuantumValue(ptr);
+                        if (val.isNumber() && val.asNumber() == 0.0)
+                        {
+                            auto ptr = std::make_shared<QuantumPointer>();
+                            ptr->cell = nullptr;
+                            ptr->varName = name;
+                            val = QuantumValue(ptr);
+                        }
+                        else
+                        {
+                            auto cell = std::make_shared<QuantumValue>(val);
+                            auto ptr = std::make_shared<QuantumPointer>();
+                            ptr->cell = cell;
+                            ptr->varName = name;
+                            val = QuantumValue(ptr);
+                        }
                     }
                 }
                 catch (...)
@@ -3857,6 +3898,9 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
     // Nil indexing: uninitialized C arrays — return nil (auto-create on write via setLValue)
     if (obj.isNil())
         return QuantumValue();
+    std::cout << "[DEBUG] evalIndex fail. obj=" << obj.typeName() << " idx=" << idx.typeName();
+    if (idx.isString()) std::cout << " val=" << idx.asString();
+    std::cout << "\n";
     throw TypeError("Cannot index " + obj.typeName());
 }
 

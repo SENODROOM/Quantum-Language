@@ -50,14 +50,12 @@ public:
 
 
 int main(){
-	void (Beyblade::*fp)() = &Beyblade::display;
-
 	Beyblade b1;
-	(b1.*fp)();
+	b1.display();
 
 
 	Beyblade* bp = &b1;
-	(bp->*fp)();
+	bp->display();
 
 	system("pause");
 	return 0;
