@@ -1,9 +1,0 @@
-i=1;
-
-while i<10:{
-cout << "Testing C++"
-    printf(i);
-    i++;
-}
-
-print("END");

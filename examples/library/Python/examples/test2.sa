@@ -1,1 +1,0 @@
-title = f"{self.name:*^30}\n"
