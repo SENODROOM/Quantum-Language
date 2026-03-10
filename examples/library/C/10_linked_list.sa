@@ -1,0 +1,148 @@
+/*
+ * Program 10: Singly Linked List
+ * Implements insert, delete, search, and display without any library functions.
+ * Memory is managed via a simple static arena allocator (no malloc/free).
+ */
+
+void writeChar(char c) {
+    __asm__ volatile ("syscall" : : "D"(1),"S"(&c),"d"(1),"a"(1) : "rcx","r11","memory");
+}
+
+void writeStr(const char *s) {
+    while (*s) writeChar(*s++);
+}
+
+void writeInt(int n) {
+    if (n < 0) { writeChar('-'); n = -n; }
+    if (n == 0) { writeChar('0'); return; }
+    char buf[12]; int i = 0;
+    while (n > 0) { buf[i++] = '0' + n % 10; n /= 10; }
+    for (int j = i - 1; j >= 0; j--) writeChar(buf[j]);
+}
+
+/* ── Arena allocator ── */
+#define ARENA_SIZE 1024
+static char  arena[ARENA_SIZE];
+static int   arena_used = 0;
+
+typedef struct Node {
+    int          data;
+    struct Node *next;
+} Node;
+
+Node *newNode(int data) {
+    if (arena_used + (int)sizeof(Node) > ARENA_SIZE) return 0; /* out of memory */
+    Node *n = (Node *)(arena + arena_used);
+    arena_used += sizeof(Node);
+    n->data = data;
+    n->next = 0;
+    return n;
+}
+
+/* ── List operations ── */
+Node *insertFront(Node *head, int data) {
+    Node *n = newNode(data);
+    if (!n) { writeStr("Out of arena memory!\n"); return head; }
+    n->next = head;
+    return n;
+}
+
+Node *insertEnd(Node *head, int data) {
+    Node *n = newNode(data);
+    if (!n) { writeStr("Out of arena memory!\n"); return head; }
+    if (!head) return n;
+    Node *cur = head;
+    while (cur->next) cur = cur->next;
+    cur->next = n;
+    return head;
+}
+
+/* Delete first occurrence of value */
+Node *deleteVal(Node *head, int val) {
+    if (!head) return 0;
+    if (head->data == val) return head->next;
+    Node *cur = head;
+    while (cur->next && cur->next->data != val)
+        cur = cur->next;
+    if (cur->next) cur->next = cur->next->next;
+    return head;
+}
+
+int search(Node *head, int val) {
+    int idx = 0;
+    while (head) {
+        if (head->data == val) return idx;
+        head = head->next;
+        idx++;
+    }
+    return -1;
+}
+
+void display(Node *head) {
+    writeStr("HEAD -> ");
+    while (head) {
+        writeStr("[");
+        writeInt(head->data);
+        writeStr("] -> ");
+        head = head->next;
+    }
+    writeStr("NULL\n");
+}
+
+int main() {
+    Node *head = 0;
+
+    writeStr("=== Singly Linked List ===\n\n");
+
+    /* Insert at end */
+    writeStr("Inserting 10, 20, 30, 40, 50 at end:\n");
+    head = insertEnd(head, 10);
+    head = insertEnd(head, 20);
+    head = insertEnd(head, 30);
+    head = insertEnd(head, 40);
+    head = insertEnd(head, 50);
+    display(head);
+
+    /* Insert at front */
+    writeStr("\nInserting 5 at front:\n");
+    head = insertFront(head, 5);
+    display(head);
+
+    /* Delete */
+    writeStr("\nDeleting value 30:\n");
+    head = deleteVal(head, 30);
+    display(head);
+
+    writeStr("\nDeleting value 5 (head):\n");
+    head = deleteVal(head, 5);
+    display(head);
+
+    /* Search */
+    int target = 40;
+    int idx = search(head, target);
+    writeStr("\nSearching for ");
+    writeInt(target);
+    writeStr(": ");
+    if (idx >= 0) {
+        writeStr("found at index ");
+        writeInt(idx);
+        writeChar('\n');
+    } else {
+        writeStr("not found\n");
+    }
+
+    target = 99;
+    idx = search(head, target);
+    writeStr("Searching for ");
+    writeInt(target);
+    writeStr(": ");
+    if (idx >= 0) {
+        writeStr("found at index ");
+        writeInt(idx);
+        writeChar('\n');
+    } else {
+        writeStr("not found\n");
+    }
+
+    return 0;
+}

@@ -1,0 +1,76 @@
+/* =========================
+   C + C++ + Python + JS MIX
+   ========================= */
+
+#include <stdio.h>
+#include <iostream>
+
+using namespace std;
+
+/* ---------- C FUNCTION ---------- */
+int c_add(int a, int b){
+    return a + b;
+}
+
+/* ---------- C++ CLASS ---------- */
+class Greeter {
+public:
+    void hello(){
+        cout << "Hello from C++!" << endl;
+    }
+};
+
+/* ---------- JAVASCRIPT BLOCK ---------- */
+const jsFunction = () => {
+    console.log("Hello from JavaScript!");
+    let arr = [1,2,3,4];
+    arr.forEach(x => console.log(x * 2));
+};
+
+/* ---------- PYTHON BLOCK ---------- */
+# Python style code
+def py_hello():
+    print("Hello from Python!")
+    nums = [1,2,3,4]
+    for n in nums:
+        print(n*n)
+
+/* ---------- MAIN (C/C++) ---------- */
+int main(){
+
+    printf("Hello from C!\n");
+
+    int result = c_add(5,3);
+    printf("C addition result: %d\n", result);
+
+    Greeter g;
+    g.hello();
+
+    // Pretend we call JS
+    cout << "Calling JS Function..." << endl;
+
+    // Pretend we call Python
+    cout << "Calling Python Function..." << endl;
+
+    return 0;
+}
+
+/* ---------- MORE CHAOS ---------- */
+
+// JS style object
+let user = {
+    name: "SENODROOM",
+    lang: ["C","C++","Python","JS"]
+};
+
+// Python comprehension
+squares = [x*x for x in range(10)]
+
+// C macro
+#define MAGIC_NUMBER 42
+
+
+// Random JS async
+async function fetchData(){
+    return await Promise.resolve("Async JS Data");
+}

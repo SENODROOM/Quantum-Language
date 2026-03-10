@@ -439,6 +439,15 @@ void Interpreter::registerNatives()
         if (args.empty()) throw RuntimeError("bool() requires 1 argument");
         return QuantumValue(args[0].isTruthy()); });
 
+    reg("setw", [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(std::string("")); });
+
+    reg("setprecision", [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(std::string("")); });
+
+    // Dummy 'fixed' global variable
+    globals->define("fixed", QuantumValue(std::string("")));
+
     // Math
     reg("abs", [](std::vector<QuantumValue> a) -> QuantumValue
         { return QuantumValue(std::abs(toNum(a[0], "abs"))); });
@@ -452,6 +461,8 @@ void Interpreter::registerNatives()
         { return QuantumValue(std::round(toNum(a[0], "round"))); });
     reg("pow", [](std::vector<QuantumValue> a) -> QuantumValue
         { return QuantumValue(std::pow(toNum(a[0], "pow"), toNum(a[1], "pow"))); });
+    reg("acos", [](std::vector<QuantumValue> a) -> QuantumValue
+        { return QuantumValue(std::acos(toNum(a[0], "acos"))); });
     reg("log", [](std::vector<QuantumValue> a) -> QuantumValue
         { return QuantumValue(std::log(toNum(a[0], "log"))); });
     reg("log2", [](std::vector<QuantumValue> a) -> QuantumValue
@@ -1105,10 +1116,14 @@ void Interpreter::registerNatives()
             auto &val = args[0];
             auto &typeVal = args[1];
 
-            std::function<bool(const QuantumValue&, const QuantumValue&)> checkType = [&](const QuantumValue& v, const QuantumValue& t) -> bool {
-                if (t.isArray()) {
-                    for (auto &item : *t.asArray()) {
-                        if (checkType(v, item)) return true;
+            std::function<bool(const QuantumValue &, const QuantumValue &)> checkType = [&](const QuantumValue &v, const QuantumValue &t) -> bool
+            {
+                if (t.isArray())
+                {
+                    for (auto &item : *t.asArray())
+                    {
+                        if (checkType(v, item))
+                            return true;
                     }
                     return false;
                 }
@@ -2406,7 +2421,8 @@ void Interpreter::execImport(ImportStmt &s)
                           "sin", "cos", "tan", "asin", "acos", "atan", "atan2",
                           "pow", "exp", "fabs", "factorial", "gcd", "lcm",
                           "pi", "e", "inf", "nan", "isnan", "isinf", "isfinite",
-                          "degrees", "radians", "hypot", "trunc", "comb", "perm"}) {
+                          "degrees", "radians", "hypot", "trunc", "comb", "perm"})
+        {
             defGlobal(sym, makeStubNative(sym));
             mod->staticFields.insert({sym, makeStubNative(sym)});
         }
@@ -2425,7 +2441,8 @@ void Interpreter::execImport(ImportStmt &s)
         dtClass->staticFields["datetime"] = QuantumValue(dtClass);
         auto nowFn = std::make_shared<QuantumNative>();
         nowFn->name = "now";
-        nowFn->fn = [](std::vector<QuantumValue> args) -> QuantumValue { return QuantumValue(); };
+        nowFn->fn = [](std::vector<QuantumValue> args) -> QuantumValue
+        { return QuantumValue(); };
         dtClass->staticFields["now"] = QuantumValue(nowFn);
         defGlobal("datetime", QuantumValue(dtClass));
         defGlobal("date", makeStubClass("date"));
@@ -2730,6 +2747,11 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
 
     if (op == "+")
     {
+        // C-style char arithmetic: 'a' + 32 → ASCII arithmetic → returns number
+        if (lv.isString() && lv.asString().size() == 1 && rv.isNumber())
+            return QuantumValue((double)(unsigned char)lv.asString()[0] + rv.asNumber());
+        if (rv.isString() && rv.asString().size() == 1 && lv.isNumber())
+            return QuantumValue(lv.asNumber() + (double)(unsigned char)rv.asString()[0]);
         if (lv.isString() || rv.isString())
             return QuantumValue(lv.toString() + rv.toString());
         if (lv.isNumber() && rv.isNumber())
@@ -2744,7 +2766,14 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
         throw TypeError("Cannot add " + lv.typeName() + " and " + rv.typeName());
     }
     if (op == "-")
+    {
+        // C-style char arithmetic: 'A' - 32 etc.
+        if (lv.isString() && lv.asString().size() == 1 && rv.isNumber())
+            return QuantumValue((double)(unsigned char)lv.asString()[0] - rv.asNumber());
+        if (rv.isString() && rv.asString().size() == 1 && lv.isNumber())
+            return QuantumValue(lv.asNumber() - (double)(unsigned char)rv.asString()[0]);
         return QuantumValue(toNum(lv, "-") - toNum(rv, "-"));
+    }
     if (op == "*")
     {
         if (lv.isNumber() && rv.isNumber())
@@ -2873,6 +2902,9 @@ QuantumValue Interpreter::evalBinary(BinaryExpr &e)
             return v.asNumber();
         if (v.isBool())
             return v.asBool() ? 1.0 : 0.0;
+        // C-style: single-char string → ASCII value (for char comparisons like c >= 'a')
+        if (v.isString() && v.asString().size() == 1)
+            return (double)(unsigned char)v.asString()[0];
         throw TypeError("Expected number in " + ctx + ", got " + v.typeName());
     };
     if (op == "<")
@@ -2941,7 +2973,7 @@ QuantumValue Interpreter::evalUnary(UnaryExpr &e)
     auto v = evaluate(*e.operand);
     if (e.op == "-")
         return QuantumValue(-toNum(v, "unary -"));
-    if (e.op == "not")
+    if (e.op == "not" || e.op == "!")
         return QuantumValue(!v.isTruthy());
     if (e.op == "~")
         return QuantumValue((double)~toInt(v, "~"));
@@ -2962,12 +2994,31 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
             return val;
         if (op == "+=")
         {
+            if (old.isString() && val.isNumber())
+            {
+                // C-style: char* s; s++ advances the pointer (substring)
+                const std::string &str = old.asString();
+                int n = (int)val.asNumber();
+                if (n >= 0 && n <= (int)str.size())
+                    return QuantumValue(str.substr(n));
+                return QuantumValue(std::string("")); // past end = null terminator
+            }
             if (old.isString())
                 return QuantumValue(old.asString() + val.toString());
             return QuantumValue(toNum(old, op) + toNum(val, op));
         }
         if (op == "-=")
+        {
+            if (old.isString() && val.isNumber())
+            {
+                // C-style: char* s; s-- goes back
+                const std::string &str = old.asString();
+                int n = (int)val.asNumber();
+                // Can't go before string start; just return original
+                return old;
+            }
             return QuantumValue(toNum(old, op) - toNum(val, op));
+        }
         if (op == "*=")
             return QuantumValue(toNum(old, op) * toNum(val, op));
         if (op == "/=")
@@ -2976,6 +3027,23 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
             if (!d)
                 throw RuntimeError("Div by 0");
             return QuantumValue(toNum(old, op) / d);
+        }
+        if (op == ">>")
+            return QuantumValue((double)((long long)toNum(old, op) >> (long long)toNum(val, op)));
+        if (op == "<<")
+            return QuantumValue((double)((long long)toNum(old, op) << (long long)toNum(val, op)));
+        if (op == "&=")
+            return QuantumValue((double)((long long)toNum(old, op) & (long long)toNum(val, op)));
+        if (op == "|=")
+            return QuantumValue((double)((long long)toNum(old, op) | (long long)toNum(val, op)));
+        if (op == "^=")
+            return QuantumValue((double)((long long)toNum(old, op) ^ (long long)toNum(val, op)));
+        if (op == "%=")
+        {
+            long long d = (long long)toNum(val, op);
+            if (!d)
+                throw RuntimeError("Mod by 0");
+            return QuantumValue((double)((long long)toNum(old, op) % d));
         }
         return val;
     };
@@ -3059,14 +3127,53 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
     else if (target.is<IndexExpr>())
     {
         auto &ie = target.as<IndexExpr>();
-        auto obj = evaluate(*ie.object);
+
+        // Helper: get or create a shared array at a variable, ensuring it's an Array
+        // This supports auto-creation for uninitialized C-style arrays: int C[N][N]; C[i][j] = v
+        auto ensureArray = [&](ASTNode &objExpr, int minSize) -> std::shared_ptr<Array>
+        {
+            auto v = evaluate(objExpr);
+            if (v.isArray())
+                return v.asArray();
+            // Create new array and write back
+            auto arr = std::make_shared<Array>();
+            arr->resize(minSize + 1, QuantumValue());
+            QuantumValue arrVal(arr);
+            if (objExpr.is<Identifier>())
+            {
+                const std::string &n = objExpr.as<Identifier>().name;
+                if (env->has(n))
+                    env->set(n, arrVal);
+                else
+                    env->define(n, arrVal);
+            }
+            else if (objExpr.is<IndexExpr>())
+            {
+                // Recursive: write the new array back through the outer index
+                setLValue(objExpr, arrVal, "=");
+            }
+            return arr;
+        };
+
         auto idx = evaluate(*ie.index);
+        int idxI = idx.isNumber() ? (int)idx.asNumber() : 0;
+        auto obj = evaluate(*ie.object);
+
         // Unwrap pointer-to-array: float* arr = new float[n]; arr[i] = v
         if (obj.isPointer())
         {
             auto ptr = obj.asPointer();
             if (!ptr->isNull() && ptr->cell->isArray())
                 obj = *ptr->cell;
+        }
+        // Auto-create array when obj is nil (uninitialized C array)
+        if (obj.isNil())
+        {
+            auto arr = ensureArray(*ie.object, idxI);
+            if (idxI >= (int)arr->size())
+                arr->resize(idxI + 1, QuantumValue());
+            (*arr)[idxI] = applyOp((*arr)[idxI]);
+            return;
         }
         if (obj.isArray())
         {
@@ -3109,6 +3216,14 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
             auto dict = obj.asDict();
             (*dict)[key] = applyOp(dict->count(key) ? (*dict)[key] : QuantumValue());
         }
+        else if (obj.isInstance() && idx.isString())
+        {
+            // Pointer-to-member write: b1.*ptrtest = value
+            auto inst = obj.asInstance();
+            std::string fieldName = idx.asString();
+            auto cur = inst->fields.count(fieldName) ? inst->fields[fieldName] : QuantumValue();
+            inst->setField(fieldName, applyOp(cur));
+        }
     }
     else if (target.is<MemberExpr>())
     {
@@ -3130,6 +3245,42 @@ void Interpreter::setLValue(ASTNode &target, QuantumValue val, const std::string
         // *ptr = value  /  *(ptr + i) = value
         auto &de = target.as<DerefExpr>();
         auto ptrVal = evaluate(*de.operand);
+        // C-style: *dst++ = ch where dst is a string — write char at position 0 then advance
+        // We can't mutate a string-value in place; this is a no-op for interpreter purposes
+        // (the copy is already handled by the += advancement). Just silently skip.
+        if (ptrVal.isString())
+        {
+            // Advance dst by 1 (like *dst++ side effect)
+            if (de.operand->is<Identifier>())
+            {
+                const std::string &varName = de.operand->as<Identifier>().name;
+                if (env->has(varName))
+                {
+                    std::string s = ptrVal.asString();
+                    if (!s.empty())
+                        env->set(varName, QuantumValue(s.substr(1)));
+                }
+            }
+            return; // ignore the write — can't mutate a C-style char* string in place
+        }
+        // Nil dereference write: *p = val where p is uninitialized char array
+        // Auto-init as an empty string buffer and treat as string append
+        if (ptrVal.isNil() && de.operand->is<Identifier>())
+        {
+            const std::string &varName = de.operand->as<Identifier>().name;
+            QuantumValue newVal = applyOp(QuantumValue(std::string("")));
+            // Convert number to char if needed
+            std::string buf;
+            if (newVal.isNumber())
+                buf = std::string(1, (char)(int)newVal.asNumber());
+            else if (newVal.isString())
+                buf = newVal.asString();
+            if (env->has(varName))
+                env->set(varName, QuantumValue(buf));
+            else
+                env->define(varName, QuantumValue(buf));
+            return;
+        }
         if (!ptrVal.isPointer())
             throw RuntimeError("Cannot dereference non-pointer");
         auto ptr = ptrVal.asPointer();
@@ -3326,6 +3477,25 @@ QuantumValue Interpreter::evalCall(CallExpr &e)
         }
     }
 
+    // C++ pointer-to-member call: (b1.*fp)() where fp holds method name as string
+    // Parsed as CallExpr{ IndexExpr{b1, fp}, args }
+    if (e.callee->is<IndexExpr>())
+    {
+        auto &ie = e.callee->as<IndexExpr>();
+        auto obj = evaluate(*ie.object);
+        auto idx = evaluate(*ie.index);
+        if (obj.isInstance() && idx.isString())
+        {
+            std::string methodName = idx.asString();
+            std::vector<QuantumValue> args;
+            for (auto &a : e.args)
+                args.push_back(evaluate(*a));
+            return callMethod(obj, methodName, std::move(args));
+        }
+    }
+    // C++ pointer-to-member call via pointer: (bp->*fp)()
+    // bp->*fp is parsed as ArrowExpr{bp}.*fp or similar
+    // Handle: evaluate the callee; if nil and we came from an IndexExpr, try method lookup
     auto callee = evaluate(*e.callee);
     std::vector<QuantumValue> args;
 
@@ -3678,6 +3848,15 @@ QuantumValue Interpreter::evalIndex(IndexExpr &e)
             throw IndexError("String index out of range");
         return QuantumValue(std::string(1, s[i]));
     }
+    // Pointer-to-member: obj.*ptrMember where ptrMember holds the member name as string
+    if (obj.isInstance() && idx.isString())
+    {
+        auto inst = obj.asInstance();
+        return inst->getField(idx.asString());
+    }
+    // Nil indexing: uninitialized C arrays — return nil (auto-create on write via setLValue)
+    if (obj.isNil())
+        return QuantumValue();
     throw TypeError("Cannot index " + obj.typeName());
 }
 
@@ -3704,7 +3883,8 @@ QuantumValue Interpreter::evalMember(MemberExpr &e)
         catch (NameError &)
         {
             auto k = inst->klass.get();
-            while (k) {
+            while (k)
+            {
                 auto sit = k->staticFields.find(e.member);
                 if (sit != k->staticFields.end())
                     return sit->second;
@@ -3923,6 +4103,22 @@ QuantumValue Interpreter::evalAddressOf(AddressOfExpr &e)
         return QuantumValue(ptr);
     }
 
+    // &ClassName::memberName — C++ pointer-to-member: return member name as string value
+    if (e.operand->is<MemberExpr>())
+    {
+        auto &me = e.operand->as<MemberExpr>();
+        // Return the member name as a string so b1.*ptrtest works via IndexExpr
+        return QuantumValue(me.member);
+    }
+    // &ClassName::memberName where parsePrimary combined them into "ClassName::memberName"
+    if (e.operand->is<Identifier>())
+    {
+        const std::string &name = e.operand->as<Identifier>().name;
+        auto sep = name.rfind("::");
+        if (sep != std::string::npos)
+            return QuantumValue(name.substr(sep + 2)); // return just "memberName"
+    }
+
     // &arr[i] or &obj.field — evaluate the expression, wrap result in a temporary cell
     // This covers scanf("%d", &arr[i]) and similar patterns where C passes a pointer
     // to a sub-object. We wrap the current value; writes through this pointer won't
@@ -3940,6 +4136,21 @@ QuantumValue Interpreter::evalDeref(DerefExpr &e)
 {
     // *ptr — read the value the pointer points to
     auto ptrVal = evaluate(*e.operand);
+
+    // C-style: if dereferencing a string directly (e.g. const char* s passed as string value),
+    // treat it as reading the first character (offset 0). This supports while(*s) patterns.
+    if (ptrVal.isString())
+    {
+        const std::string &s = ptrVal.asString();
+        if (s.empty())
+            return QuantumValue(0.0); // null terminator
+        return QuantumValue((double)(unsigned char)s[0]);
+    }
+
+    // Nil dereference: uninitialized pointer — return 0 (null terminator / falsy)
+    if (ptrVal.isNil())
+        return QuantumValue(0.0);
+
     if (!ptrVal.isPointer())
         throw RuntimeError("Cannot dereference non-pointer (type: " + ptrVal.typeName() + ")");
     auto ptr = ptrVal.asPointer();
@@ -3959,6 +4170,15 @@ QuantumValue Interpreter::evalDeref(DerefExpr &e)
         if (i < 0 || i >= (int)arr->size())
             throw IndexError("Pointer dereference out of bounds (offset " + std::to_string(ptr->offset) + ")");
         return (*arr)[i];
+    }
+    // If the cell holds a string, index into it by offset (C-style char pointer)
+    if (cell->isString())
+    {
+        const std::string &s = cell->toString();
+        int i = ptr->offset;
+        if (i >= 0 && i < (int)s.size())
+            return QuantumValue((double)(unsigned char)s[i]);
+        return QuantumValue(0.0); // null terminator
     }
     return *cell;
 }
@@ -4301,24 +4521,29 @@ QuantumValue Interpreter::callMethod(QuantumValue &obj, const std::string &metho
         }
         // Check static fields (for nested classes or static callables)
         k = inst->klass.get();
-        while (k) {
+        while (k)
+        {
             auto fit = k->staticFields.find(method);
-            if (fit != k->staticFields.end()) {
+            if (fit != k->staticFields.end())
+            {
                 auto &field = fit->second;
                 if (field.isFunction())
                     return callFunction(field.asFunction(), std::move(args));
                 if (field.isNative())
                     return callNative(field.asNative(), std::move(args));
-                if (field.isClass()) {
+                if (field.isClass())
+                {
                     auto klass = field.asClass();
                     auto newInst = std::make_shared<QuantumInstance>();
                     newInst->klass = klass;
                     newInst->fields = klass->staticFields; // ensure static fields act as initial instance fields
                     auto ik = klass.get();
                     bool calledInit = false;
-                    while (ik) {
+                    while (ik)
+                    {
                         auto initIt = ik->methods.find("init");
-                        if (initIt != ik->methods.end()) {
+                        if (initIt != ik->methods.end())
+                        {
                             callInstanceMethod(newInst, initIt->second, std::move(args));
                             calledInit = true;
                             break;

@@ -1,0 +1,65 @@
+/*
+ * Program 6: Binary Search
+ * Searches a sorted array without any library functions.
+ */
+
+void writeChar(char c) {
+    __asm__ volatile ("syscall" : : "D"(1),"S"(&c),"d"(1),"a"(1) : "rcx","r11","memory");
+}
+
+void writeStr(const char *s) {
+    while (*s) writeChar(*s++);
+}
+
+void writeInt(int n) {
+    if (n < 0) { writeChar('-'); n = -n; }
+    if (n == 0) { writeChar('0'); return; }
+    char buf[12]; int i = 0;
+    while (n > 0) { buf[i++] = '0' + n % 10; n /= 10; }
+    for (int j = i - 1; j >= 0; j--) writeChar(buf[j]);
+}
+
+/* Returns index of target, or -1 if not found */
+int binarySearch(int arr[], int n, int target) {
+    int low = 0, high = n - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;  /* avoids overflow */
+
+        if (arr[mid] == target)       return mid;
+        else if (arr[mid] < target)   low  = mid + 1;
+        else                          high = mid - 1;
+    }
+    return -1;
+}
+
+void search(int arr[], int n, int target) {
+    writeStr("Searching for ");
+    writeInt(target);
+    writeStr(": ");
+
+    int idx = binarySearch(arr, n, target);
+    if (idx == -1) {
+        writeStr("Not found.\n");
+    } else {
+        writeStr("Found at index ");
+        writeInt(idx);
+        writeChar('\n');
+    }
+}
+
+int main() {
+    int arr[] = {2, 5, 8, 12, 16, 23, 38, 44, 56, 72, 91};
+    int n = 11;
+
+    writeStr("=== Binary Search ===\n");
+    writeStr("Array: [2, 5, 8, 12, 16, 23, 38, 44, 56, 72, 91]\n\n");
+
+    search(arr, n, 23);
+    search(arr, n, 100);
+    search(arr, n, 2);
+    search(arr, n, 91);
+    search(arr, n, 50);
+
+    return 0;
+}

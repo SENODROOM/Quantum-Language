@@ -1,0 +1,66 @@
+/*
+ * Program 4: Palindrome Checker
+ * Checks if a string is a palindrome without any library functions.
+ */
+
+void writeChar(char c) {
+    __asm__ volatile ("syscall" : : "D"(1),"S"(&c),"d"(1),"a"(1) : "rcx","r11","memory");
+}
+
+void writeStr(const char *s) {
+    while (*s) writeChar(*s++);
+}
+
+int strLen(const char *s) {
+    int n = 0;
+    while (s[n]) n++;
+    return n;
+}
+
+/* Convert uppercase to lowercase manually */
+char toLower(char c) {
+    if (c >= 'A' && c <= 'Z') return c + 32;
+    return c;
+}
+
+/* Returns 1 if alphanumeric */
+int isAlnum(char c) {
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9');
+}
+
+int isPalindrome(const char *s) {
+    int len = strLen(s);
+    int left = 0, right = len - 1;
+
+    while (left < right) {
+        /* skip non-alphanumeric */
+        while (left < right && !isAlnum(s[left]))  left++;
+        while (left < right && !isAlnum(s[right])) right--;
+
+        if (toLower(s[left]) != toLower(s[right])) return 0;
+        left++;
+        right--;
+    }
+    return 1;
+}
+
+void check(const char *word) {
+    writeStr("\"");
+    writeStr(word);
+    writeStr("\" -> ");
+    writeStr(isPalindrome(word) ? "PALINDROME" : "NOT a palindrome");
+    writeChar('\n');
+}
+
+int main() {
+    writeStr("=== Palindrome Checker ===\n");
+    check("racecar");
+    check("hello");
+    check("madam");
+    check("A man a plan a canal Panama");
+    check("Never odd or even");
+    check("OpenAI");
+    return 0;
+}

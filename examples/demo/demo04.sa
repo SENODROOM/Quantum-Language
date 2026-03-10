@@ -1,0 +1,30 @@
+#include <stdio.h>                          // C
+#include <iostream>                         // C++
+console.log("Hello from JavaScript");       // JavaScript
+print("Hello from Python")                  # Python
+
+int main(){                                 // C
+cout << "C++ line running\n";          // C++
+let a = 5;                                  // JavaScript
+b = 10                                       # Python
+
+printf("C says hi\n");                      // C
+cout << a <<endl;                // C++
+const sum = (x,y)=>x+y;                     // JavaScript
+print(b*b)                                  # Python
+
+int c = 7;                                  // C
+string msg = "C++ string";             // C++
+let arr = [1,2,3,4];                        // JavaScript
+nums = [1,2,3,4]                             # Python
+
+printf("%d\n", c);                          // C
+cout << msg <<endl;              // C++
+arr.forEach(x=>console.log(x));             // JavaScript
+for n in nums: print(n)                      # Python
+
+return 0;                                   // C
+}                                           // C++
+function jsHello(){console.log("JS")}       // JavaScript
+def pyHello(): 
+    print("Python")              # Python

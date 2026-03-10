@@ -1,2 +1,0 @@
-const myFn = (a = "default") => { return a; };
-print(myFn());

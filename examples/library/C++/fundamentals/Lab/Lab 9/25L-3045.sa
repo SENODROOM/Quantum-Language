@@ -1,0 +1,313 @@
+#include<iostream>
+using namespace std;
+
+void Q1() {
+	int size;
+	cout << "Enter the size of array: ";
+	cin >> size;
+	int arr[2000];
+	for (int i = 0; i < size; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr[i];
+	}
+
+	cout << "Unique Numbers: ";
+	int total = 0;
+	for (int i = 0; i < size; i++) {
+		int count = 0;
+		for (int j = 0; j < size; j++) {
+			if (arr[i] == arr[j]) {
+				count++;
+			}
+		}
+		if (count == 1)
+		{
+			cout << arr[i];
+			total++;
+		}
+	}
+	if (!total) {
+		cout << "none\nThere is no unique number";
+	}
+}
+
+void Q2() {
+	int n;
+	cout << "Enter number of elements: ";
+	cin >> n;
+
+	int arr[100];
+	for (int i = 0; i < n; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr[i];
+	}
+
+	int majorityElement = -1;
+	for (int i = 0; i < n; i++) {
+		int count = 0;
+		for (int j = 0; j < n; j++) {
+			if (arr[i] == arr[j]) {
+				count++;
+			}
+		}
+
+		if (count > n / 2) {
+			majorityElement = arr[i];
+			break;
+		}
+	}
+
+	if (majorityElement != -1)
+		cout << "Majority element is: " << majorityElement;
+	else
+		cout << "No majority element found.";
+
+}
+
+void Q3() {
+	int n;
+	cout << "Enter number of elements: ";
+	cin >> n;
+
+	int arr[100], even[100], odd[100];
+	for (int i = 0; i < n; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr[i];
+	}
+
+	int e = 0, o = 0;
+
+	for (int i = 0; i < n; i++) {
+		if (arr[i] % 2 == 0)
+			even[e++] = arr[i];
+		else
+			odd[o++] = arr[i];
+	}
+
+	int index = 0;
+	for (int i = 0; i < e; i++)
+		arr[index++] = even[i];
+	for (int i = 0; i < o; i++)
+		arr[index++] = odd[i];
+
+	cout << "Rearranged array: ";
+	for (int i = 0; i < n; i++)
+		cout << arr[i] << " ";
+
+}
+
+void Q4() {
+	int size;
+	cout << "Enter the size of array: ";
+	cin >> size;
+	int arr[2000];
+	for (int i = 0; i < size; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr[i];
+	}
+	cout << endl;
+	int count = 0;
+	int total = 0;
+	int delayednum[2000];
+	for (int i = 0; i < size; i++) {
+		if (arr[i] % 2 == 0)
+		{
+			cout << arr[i] << " ";
+			total++;
+		}
+		else {
+			delayednum[count] = arr[i];
+			count++;
+		}
+	}
+	for (int i = 0; i < count; i++) {
+		cout << delayednum[i] << " ";
+	}
+}
+
+void Q5() {
+	int size;
+	cout << "Enter the size of array: ";
+	cin >> size;
+	int arr[2000];
+	for (int i = 0; i < size; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr[i];
+	}
+	cout << endl;
+
+	for (int i = 0; i < size; i++) {
+		int a = arr[i];
+		int b = arr[i];
+		int digit = 0;
+		int total = 0;
+		if (a < 0) {
+			a = -a;
+		}
+
+		if (a < 10) {
+			digit = 1;
+		}
+		else {
+			while (a > 0) {
+				a = a / 10;
+				digit++;
+			}
+		}
+
+		for (int i = 0; i < digit; i++) {
+			int c = b % 10;
+			total = total + c;
+			b = b / 10;
+		}
+		cout << total << " ";
+	}
+}
+
+void Q6() {
+	int size1;
+	cout << "Enter the size of array 1: ";
+	cin >> size1;
+	int arr1[2000];
+	for (int i = 0; i < size1; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr1[i];
+	}
+
+	int size2;
+	cout << "Enter the size of array 2: ";
+	cin >> size2;
+	int arr2[2000];
+	for (int i = 0; i < size2; i++) {
+		cout << "Enter the input " << i << ": ";
+		cin >> arr2[i];
+	}
+
+	int size3 = 0;
+	int arr3[2000];
+	int count = 0;
+	for (int i = 0; i < size1; i++)
+	{
+		int a = arr1[i];
+		for (int j = 0; j < size2; j++)
+		{
+			if (a == arr2[j]) {
+				arr3[count] = a;
+				count++;
+			}
+		}
+	}
+
+	for (int i = 0; i < count; i++)
+	{
+		int d = 0;
+		for (int j = 0; j < count; j++)
+		{
+			if (arr3[i] == arr3[j]) {
+				d++;
+			}
+		}
+		if (d == 1) {
+			cout << arr3[i] << " ";
+		}
+	}
+
+}
+
+void Q7() {
+	char str[200];
+	cout << "Enter a string: ";
+	cin.getline(str, 200);
+
+	char clean[200];
+	int len = 0;
+	for (int i = 0; str[i] != '\0'; i++) {
+		char ch = str[i];
+		if (ch >= 'A' && ch <= 'Z')
+			ch = ch + 32;
+
+		if (ch >= 'a' && ch <= 'z') {
+			clean[len] = ch;
+			len++;
+		}
+	}
+	clean[len] = '\0';
+
+	bool isPalindrome = true;
+	for (int i = 0, j = len - 1; i < j; i++, j--) {
+		if (clean[i] != clean[j]) {
+			isPalindrome = false;
+			break;
+		}
+	}
+
+	if (isPalindrome)
+		cout << "The input string is a palindrome.";
+	else
+		cout << "The input string is not a palindrome.";
+
+}
+
+void Q8() {
+	char str[200];
+	cout << "Enter a sentence: ";
+	cin.getline(str, 200);
+
+	int length = 0;
+	while (str[length] != '\0') {
+		length++;
+	}
+
+	cout << "Reversed sentence: ";
+
+	int end = length - 1;
+	for (int i = length - 1; i >= 0; i--) {
+		if (str[i] == ' ' || i == 0) {
+			int start;
+			if (i == 0)
+				start = 0;
+			else
+				start = i + 1;
+
+			for (int j = start; j <= end; j++) {
+				cout << str[j];
+			}
+
+			if (i != 0)
+				cout << " ";
+
+			end = i - 1;
+		}
+	}
+}
+
+int main() {
+	int ques;
+	cout << "Which Question do you want to check Enter 1,2,3,4,5,6,7,8 for Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8 respectively: ";
+	cin >> ques;
+	if (ques == 1)
+	{
+		Q1();
+	}
+	else if (ques == 2) {
+		Q2();
+	}
+	else if (ques == 3) {
+		Q3();
+	}
+	else if (ques == 4) {
+		Q4();
+	}
+	else if (ques == 5) {
+		Q5();
+	}
+	else if (ques == 6) {
+		Q6();
+	}
+	else if (ques == 7) {
+		Q7();
+	}
+	else {
+		Q8();
+	}
+}

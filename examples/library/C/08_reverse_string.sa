@@ -1,0 +1,58 @@
+/*
+ * Program 8: Reverse a String
+ * Reverses a string in-place without any library functions.
+ */
+
+void writeChar(char c) {
+    __asm__ volatile ("syscall" : : "D"(1),"S"(&c),"d"(1),"a"(1) : "rcx","r11","memory");
+}
+
+void writeStr(const char *s) {
+    while (*s) writeChar(*s++);
+}
+
+int strLen(const char *s) {
+    int n = 0; while (s[n]) n++; return n;
+}
+
+void reverseStr(char *s) {
+    int left = 0, right = strLen(s) - 1;
+    while (left < right) {
+        char tmp  = s[left];
+        s[left]   = s[right];
+        s[right]  = tmp;
+        left++;
+        right--;
+    }
+}
+
+/* Copy src into dst (manual strcpy) */
+void copyStr(char *dst, const char *src) {
+    while (*src) *dst++ = *src++;
+    *dst = '\0';
+}
+
+void show(const char *original) {
+    char buf[128];
+    copyStr(buf, original);
+
+    writeStr("Original : \"");
+    writeStr(buf);
+    writeStr("\"\n");
+
+    reverseStr(buf);
+
+    writeStr("Reversed : \"");
+    writeStr(buf);
+    writeStr("\"\n\n");
+}
+
+int main() {
+    writeStr("=== String Reversal ===\n\n");
+    show("Hello, World!");
+    show("racecar");
+    show("C Programming");
+    show("abcdefghij");
+    show("OpenAI");
+    return 0;
+}

@@ -152,6 +152,11 @@ Token Lexer::readNumber()
             }
             num += advance();
         }
+        // Strip C integer/float suffixes: LL, ULL, LU, L, U, F, f (e.g. 1000000007LL, 3.14f)
+        while (pos < src.size() && (current() == 'L' || current() == 'l' ||
+                                    current() == 'U' || current() == 'u' ||
+                                    current() == 'F' || current() == 'f'))
+            advance(); // consume but don't add to num
     }
     return Token(TokenType::NUMBER, num, startLine, startCol);
 }
@@ -823,7 +828,15 @@ std::vector<Token> Lexer::tokenize()
             else if (current() == '>')
             {
                 advance();
-                rawTokens.emplace_back(TokenType::RSHIFT, ">>", startLine, startCol);
+                // >>= compound assignment
+                if (current() == '=')
+                {
+                    advance();
+                    rawTokens.emplace_back(TokenType::RSHIFT, ">>", startLine, startCol);
+                    rawTokens.emplace_back(TokenType::ASSIGN, "=", startLine, startCol);
+                }
+                else
+                    rawTokens.emplace_back(TokenType::RSHIFT, ">>", startLine, startCol);
             }
             else
                 rawTokens.emplace_back(TokenType::GT, ">", startLine, startCol);

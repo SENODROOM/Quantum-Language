@@ -1,0 +1,25 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int main()
+{
+    int user, fact = 1, i;
+
+    cout << "\t----------Factorail----------" << endl;
+
+    cout << "Enter number: ";
+    cin >> user;
+    if (user < 0)
+    {
+        cout << "Enter Valid Input-------" << endl;
+        cout << "Enter number: ";
+        cin >> user;
+    }
+    for (int i = 1; i <= user; i++)
+    {
+        fact = fact * i;
+    }
+    cout << "Factorial of \"" << user << "\" is \"" << fact << "\"" << endl;
+    cout << "\t ------------End------------" << endl;
+    return 0;
+}

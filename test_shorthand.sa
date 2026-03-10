@@ -1,3 +1,0 @@
-const x = 1, y = 2, w = 3, h = 4;
-const newRoom = { x, y, w, h };
-print(newRoom);

@@ -1,0 +1,39 @@
+/*
+ * Program 3: Fibonacci Series
+ * Generates Fibonacci numbers without any library functions.
+ */
+
+void writeChar(char c) {
+    __asm__ volatile ("syscall" : : "D"(1),"S"(&c),"d"(1),"a"(1) : "rcx","r11","memory");
+}
+
+void writeStr(const char *s) {
+    while (*s) writeChar(*s++);
+}
+
+void writeInt(long long n) {
+    if (n < 0) { writeChar('-'); n = -n; }
+    if (n == 0) { writeChar('0'); return; }
+    char buf[20];
+    int i = 0;
+    while (n > 0) { buf[i++] = '0' + (int)(n % 10); n /= 10; }
+    for (int j = i - 1; j >= 0; j--) writeChar(buf[j]);
+}
+
+int main() {
+    int  terms = 15;
+    long long a = 0, b = 1;
+
+    writeStr("Fibonacci Series (first 15 terms):\n");
+
+    for (int i = 0; i < terms; i++) {
+        writeInt(a);
+        if (i < terms - 1) writeStr(", ");
+        long long next = a + b;
+        a = b;
+        b = next;
+    }
+    writeChar('\n');
+
+    return 0;
+}

@@ -15,7 +15,7 @@ bool QuantumValue::isTruthy() const
         if constexpr (std::is_same_v<T, QuantumNil>)    return false;
         if constexpr (std::is_same_v<T, bool>)          return v;
         if constexpr (std::is_same_v<T, double>)        return v != 0.0;
-        if constexpr (std::is_same_v<T, std::string>)   return !v.empty();
+        if constexpr (std::is_same_v<T, std::string>)   return !v.empty() && !(v.size() == 1 && v[0] == '\0');
         if constexpr (std::is_same_v<T, std::shared_ptr<Array>>) return !v->empty();
         if constexpr (std::is_same_v<T, std::shared_ptr<QuantumPointer>>) return v && !v->isNull();
         return true; }, data);
