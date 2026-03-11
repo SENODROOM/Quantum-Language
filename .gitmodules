@@ -6,3 +6,7 @@
 	path = examples/library
 	url = https://github.com/SENODROOM/Quantum-Library.git
 	branch = main
+[submodule "code-explaination"]
+	path = docs/code-explanation
+	url = https://github.com/SENODROOM/QuantumLangCodeExplaination.git
+	branch = main
