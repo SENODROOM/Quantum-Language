@@ -66,6 +66,11 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./"
   },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0",
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.1"
+  },
   "devDependencies": {
     "@types/vscode": "^1.60.0",
     "@types/node": "^16.x",

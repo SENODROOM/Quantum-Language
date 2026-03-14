@@ -1,6 +1,7 @@
 #include "../include/Lexer.h"
 #include "../include/Parser.h"
 #include "../include/Interpreter.h"
+#include "../include/TypeChecker.h"
 #include "../include/Error.h"
 #include "../include/Value.h"
 #include <iostream>
@@ -104,6 +105,15 @@ static void runREPL()
             auto tokens = lexer.tokenize();
             Parser parser(std::move(tokens));
             auto ast = parser.parse();
+            
+            // Type Check (Gradual/Optional - warnings only for now)
+            try {
+                TypeChecker checker;
+                checker.check(ast);
+            } catch (const StaticTypeError& e) {
+                std::cerr << Colors::YELLOW << "[TypeWarning] " << Colors::RESET << e.what() << " (line " << e.line << ")\n";
+            }
+
             interp.execute(*ast);
         }
         catch (const ParseError &e)
@@ -156,6 +166,14 @@ static void runFile(const std::string &path)
         auto tokens = lexer.tokenize();
         Parser parser(std::move(tokens));
         auto ast = parser.parse();
+
+        // Type Check
+        try {
+            TypeChecker checker;
+            checker.check(ast);
+        } catch (const StaticTypeError& e) {
+            std::cerr << Colors::YELLOW << "[TypeWarning] " << Colors::RESET << e.what() << " (line " << e.line << ")\n";
+        }
 
         Interpreter interp;
         if (ast->is<BlockStmt>())
@@ -249,7 +267,16 @@ static int checkFile(const std::string &path)
         auto tokens = lexer.tokenize();
         Parser parser(std::move(tokens));
         auto ast = parser.parse();
-        (void)ast;
+        
+        try {
+            TypeChecker checker;
+            checker.check(ast);
+        } catch (const StaticTypeError& e) {
+            std::cerr << path << ":" << e.line << ":1: warning: " << e.what() << "\n";
+            // Return 0 for warnings, or 1 for errors? 
+            // Let's return 0 for now as it's gradual/optional.
+        }
+
         return 0;
     }
     catch (const ParseError &e)

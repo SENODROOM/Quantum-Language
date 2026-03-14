@@ -1,0 +1,103 @@
+// ============================================================
+//  demo6.sa — Secure Authentication & Session Management
+//  Quantum Language Cybersecurity Demo
+// ============================================================
+
+print("╔══════════════════════════════════════════════════════╗")
+print("║     Quantum Auth & Session Management Demo           ║")
+print("╚══════════════════════════════════════════════════════╝")
+
+// --- 1. Salted Password Hashing ---
+// Demonstrates how to securely store passwords using unique salts
+// and SHA-256 hashing.
+
+fn hash_password(password) {
+    let salt = secure_random_hex(16)
+    let hash_val = sha256(salt + password)
+    return salt + ":" + hash_val
+}
+
+fn verify_password(password, stored) {
+    let parts = stored.split(":")
+    if len(parts) < 2 { return false }
+    let salt = parts[0]
+    let stored_hash = parts[1]
+    let attempt_hash = sha256(salt + password)
+    // Use constant_time_eq to prevent timing attacks
+    return constant_time_eq(stored_hash, attempt_hash)
+}
+
+print("\n[1] Password Hashing Setup")
+let user_pwd = "Hunter2!SecurePassword"
+let db_entry = hash_password(user_pwd)
+
+print("Original Password : " + user_pwd)
+print("Database Entry    : " + db_entry)
+
+print("\n[2] Login Attempt (Success)")
+let attempt1 = "Hunter2!SecurePassword"
+if verify_password(attempt1, db_entry) {
+    print("Login Success: Welcome back, user!")
+} else {
+    print("Login Failed: Incorrect password.")
+}
+
+print("\n[3] Login Attempt (Failure)")
+let attempt2 = "WrongPassword123"
+if verify_password(attempt2, db_entry) {
+    print("Login Success: Welcome back, user!")
+} else {
+    print("Login Failed: Incorrect password.")
+}
+
+
+// --- 2. HMAC-Based API Token System ---
+// Demonstrates how to generate and verify cryptographically signed
+// session tokens (similar to JWT) using HMAC-SHA256.
+
+let SERVER_SECRET = secure_random_hex(32)
+
+fn generate_session_token(userId, role) {
+    let nonce = secure_random_hex(8)
+    let payload = "uid=" + userId + "&role=" + role + "&ts=" + str(time()) + "&nonce=" + nonce
+    let signature = hmac_sha256(SERVER_SECRET, payload)
+    // Return Base64 encoded payload + signature
+    return base64_encode(payload) + "." + signature
+}
+
+fn verify_session_token(token) {
+    let parts = token.split(".")
+    if len(parts) < 2 { return false }
+    
+    let encoded_payload = parts[0]
+    let provided_sig = parts[1]
+    let decoded_payload = base64_decode(encoded_payload)
+    
+    let expected_sig = hmac_sha256(SERVER_SECRET, decoded_payload)
+    
+    // Constant time comparison is CRITICAL for signature verification
+    return constant_time_eq(provided_sig, expected_sig)
+}
+
+print("\n[4] Session Management")
+let admin_token = generate_session_token("42", "admin")
+print("Generated Token: " + admin_token)
+
+print("\n[5] Token Verification")
+if verify_session_token(admin_token) {
+    print("Token valid: Access granted to restricted area.")
+} else {
+    print("Token invalid: Access denied.")
+}
+
+print("\n[6] Tampering Attempt")
+let tampered_token = base64_encode("uid=42&role=super_admin&ts=99999999") + "." + "fakesig1234567890"
+print("Tampered Token: " + tampered_token)
+
+if verify_session_token(tampered_token) {
+    print("DANGER: Tampered token accepted!")
+} else {
+    print("Success: Tampered token rejected (signature mismatch).")
+}
+
+print("\nDone.")

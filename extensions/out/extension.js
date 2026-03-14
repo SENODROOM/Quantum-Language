@@ -2,13 +2,51 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
+const node_1 = require("vscode-languageclient/node");
+const path = require("path");
+let client;
 // ─── Activation ──────────────────────────────────────────────────────────────
 function activate(context) {
     console.log('Quantum Language extension v1.1.0 is now active!');
+    // The server is implemented in node
+    const serverModule = context.asAbsolutePath(path.join('out', 'server.js'));
+    // The debug options for the server
+    // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+    const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+    // If the extension is launched in debug mode then the debug server options are used
+    // Otherwise the run options are used
+    const serverOptions = {
+        run: { module: serverModule, transport: node_1.TransportKind.ipc },
+        debug: {
+            module: serverModule,
+            transport: node_1.TransportKind.ipc,
+            options: debugOptions
+        }
+    };
+    // Options to control the language client
+    const clientOptions = {
+        // Register the server for quantum documents
+        documentSelector: [{ scheme: 'file', language: 'quantum' }],
+        synchronize: {
+            // Notify the server about file changes to '.clientrc files contained in the workspace
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+        }
+    };
+    // Create the language client and start the client.
+    client = new node_1.LanguageClient('quantumLanguageServer', 'Quantum Language Server', serverOptions, clientOptions);
+    // Start the client. This will also launch the server
+    client.start();
+    // Still keep manual providers for things not yet in LSP if needed, 
+    // but LSP providers usually take precedence.
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ scheme: 'file', language: 'quantum' }, new QuantumCompletionProvider(), '.', '"', "'"), vscode.languages.registerHoverProvider({ scheme: 'file', language: 'quantum' }, new QuantumHoverProvider()), vscode.languages.registerSignatureHelpProvider({ scheme: 'file', language: 'quantum' }, new QuantumSignatureHelpProvider(), '(', ','));
 }
 exports.activate = activate;
-function deactivate() { }
+function deactivate() {
+    if (!client) {
+        return undefined;
+    }
+    return client.stop();
+}
 exports.deactivate = deactivate;
 // ─── Completion Data ──────────────────────────────────────────────────────────
 const KEYWORDS = {

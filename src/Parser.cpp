@@ -908,6 +908,14 @@ ASTNodePtr Parser::parseVarDecl(bool isConst)
     else
         throw ParseError("Expected variable name (got '" + current().value + "')", current().line, current().col);
 
+    std::string typeHint;
+    if (check(TokenType::COLON))
+    {
+        consume(); // eat :
+        if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type))
+            typeHint = consume().value;
+    }
+
     ASTNodePtr init;
     if (match(TokenType::ASSIGN))
         init = parseExpr();
@@ -917,7 +925,7 @@ ASTNodePtr Parser::parseVarDecl(bool isConst)
     {
         auto block = std::make_unique<ASTNode>(BlockStmt{}, ln);
         block->as<BlockStmt>().statements.push_back(
-            std::make_unique<ASTNode>(VarDecl{isConst, name, std::move(init), ""}, ln));
+            std::make_unique<ASTNode>(VarDecl{isConst, name, std::move(init), typeHint}, ln));
         while (match(TokenType::COMMA))
         {
             skipNewlines();
@@ -930,11 +938,20 @@ ASTNodePtr Parser::parseVarDecl(bool isConst)
                 n2 = consume().value;
             else
                 break;
+            
+            std::string h2;
+            if (check(TokenType::COLON))
+            {
+                consume();
+                if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type))
+                    h2 = consume().value;
+            }
+
             ASTNodePtr init2;
             if (match(TokenType::ASSIGN))
                 init2 = parseExpr();
             block->as<BlockStmt>().statements.push_back(
-                std::make_unique<ASTNode>(VarDecl{isConst, n2, std::move(init2), ""}, ln));
+                std::make_unique<ASTNode>(VarDecl{isConst, n2, std::move(init2), h2}, ln));
         }
         while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
             consume();
@@ -943,7 +960,7 @@ ASTNodePtr Parser::parseVarDecl(bool isConst)
 
     while (check(TokenType::NEWLINE) || check(TokenType::SEMICOLON))
         consume();
-    return std::make_unique<ASTNode>(VarDecl{isConst, name, std::move(init), ""}, ln);
+    return std::make_unique<ASTNode>(VarDecl{isConst, name, std::move(init), typeHint}, ln);
 }
 
 ASTNodePtr Parser::parseFunctionDecl()
@@ -954,15 +971,21 @@ ASTNodePtr Parser::parseFunctionDecl()
                                                                                                                       : expect(TokenType::IDENTIFIER, "Expected function name");
     std::vector<bool> paramIsRef;
     std::vector<ASTNodePtr> defaultArgs;
-    auto params = parseParamList(&paramIsRef, &defaultArgs);
+    std::vector<std::string> paramTypes;
+    auto params = parseParamList(&paramIsRef, &defaultArgs, &paramTypes);
 
+    std::string returnType;
     // Skip optional return type annotation: -> type  or  -> SomeType
-    if (check(TokenType::ARROW))
+    if (check(TokenType::ARROW) || check(TokenType::FAT_ARROW))
     {
-        consume(); // eat ->
-        // consume tokens until we hit : or { or NEWLINE or INDENT
-        while (!atEnd() && !check(TokenType::COLON) && !check(TokenType::LBRACE) && !check(TokenType::NEWLINE) && !check(TokenType::INDENT))
-            consume();
+        consume(); // eat -> or =>
+        if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type))
+            returnType = consume().value;
+        else {
+            // consume tokens until we hit : or { or NEWLINE or INDENT
+            while (!atEnd() && !check(TokenType::COLON) && !check(TokenType::LBRACE) && !check(TokenType::NEWLINE) && !check(TokenType::INDENT))
+                consume();
+        }
     }
 
     match(TokenType::COLON); // optional Python-style colon
@@ -977,8 +1000,10 @@ ASTNodePtr Parser::parseFunctionDecl()
         FunctionDecl fd;
         fd.name = nameToken.value;
         fd.params = std::move(params);
+        fd.paramTypes = std::move(paramTypes);
         fd.paramIsRef = std::move(paramIsRef);
         fd.defaultArgs = std::move(defaultArgs);
+        fd.returnType = returnType;
         fd.body = std::move(emptyBody);
         return std::make_unique<ASTNode>(std::move(fd), ln);
     }
@@ -987,8 +1012,10 @@ ASTNodePtr Parser::parseFunctionDecl()
     FunctionDecl fd;
     fd.name = nameToken.value;
     fd.params = std::move(params);
+    fd.paramTypes = std::move(paramTypes);
     fd.paramIsRef = std::move(paramIsRef);
     fd.defaultArgs = std::move(defaultArgs);
+    fd.returnType = returnType;
     fd.body = std::move(body);
     return std::make_unique<ASTNode>(std::move(fd), ln);
 }
@@ -3437,13 +3464,19 @@ ASTNodePtr Parser::parseLambda()
     // Called after consuming fn / function / def keyword (anonymous form)
     int ln = current().line;
     std::vector<ASTNodePtr> defaultArgs;
-    auto params = parseParamList(nullptr, &defaultArgs);
+    std::vector<std::string> paramTypes;
+    auto params = parseParamList(nullptr, &defaultArgs, &paramTypes);
     match(TokenType::COLON); // Python: def style
     if (!match(TokenType::FAT_ARROW))
         match(TokenType::ARROW); // JS => or Quantum ->
     skipNewlines();
     auto body = parseBlock();
-    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), std::move(defaultArgs), std::move(body)}, ln);
+    LambdaExpr le;
+    le.params = std::move(params);
+    le.paramTypes = std::move(paramTypes);
+    le.defaultArgs = std::move(defaultArgs);
+    le.body = std::move(body);
+    return std::make_unique<ASTNode>(std::move(le), ln);
 }
 
 // Arrow function: already consumed '(' params ')' as an expression,
@@ -3458,7 +3491,10 @@ ASTNodePtr Parser::parseArrowFunction(std::vector<std::string> params, int ln)
     if (check(TokenType::LBRACE) || check(TokenType::INDENT))
     {
         auto body = parseBlock();
-        return std::make_unique<ASTNode>(LambdaExpr{std::move(params), {}, std::move(body)}, ln);
+        LambdaExpr le;
+        le.params = std::move(params);
+        le.body = std::move(body);
+        return std::make_unique<ASTNode>(std::move(le), ln);
     }
     // Expression body: (x) => x * 2  →  wrap in implicit return block
     auto expr = parseExpr();
@@ -3467,7 +3503,10 @@ ASTNodePtr Parser::parseArrowFunction(std::vector<std::string> params, int ln)
     BlockStmt block;
     block.statements.push_back(std::move(retStmt));
     auto body = std::make_unique<ASTNode>(std::move(block), ln);
-    return std::make_unique<ASTNode>(LambdaExpr{std::move(params), {}, std::move(body)}, ln);
+    LambdaExpr le;
+    le.params = std::move(params);
+    le.body = std::move(body);
+    return std::make_unique<ASTNode>(std::move(le), ln);
 }
 
 std::vector<ASTNodePtr> Parser::parseArgList()
@@ -3562,7 +3601,7 @@ std::vector<ASTNodePtr> Parser::parseArgList()
     return args;
 }
 
-std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std::vector<ASTNodePtr> *outDefaultArgs)
+std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std::vector<ASTNodePtr> *outDefaultArgs, std::vector<std::string> *outParamTypes)
 {
     expect(TokenType::LPAREN, "Expected '('");
     std::vector<std::string> params;
@@ -3617,7 +3656,7 @@ std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std
                 la++;
             if (la < tokens.size() && tokens[la].type == TokenType::IDENTIFIER)
             {
-                consume(); // eat type name (e.g. "Entity", "Room", "Cell", "string", "unique_ptr")
+                std::string tName = consume().value; // eat type name (e.g. "Entity", "Room", "Cell", "string", "unique_ptr")
                 // Skip template arguments: unique_ptr<int[]>, shared_ptr<Foo>, etc.
                 if (check(TokenType::LT))
                 {
@@ -3638,6 +3677,7 @@ std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std
                         consume();
                     }
                 }
+                // Store C++ type name if needed
             }
         }
 
@@ -3701,8 +3741,16 @@ std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std
         if (check(TokenType::COLON))
         {
             consume(); // eat :
-            // consume the type — could be identifier, type keyword, or generic like List[X]
-            // We just skip until comma, '=', or paren
+            std::string typeName;
+            if (check(TokenType::IDENTIFIER) || isCTypeKeyword(current().type))
+                typeName = consume().value;
+            
+            if (outParamTypes) {
+               while (outParamTypes->size() < params.size() - 1) outParamTypes->push_back("");
+               outParamTypes->push_back(typeName);
+            }
+
+            // consume the rest of the type — could be generic like List[X]
             int depth = 0;
             while (!atEnd())
             {
@@ -3718,6 +3766,11 @@ std::vector<std::string> Parser::parseParamList(std::vector<bool> *outIsRef, std
                     break;
                 consume();
             }
+        }
+        else if (outParamTypes)
+        {
+            while (outParamTypes->size() < params.size())
+                outParamTypes->push_back("");
         }
 
         // Default value: "x = 5" or "x: int = 5"

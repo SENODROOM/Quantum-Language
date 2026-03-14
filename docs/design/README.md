@@ -1,70 +1,186 @@
-# Quantum Language Code Documentation
+# Quantum Language Design Documentation
 
-This directory contains detailed line-by-line explanations of all source and header files in the Quantum Language compiler/interpreter project.
+## 📚 Overview
 
-## Project Overview
+This directory contains comprehensive design documentation for the Quantum Language project. These documents provide deep insights into the language's architecture, implementation details, and future development plans.
 
-Quantum Language is a cybersecurity-ready scripting language built with C++17. It features:
-- Tree-walk interpreter architecture
-- Complete lexical analysis and parsing pipeline
-- Dynamic type system with object-oriented programming support
-- Cross-platform compatibility
-- Extensive built-in library for cybersecurity operations
+## 📋 Document Index
 
-## File Structure
+### 🏗️ Core Architecture
+- **[01-architecture-overview.md](01-architecture-overview.md)** - High-level system architecture and component relationships
+- **[02-language-specification.md](02-language-specification.md)** - Complete language syntax and semantics
+- **[03-implementation-details.md](03-implementation-details.md)** - Low-level implementation details and code structure
 
-### Source Files (`src/`)
-- [`main.cpp`](./main.md) - Entry point, CLI interface, and REPL implementation
-- [`Token.cpp`](./Token.md) - Token string representation utilities
-- [`Value.cpp`](./Value.md) - Value type system, environment, and class/instance management
-- [`Lexer.cpp`](./Lexer.md) - Lexical analysis and tokenization
-- [`Parser.cpp`](./Parser.md) - Recursive descent parser with Pratt-style expression parsing
-- [`Interpreter.cpp`](./Interpreter.md) - Tree-walk interpreter with native function registration
+### 🔧 Standard Library & Testing
+- **[04-standard-library.md](04-standard-library.md)** - Built-in functions and standard library reference
+- **[05-testing-strategy.md](05-testing-strategy.md)** - Comprehensive testing methodology and practices
 
-### Header Files (`include/`)
-- [`Token.h`](./Token_h.md) - Token type definitions and Token struct
-- [`Value.h`](./Value_h.md) - Value system, environment, and OOP structures
-- [`Lexer.h`](./Lexer_h.md) - Lexer class interface and method declarations
-- [`Parser.h`](./Parser_h.md) - Parser class interface and parsing methods
-- [`Interpreter.h`](./Interpreter_h.md) - Interpreter class interface and execution methods
-- [`AST.h`](./AST_h.md) - Abstract Syntax Tree node definitions
-- [`Error.h`](./Error_h.md) - Exception hierarchy and console color definitions
+### 🚀 Future Planning
+- **[06-future-roadmap.md](06-future-roadmap.md)** - Development roadmap and long-term vision
 
-## Architecture Flow
+## 🎯 Quick Reference
 
+### Architecture Summary
 ```
-Source Code → Lexer → Tokens → Parser → AST → Interpreter → Results
+Source Code (.sa) → Lexer → Parser → AST → TypeChecker → Interpreter
 ```
 
-1. **Lexical Analysis**: Source code is tokenized into meaningful units
-2. **Parsing**: Tokens are organized into an Abstract Syntax Tree
-3. **Interpretation**: AST is traversed and executed using the tree-walk pattern
+### Key Components
+- **Frontend**: Lexer, Parser, TypeChecker
+- **Backend**: Tree-walk Interpreter
+- **Value System**: Dynamic typing with variant storage
+- **Standard Library**: 100+ built-in functions
 
-## Key Design Patterns
+### Language Features
+- **Multi-syntax**: Python, JavaScript, C++ style support
+- **Dynamic Typing**: Runtime type checking
+- **First-class Functions**: Closures and lambdas
+- **Object-Oriented**: Classes and inheritance
+- **Cybersecurity**: Built-in security functions (planned)
 
-- **Visitor Pattern**: Used in the interpreter for AST traversal
-- **Variant-based AST**: Modern C++ std::variant for type-safe AST nodes
-- **Environment Chain**: Lexical scoping with parent-child environment relationships
-- **Function Objects**: Native functions implemented as std::function objects
-- **RAII**: Smart pointers used throughout for memory management
+## 📊 Project Statistics
 
-## Language Features Supported
+- **Core Files**: 7 source modules
+- **Lines of Code**: ~50,000+ (including examples)
+- **Test Coverage**: 263+ test cases
+- **Library Examples**: 4 language styles, 70+ programs
+- **Current Pass Rate**: 98.1% (258/263 tests passing)
 
-- Variables (let/const) with type hints
-- Functions and lambdas with closures
-- Classes with inheritance and methods
-- Arrays and dictionaries with comprehensions
-- Control flow (if/elif/else, while, for, break/continue)
-- Exception handling (try/except/finally)
-- Template literals and string interpolation
-- Import system
-- Cybersecurity-specific built-in functions
+## 🔍 Document Details
 
-## Compilation
+### 1. Architecture Overview
+- System architecture patterns
+- Component interactions
+- Data flow diagrams
+- Design patterns used
+- Memory management strategy
 
-The project uses CMake for cross-platform building:
-```bash
-mkdir build && cd build
-cmake ..
-make  # or MSBuild on Windows
-```
+### 2. Language Specification
+- Complete grammar definition
+- Lexical structure
+- Type system
+- Built-in functions
+- Error handling
+
+### 3. Implementation Details
+- Build system configuration
+- Code organization
+- Performance optimizations
+- Debugging features
+- Platform compatibility
+
+### 4. Standard Library
+- Function reference
+- Usage examples
+- Type specifications
+- Error conditions
+- Best practices
+
+### 5. Testing Strategy
+- Test categories and coverage
+- Automated testing
+- Bug fix verification
+- Performance testing
+- Quality metrics
+
+### 6. Future Roadmap
+- Development phases
+- Feature timeline
+- Technical goals
+- Community plans
+- Success metrics
+
+## 🛠️ For Developers
+
+### Getting Started
+1. Read the **Architecture Overview** for system understanding
+2. Review the **Language Specification** for syntax details
+3. Study the **Implementation Details** for code structure
+4. Consult the **Testing Strategy** for contribution guidelines
+
+### Contributing
+- Follow the testing strategy when adding features
+- Update documentation for API changes
+- Ensure all tests pass before submitting
+- Follow the coding standards defined in implementation details
+
+### Debugging
+- Use the built-in debugging functions
+- Enable debug mode for detailed tracing
+- Consult error handling documentation
+- Review test failures for fixing issues
+
+## 📈 Current Status
+
+### ✅ Completed
+- Core interpreter implementation
+- Multi-syntax support
+- Standard library foundation
+- Comprehensive test suite
+- Basic documentation
+
+### 🔄 In Progress
+- Fixing remaining test failures (5/263)
+- Performance optimizations
+- Cybersecurity feature implementation
+- IDE tool development
+
+### 🚀 Planned
+- Bytecode interpreter
+- Advanced JIT compilation
+- Package management system
+- Foreign function interface
+- Distributed computing support
+
+## 🎯 Design Principles
+
+### Simplicity
+- Clean, readable code
+- Minimal dependencies
+- Straightforward APIs
+- Clear documentation
+
+### Performance
+- Efficient algorithms
+- Memory optimization
+- Fast execution
+- Scalable architecture
+
+### Security
+- Built-in security features
+- Safe defaults
+- Input validation
+- Error handling
+
+### Extensibility
+- Modular design
+- Plugin architecture
+- Easy customization
+- Community contributions
+
+### Compatibility
+- Cross-platform support
+- Multiple build systems
+- Version compatibility
+- Migration paths
+
+## 📞 Getting Help
+
+### Documentation
+- **README.md** (project root) - Quick start guide
+- **examples/** - Sample programs and tutorials
+- **docs/** - Additional documentation
+
+### Community
+- **GitHub Issues** - Bug reports and feature requests
+- **Discussions** - Community discussions and Q&A
+- **Wiki** - Community-maintained documentation
+
+### Development
+- **Code Reviews** - All changes reviewed by maintainers
+- **CI/CD** - Automated testing and validation
+- **Release Notes** - Detailed change documentation
+
+---
+
+*This design documentation serves as the authoritative reference for Quantum Language development and usage. For the most up-to-date information, always check the latest versions of these documents.*

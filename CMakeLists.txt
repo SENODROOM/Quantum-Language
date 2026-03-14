@@ -20,6 +20,7 @@ set(SOURCES
     src/Parser.cpp
     src/Value.cpp
     src/Interpreter.cpp
+    src/TypeChecker.cpp
 )
 
 add_executable(quantum ${SOURCES})

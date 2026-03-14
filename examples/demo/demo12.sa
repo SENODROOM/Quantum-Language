@@ -1,0 +1,105 @@
+// ============================================================
+//  demo12.sa — Functional Programming & Closures
+//  Showcase: Closures, Lambdas, HOFs, and Scoping
+// ============================================================
+
+print("------------------------------------------------------")
+print("    Quantum Language: Functional Programming Demo     ")
+print("------------------------------------------------------")
+
+/* ---------- 1. Closures & State Persistence ---------- */
+print("\n--- Closures (State Persistence) ---")
+
+fn make_counter(start, step) {
+    let count = start;
+    return fn() {
+        count = count + step;
+        return count;
+    };
+}
+
+let counterA = make_counter(10, 5);
+let counterB = make_counter(100, -10);
+
+print("  Counter A (1) :", counterA()); // 15
+print("  Counter A (2) :", counterA()); // 20
+print("  Counter B (1) :", counterB()); // 90
+print("  Counter A (3) :", counterA()); // 25
+
+
+/* ---------- 2. Arrow Functions & Higher-Order Functions ---------- */
+print("\n--- Arrow Functions & HOFs ---")
+
+let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// JS-style map
+let squares = numbers.map(x => x * x);
+print("  Squares (JS map)  :", squares);
+
+// filter with arrow function
+let evens = numbers.filter(x => x % 2 == 0);
+print("  Evens (filter)    :", evens);
+
+// reduce (fold)
+let sum = numbers.reduce((acc, val) => acc + val, 0);
+print("  Sum (Reduce)      :", sum);
+
+
+/* ---------- 3. List Comprehensions ---------- */
+print("\n--- List Comprehensions ---")
+
+let filtered_squares = [x * x for x in numbers if x > 5];
+print("  Squares of x > 5  :", filtered_squares);
+
+// Nested loops for grid (since nested comprehensions aren't supported)
+let grid = [];
+for (let x in [1, 2]) {
+    for (let y in [1, 2]) {
+        grid.push([x, y]);
+    }
+}
+print("  Coordinate Grid   :", grid);
+
+
+/* ---------- 4. Function Currying ---------- */
+print("\n--- Function Currying ---")
+
+fn multiply(a) {
+    return (b) => a * b;
+}
+
+let double = multiply(2);
+let triple = multiply(3);
+
+print("  Double 21         :", double(21));
+print("  Triple 14         :", triple(14));
+
+
+/* ---------- 5. Memoization (Closure-based) ---------- */
+print("\n--- Memoization (Recursion + Closure) ---")
+
+fn make_memo_fib() {
+    let cache = {};
+    cache["0"] = 0;
+    cache["1"] = 1;
+    
+    // Explicit anonymous function to handle recursion correctly via variable name
+    let fib_memo;
+    fib_memo = (n) => {
+        let n_str = str(n);
+        if (cache.has(n_str)) {
+            return cache[n_str];
+        }
+        let res = fib_memo(n - 1) + fib_memo(n - 2);
+        cache[n_str] = res;
+        return res;
+    };
+    
+    return fib_memo;
+}
+
+let fib = make_memo_fib();
+print("  Fibonacci(10)     :", fib(10)); // 55
+print("  Fibonacci(20)     :", fib(20)); // 6765
+
+print("\nDone.")

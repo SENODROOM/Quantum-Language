@@ -1,0 +1,96 @@
+// ============================================================
+//  demo13.sa — Standard Library Deep Dive
+//  Showcase: Math, Cybersecurity, Forensics, and Networking
+// ============================================================
+
+print("------------------------------------------------------")
+print("    Quantum Language: Standard Library Deep Dive      ")
+print("------------------------------------------------------")
+
+/* ---------- 1. Advanced Math & Number Theory ---------- */
+print("\n--- Math & Number Theory ---")
+
+print("  PI Constant       :", PI);
+print("  Math.hypot(3, 4)  :", Math.hypot(3, 4)); // 5
+print("  Math.clamp(50, 0, 10) :", Math.clamp(50, 0, 10)); // 10
+
+// RSA Building Blocks
+let p = 61;
+let q = 53;
+let n = p * q;
+let e = 65537;
+print("  is_prime(61)      :", is_prime(61));
+print("  GCD(65537, 3120)  :", gcd(e, (p-1)*(q-1)));
+print("  ModPow(2, 10, 100):", mod_pow(2, 10, 100)); // 1024 % 100 = 24
+
+
+/* ---------- 2. Cybersecurity & Cryptography ---------- */
+print("\n--- Cybersecurity & Cryptography ---")
+
+let secret = "Quantum_Secret_2026";
+let key = "1234567890123456"; // 16 bytes for AES-128
+
+// Hashing
+let s256 = sha256(secret);
+print("  SHA-256 Digest    :", s256);
+
+// Symmetric Encryption (AES-128 ECB)
+let encrypted = aes128_ecb_encrypt(key, secret);
+let b64 = base64_encode(encrypted);
+print("  AES-128 (Base64)  :", b64);
+
+let decrypted = aes128_ecb_decrypt(key, encrypted);
+print("  Decrypted Message :", decrypted);
+
+// Secure Randomness
+print("  Secure Random Hex :", secure_random_hex(8));
+print("  Secure Random Int :", secure_random_int(1000, 9999));
+
+
+/* ---------- 3. Network & Protocol Utilities ---------- */
+print("\n--- Networking & Protocols ---")
+
+let ip = "192.168.1.1";
+let cidr = "192.168.1.0/29"; // Small subnet
+
+print("  IP to Int         :", ip_to_int(ip));
+print("  IP in CIDR        :", ip_in_cidr(ip, cidr));
+
+let hosts = cidr_hosts(cidr);
+print("  CIDR Hosts (/29)  :", hosts);
+
+// Simulated HTTP Request Parsing
+let raw_http = "GET /index.html HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Quantum/1.0\r\n\r\n";
+let req = parse_http_request(raw_http);
+print("  HTTP Method       :", req["method"]);
+print("  HTTP Path         :", req["path"]);
+print("  HTTP Host Header  :", req["headers"]["Host"]);
+
+
+/* ---------- 4. Forensics & String Analysis ---------- */
+print("\n--- Forensics & Analysis ---")
+
+let data1 = "The quick brown fox jumps over the lazy dog";
+let data2 = "The quick brown box jumps over the hazy dog";
+
+print("  Entropy of String :", round(entropy(data1), 4), "bits/byte");
+print("  Hamming Distance  :", hamming_distance(data1, data2));
+print("  Edit Distance     :", edit_distance(data1, data2));
+
+// Luhn check for data validation
+print("  Luhn (Valid Card) :", luhn_check("79927398713")); // True
+print("  Luhn (Invalid)    :", luhn_check("79927398714")); // False
+
+
+/* ---------- 5. Encodings & Obfuscation ---------- */
+print("\n--- Encodings & Obfuscation ---")
+
+let original = "Hello <Quantum>!";
+let url = url_encode(original);
+print("  URL Encoded       :", url);
+print("  URL Decoded       :", url_decode(url));
+
+let hex_esc = str_to_hex_escape("Secret");
+print("  Hex Escaped       :", hex_esc); // \x...
+
+print("\nDone.")

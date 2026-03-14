@@ -90,7 +90,9 @@ struct DictLiteral
 struct LambdaExpr
 {
     std::vector<std::string> params;
+    std::vector<std::string> paramTypes; // NEW: [param: type]
     std::vector<ASTNodePtr> defaultArgs;
+    std::string returnType;              // NEW: fn(...) -> type
     ASTNodePtr body;
 };
 
@@ -143,8 +145,10 @@ struct FunctionDecl
 {
     std::string name;
     std::vector<std::string> params;
+    std::vector<std::string> paramTypes; // NEW: [param: type]
     std::vector<bool> paramIsRef; // true = pass-by-reference (int& r), false = by-value
     std::vector<ASTNodePtr> defaultArgs;
+    std::string returnType;              // NEW: fn name(...) -> int
     ASTNodePtr body;              // BlockStmt
 };
 

@@ -1,0 +1,127 @@
+// ============================================================
+//  demo11.sa — Advanced OOP & Collections (Final)
+//  Showcase: Hierarchy, Polymorphism, and Type Safety
+// ============================================================
+
+print("------------------------------------------------------")
+print("        Quantum Language: Advanced OOP Demo           ")
+print("------------------------------------------------------")
+
+/* ---------- 1. Multi-level Inheritance ---------- */
+
+class Entity {
+public:
+    string name;
+    
+    init(n) {
+        this.name = n;
+        print("  [Entity] Born:", this.name);
+    }
+    
+    void identify() {
+        print("  I am a generic entity named:", this.name);
+    }
+};
+
+class Machine extends Entity {
+public:
+    string model;
+    
+    init(n, m) {
+        // NOTE: Manual assignment used to bypass multi-level super() bug
+        this.name = n; 
+        this.model = m;
+        print("  [Machine] Initialized model:", this.model);
+    }
+    
+    void identify() {
+        print("  I am a machine (" + this.model + ") named:", this.name);
+    }
+    
+    void compute() {
+        print("  [Machine] Computing baseline calculations...");
+    }
+};
+
+class AI extends Machine {
+public:
+    float version;
+    
+    init(n, m, v) {
+        // NOTE: Manual assignment used to bypass multi-level super() bug
+        this.name = n;
+        this.model = m;
+        this.version = v;
+        print("  [AI] Version", this.version, "online.");
+    }
+    
+    void identify() {
+        print("  I am an AI (v" + str(this.version) + ") known as " + this.name + ".");
+    }
+    
+    void compute() {
+        print("  [AI] Performing neural synthesis for " + this.name);
+    }
+};
+
+print("\n--- Polymorphism Test ---")
+let bob = Entity("Bob");
+let rover = Machine("Rover", "R-100");
+let hal = AI("HAL", "9000-Core", 9.5);
+
+bob.identify();
+rover.identify();
+hal.identify();
+
+print("\n--- Method Overriding (Dynamic Dispatch) ---")
+fn test_compute(m) {
+    m.compute();
+}
+
+test_compute(rover);
+test_compute(hal);
+
+
+/* ---------- 2. Manual Pointer Usage ---------- */
+print("\n--- Explicit Pointer & Dereference ---")
+
+let hal_ptr = &hal;
+print("  HAL Name (via pointer):", (*hal_ptr).name);
+print("  HAL Name (via arrow):  ", hal_ptr->name);
+
+
+/* ---------- 3. Advanced Collections & Builtins ---------- */
+print("\n--- Dictionary (Object) & Array Utilities ---")
+
+let registry = {
+    "ENT-01": bob,
+    "MAC-01": rover,
+    "AI-01": hal
+};
+
+print("  Registry Keys:", Object.keys(registry));
+print("  Registry Values Size:", len(Object.values(registry)));
+
+// Using Map style association
+let dataset = {
+    "priority": "high",
+    "security": "max",
+    "retry": 3
+};
+
+print("  Dataset Keys:", Object.keys(dataset));
+print("  Security Level:", dataset.security);
+
+
+/* ---------- 4. Type Inspection ---------- */
+print("\n--- Type Inspection (isinstance) ---")
+
+print("  Is hal an AI?      :", isinstance(hal, AI));
+print("  Is hal a Machine?  :", isinstance(hal, Machine));
+print("  Is hal an Entity?   :", isinstance(hal, Entity));
+print("  Is bob an AI?      :", isinstance(bob, AI));
+print("  Is bob an Entity?   :", isinstance(bob, Entity));
+
+print("  hal Class Name     :", classname(hal));
+
+print("\nDone.")
