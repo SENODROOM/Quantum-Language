@@ -64,12 +64,6 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords = {
     {"long", TokenType::TYPE_LONG},
     {"short", TokenType::TYPE_SHORT},
     {"unsigned", TokenType::TYPE_UNSIGNED},
-    // Cybersecurity future keywords
-    {"scan", TokenType::SCAN},
-    {"payload", TokenType::PAYLOAD},
-    {"encrypt", TokenType::ENCRYPT},
-    {"decrypt", TokenType::DECRYPT},
-    {"hash", TokenType::HASH},
 };
 
 Lexer::Lexer(const std::string &source)

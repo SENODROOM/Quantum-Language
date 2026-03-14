@@ -83,9 +83,9 @@ ASTNodePtr Parser::parseStatement()
 
     int ln = current().line;
     // Skip C/C++ storage class specifiers like static, extern, inline, volatile, register
-    while (!atEnd() && check(TokenType::IDENTIFIER) && 
-           (current().value == "static" || current().value == "extern" || 
-            current().value == "inline" || current().value == "volatile" || 
+    while (!atEnd() && check(TokenType::IDENTIFIER) &&
+           (current().value == "static" || current().value == "extern" ||
+            current().value == "inline" || current().value == "volatile" ||
             current().value == "register" || current().value == "mutable" ||
             current().value == "constexpr"))
     {
@@ -1136,7 +1136,7 @@ ASTNodePtr Parser::parseClassDecl()
 
             auto isMethodName = [&](TokenType t)
             {
-                return t >= TokenType::IDENTIFIER && t <= TokenType::HASH;
+                return t >= TokenType::IDENTIFIER && t <= TokenType::TYPE_UNSIGNED;
             };
 
             if (!isMethodName(current().type))
@@ -2992,9 +2992,9 @@ ASTNodePtr Parser::parsePrimary()
                         pos = p2 + 1; // jump past ')'
                         skipNewlines();
                         auto innerExpr = parseUnary();
-                        
+
                         // If it's a cast to a struct/class pointer (not a primitive), simulate malloc by creating a new instance
-                        if (castType != "void" && castType != "char" && castType != "int" && castType != "float" && 
+                        if (castType != "void" && castType != "char" && castType != "int" && castType != "float" &&
                             castType != "double" && castType != "long" && castType != "short" && castType != "unsigned")
                         {
                             // Generate ast: ClassName()
@@ -3254,11 +3254,6 @@ ASTNodePtr Parser::parsePrimary()
     {
     case TokenType::INPUT:
     case TokenType::PRINT:
-    case TokenType::SCAN:
-    case TokenType::PAYLOAD:
-    case TokenType::ENCRYPT:
-    case TokenType::DECRYPT:
-    case TokenType::HASH:
     case TokenType::IMPORT:
     case TokenType::COUT:
     case TokenType::CIN:

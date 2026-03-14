@@ -1,0 +1,731 @@
+// ============================================================
+//  cybersec.sa — Quantum Language Cybersecurity Suite
+//  Version : 1.1
+//  Author  : Muhammad Saad Amin
+//
+//  Covers:
+//    1.  Hashing         (SHA-256, SHA-1, MD5)
+//    2.  HMAC            (HMAC-SHA256 message authentication)
+//    3.  AES-128 ECB     (encrypt / decrypt)
+//    4.  Vigenere Cipher (encrypt / decrypt)
+//    5.  XOR Cipher      (stream cipher with repeating key)
+//    6.  Caesar Cipher   (ROT-N)
+//    7.  Base64          (encode / decode)
+//    8.  Hex Encoding    (to_hex / from_hex)
+//    9.  Secure Random   (CSPRNG bytes, hex, integers)
+//   10.  Entropy         (Shannon entropy / password strength)
+//   11.  Luhn Algorithm  (credit card / ID validation)
+//   12.  PKCS#7 Padding  (pad / unpad)
+//   13.  Timing Safety   (constant_time_eq)
+//   14.  Password Hashing (salted SHA-256 — real bcrypt is future)
+//   15.  Token System    (HMAC-based API token generation + verify)
+//   16.  CTF Toolkit     (XOR brute-force key finder, hex dump)
+//   17.  Data Integrity  (checksum + tamper detection)
+// ============================================================
+
+print("╔══════════════════════════════════════════════════════╗")
+print("║        Quantum Cybersecurity Suite  v1.1             ║")
+print("╚══════════════════════════════════════════════════════╝")
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 1 — HASHING
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 1 — HASHING")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let sample = "Quantum Language v1.1"
+
+print("Input   : " + sample)
+print("SHA-256 : " + sha256(sample))
+print("SHA-1   : " + sha1(sample))
+print("MD5     : " + md5(sample))
+
+// Avalanche effect — one bit change flips ~50% of digest
+let sample2 = "Quantum Language v1.2"
+print("\nAvalanche effect:")
+print("  Input A : " + sample)
+print("  Input B : " + sample2)
+print("  SHA-256 A: " + sha256(sample))
+print("  SHA-256 B: " + sha256(sample2))
+print("  (notice completely different digests for 1 char change)")
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 2 — HMAC-SHA256 (Message Authentication)
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 2 — HMAC-SHA256")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let hmac_key = "my-super-secret-signing-key"
+let msg_data = "user=saad&role=admin&exp=9999999999"
+
+let tag = hmac_sha256(hmac_key, msg_data)
+print("Data     : " + msg_data)
+print("HMAC tag : " + tag)
+
+// Simulate verification
+let received_tag = hmac_sha256(hmac_key, msg_data)
+if (constant_time_eq(tag, received_tag)) {
+    print("Verification : PASSED ✓  (tags match)")
+} else {
+    print("Verification : FAILED ✗  (tags differ — tampering detected)")
+}
+
+// Simulate tampered payload
+let tampered = "user=saad&role=superadmin&exp=9999999999"
+let bad_tag  = hmac_sha256(hmac_key, tampered)
+print("\nTamper test:")
+print("  Tampered payload : " + tampered)
+print("  Tags match?      : " + str(constant_time_eq(tag, bad_tag)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 3 — AES-128 ECB ENCRYPTION
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 3 — AES-128 ECB")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let aes_key   = "QuantumSec2025!!"
+let plaintext = "Attack at dawn!!"
+
+print("Key       : " + aes_key)
+print("Plaintext : " + plaintext)
+
+let ciphertext = aes128_ecb_encrypt(aes_key, plaintext)
+let hex_ct     = to_hex(ciphertext)
+print("Ciphertext (hex) : " + hex_ct)
+
+let decrypted = aes128_ecb_decrypt(aes_key, ciphertext)
+print("Decrypted        : " + decrypted)
+
+if (constant_time_eq(plaintext, decrypted)) {
+    print("Round-trip : OK ✓")
+}
+
+// Encrypt longer text (multi-block, PKCS#7 handles padding)
+let long_msg   = "This is a longer message that spans multiple AES blocks automatically."
+let long_ct    = aes128_ecb_encrypt(aes_key, long_msg)
+let long_dec   = aes128_ecb_decrypt(aes_key, long_ct)
+print("\nMulti-block test:")
+print("  Original  : " + long_msg)
+print("  CT length : " + str(len(long_ct)) + " bytes")
+print("  Decrypted : " + long_dec)
+print("  Match     : " + str(constant_time_eq(long_msg, long_dec)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 4 — VIGENERE CIPHER
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 4 — VIGENERE CIPHER")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let vig_key = "QUANTUMLANG"
+let vig_msg = "The secret payload is buried under the old oak tree at midnight"
+
+let vig_enc = vigenere_encrypt(vig_key, vig_msg)
+let vig_dec = vigenere_decrypt(vig_key, vig_enc)
+
+print("Key       : " + vig_key)
+print("Plaintext : " + vig_msg)
+print("Encrypted : " + vig_enc)
+print("Decrypted : " + vig_dec)
+print("Match     : " + str(constant_time_eq(vig_msg, vig_dec)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 5 — XOR STREAM CIPHER
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 5 — XOR STREAM CIPHER")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let xor_key_hex = secure_random_hex(16)
+let xor_key_raw = from_hex(xor_key_hex)
+let xor_msg     = "Quantum XOR cipher demo"
+
+let xor_enc = xor_bytes(xor_msg, xor_key_raw)
+let xor_dec = xor_bytes(xor_enc, xor_key_raw)
+
+print("Key (hex)  : " + xor_key_hex)
+print("Plaintext  : " + xor_msg)
+print("Encrypted  : " + to_hex(xor_enc))
+print("Decrypted  : " + xor_dec)
+print("XOR is its own inverse: " + str(constant_time_eq(xor_msg, xor_dec)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 6 — CAESAR CIPHER (ROT-N)
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 6 — CAESAR CIPHER (ROT-N)")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+fn caesar_encrypt(text, shift) {
+    let result = ""
+    let i = 0
+    while i < len(text) {
+        let c = ord(text[i])
+        if c >= 65 and c <= 90 {
+            result += chr((c - 65 + shift) % 26 + 65)
+        } elif c >= 97 and c <= 122 {
+            result += chr((c - 97 + shift) % 26 + 97)
+        } else {
+            result += text[i]
+        }
+        i += 1
+    }
+    return result
+}
+
+fn caesar_decrypt(text, shift) {
+    return caesar_encrypt(text, 26 - (shift % 26))
+}
+
+let caesar_msg   = "Hello from Quantum Language"
+let caesar_shift = 7
+
+let caesar_enc = caesar_encrypt(caesar_msg, caesar_shift)
+let caesar_dec = caesar_decrypt(caesar_enc, caesar_shift)
+
+print("Shift     : " + str(caesar_shift))
+print("Plaintext : " + caesar_msg)
+print("Encrypted : " + caesar_enc)
+print("Decrypted : " + caesar_dec)
+
+// ROT13 is Caesar-13 — verify with builtin
+let rot13_test = rot13(caesar_msg)
+let rot13_back = rot13(rot13_test)
+print("\nROT-13 (builtin):")
+print("  Encoded : " + rot13_test)
+print("  Decoded : " + rot13_back)
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 7 — BASE64 ENCODING
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 7 — BASE64")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let b64_inputs = [
+    "Hello, World!",
+    "admin:password123",
+    "Quantum Language cybersecurity suite",
+    "A",
+    "AB",
+    "ABC"
+]
+
+let i = 0
+while i < len(b64_inputs) {
+    let raw = b64_inputs[i]
+    let enc = base64_encode(raw)
+    let dec = base64_decode(enc)
+    print("  [" + raw + "] → " + enc + " → " + dec)
+    i += 1
+}
+
+// Base64 of AES ciphertext (common pattern for transmitting binary)
+let b64_ct = base64_encode(ciphertext)
+print("\nAES ciphertext as Base64 : " + b64_ct)
+let b64_ct_back = base64_decode(b64_ct)
+print("Decoded + decrypted      : " + aes128_ecb_decrypt(aes_key, b64_ct_back))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 8 — HEX ENCODING
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 8 — HEX ENCODING")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let hex_msg = "Quantum"
+let as_hex  = to_hex(hex_msg)
+let as_raw  = from_hex(as_hex)
+
+print("String  : " + hex_msg)
+print("Hex     : " + as_hex)
+print("Back    : " + as_raw)
+
+// Hex dump — print bytes with their offsets (useful for binary analysis)
+fn hex_dump(data, label) {
+    print("\nHex dump [" + label + "] (" + str(len(data)) + " bytes):")
+    let row = ""
+    let ascii_row = ""
+    let j = 0
+    while j < len(data) {
+        let byte_val = ord(data[j])
+        let h = to_hex(data[j])
+        // pad single digit
+        if len(h) < 2 {
+            h = "0" + h
+        }
+        row += h + " "
+        if byte_val >= 32 and byte_val <= 126 {
+            ascii_row += data[j]
+        } else {
+            ascii_row += "."
+        }
+        if (j + 1) % 16 == 0 or j == len(data) - 1 {
+            // pad last row
+            let pad = (16 - ((j % 16) + 1)) % 16
+            let k = 0
+            while k < pad {
+                row += "   "
+                ascii_row += " "
+                k += 1
+            }
+            print("  " + row + " | " + ascii_row)
+            row = ""
+            ascii_row = ""
+        }
+        j += 1
+    }
+}
+
+hex_dump("Hello, Quantum!", "string literal")
+hex_dump(ciphertext, "AES-128 ciphertext")
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 9 — SECURE RANDOM (CSPRNG)
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 9 — SECURE RANDOM (CSPRNG)")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+// Random keys
+print("128-bit key  : " + secure_random_hex(16))
+print("256-bit key  : " + secure_random_hex(32))
+print("512-bit key  : " + secure_random_hex(64))
+
+// Random OTP / nonce / session token
+print("OTP (6 digit): " + str(secure_random_int(100000, 999999)))
+print("Session token: " + secure_random_hex(32))
+
+// Generate multiple — show they are different (non-deterministic)
+print("\nRandomness check (5 nonces):")
+let n = 0
+while n < 5 {
+    print("  " + secure_random_hex(8))
+    n += 1
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 10 — SHANNON ENTROPY / PASSWORD STRENGTH
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 10 — ENTROPY & PASSWORD STRENGTH")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+fn rate_password(pw) {
+    let e = entropy(pw)
+    let rating = ""
+    let advice = ""
+    if e < 1.0 {
+        rating = "TERRIBLE"
+        advice = "Single character repeated"
+    } elif e < 2.0 {
+        rating = "VERY WEAK"
+        advice = "Almost no variety"
+    } elif e < 2.8 {
+        rating = "WEAK"
+        advice = "Add numbers, symbols, mixed case"
+    } elif e < 3.5 {
+        rating = "MEDIUM"
+        advice = "Getting there — add more variety"
+    } elif e < 4.0 {
+        rating = "STRONG"
+        advice = "Good password"
+    } else {
+        rating = "EXCELLENT"
+        advice = "Cryptographically strong"
+    }
+    print("  [" + rating + "] entropy=" + str(e) + "  \"" + pw + "\"")
+    print("          → " + advice)
+}
+
+let passwords = [
+    "aaaaaaaaaa",
+    "password",
+    "Password1",
+    "P@ssw0rd!",
+    "correct-horse-battery-staple",
+    "Tr0ub4dor&3",
+    "xK9#mP2@qL5!nR8$"
+]
+
+let pi = 0
+while pi < len(passwords) {
+    rate_password(passwords[pi])
+    pi += 1
+}
+
+// Compare entropy of random hex keys
+print("\nCrypto-grade key entropy:")
+let rk = secure_random_hex(32)
+print("  Random 256-bit key entropy: " + str(entropy(rk)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 11 — LUHN ALGORITHM
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 11 — LUHN ALGORITHM")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+fn check_card(number, label) {
+    let valid = luhn_check(number)
+    let status = "INVALID ✗"
+    if valid {
+        status = "VALID ✓"
+    }
+    print("  " + label + ": " + number + " → " + status)
+}
+
+// Known valid test card numbers (Luhn-valid, not real cards)
+check_card("4532015112830366", "Visa test")
+check_card("5425233430109903", "Mastercard test")
+check_card("374251018720955",  "Amex test")
+check_card("6011000990139424", "Discover test")
+check_card("1234567890123456", "Random (invalid)")
+check_card("0000000000000000", "All zeros (invalid)")
+
+// Generate a Luhn-valid number from scratch
+fn luhn_generate(prefix, total_len) {
+    // Fill with random digits up to total_len - 1
+    let number = prefix
+    while len(number) < total_len - 1 {
+        number += str(secure_random_int(0, 9))
+    }
+    // Compute check digit
+    let sum_ = 0
+    let alt  = true
+    let idx  = len(number) - 1
+    while idx >= 0 {
+        let d = num(number[idx])
+        if alt {
+            d = d * 2
+            if d > 9 { d = d - 9 }
+        }
+        sum_ += d
+        alt  = !alt
+        idx  -= 1
+    }
+    let check_digit = (10 - (sum_ % 10)) % 10
+    return number + str(check_digit)
+}
+
+let generated = luhn_generate("4532", 16)
+print("\nGenerated Luhn-valid number: " + generated)
+print("Verification: " + str(luhn_check(generated)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 12 — PKCS#7 PADDING
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 12 — PKCS#7 PADDING")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let test_strings = ["A", "Hello", "BlockAligned!", "Exactly16Bytes!!"]
+let block_size   = 16
+let ti = 0
+while ti < len(test_strings) {
+    let s       = test_strings[ti]
+    let padded  = pkcs7_pad(s, block_size)
+    let unpadded = pkcs7_unpad(padded)
+    let pad_byte = ord(padded[len(padded) - 1])
+    print("  \"" + s + "\" (len=" + str(len(s)) + ")")
+    print("    → padded len=" + str(len(padded)) + "  pad_byte=0x" + to_hex(chr(pad_byte)))
+    print("    → unpadded=\"" + unpadded + "\"")
+    ti += 1
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 13 — TIMING-SAFE COMPARISON
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 13 — TIMING-SAFE COMPARISON")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let token_a = hmac_sha256("server-secret", "session:user123")
+let token_b = hmac_sha256("server-secret", "session:user123")
+let token_c = hmac_sha256("server-secret", "session:attacker")
+
+print("Token A : " + token_a)
+print("Token B : " + token_b)
+print("Token C : " + token_c)
+print("")
+print("A == B (constant_time_eq) : " + str(constant_time_eq(token_a, token_b)))
+print("A == C (constant_time_eq) : " + str(constant_time_eq(token_a, token_c)))
+print("")
+print("Why constant_time_eq matters:")
+print("  Normal == returns immediately on first byte mismatch.")
+print("  An attacker can measure response time to guess tokens byte by byte.")
+print("  constant_time_eq always checks ALL bytes regardless of where mismatch is.")
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 14 — SALTED PASSWORD HASHING
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 14 — SALTED PASSWORD HASHING")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+fn hash_password(password) {
+    let salt   = secure_random_hex(16)
+    let hash_val = sha256(salt + password)
+    return salt + ":" + hash_val
+}
+
+fn verify_password(password, stored) {
+    let parts  = stored.split(":")
+    let salt   = parts[0]
+    let stored_hash = parts[1]
+    let attempt_hash = sha256(salt + password)
+    return constant_time_eq(stored_hash, attempt_hash)
+}
+
+let user_password = "MySecretPassword123!"
+let stored_hash   = hash_password(user_password)
+
+print("Password    : " + user_password)
+print("Stored hash : " + stored_hash)
+print("")
+print("Verify correct password : " + str(verify_password(user_password, stored_hash)))
+print("Verify wrong password   : " + str(verify_password("WrongPassword", stored_hash)))
+
+// Show that same password produces different hashes (salt randomness)
+let hash1 = hash_password(user_password)
+let hash2 = hash_password(user_password)
+print("\nSame password, two different stored hashes (salts differ):")
+print("  Hash 1: " + hash1)
+print("  Hash 2: " + hash2)
+print("  Equal? : " + str(constant_time_eq(hash1, hash2)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 15 — HMAC-BASED API TOKEN SYSTEM
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 15 — API TOKEN SYSTEM")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+let server_secret = secure_random_hex(32)
+
+fn generate_token(user_id, role) {
+    let nonce   = secure_random_hex(8)
+    let claims  = "uid=" + user_id + "&role=" + role + "&nonce=" + nonce
+    let sig     = hmac_sha256(server_secret, claims)
+    return base64_encode(claims) + "." + sig
+}
+
+fn verify_token(token) {
+    let parts = token.split(".")
+    if len(parts) < 2 {
+        return false
+    }
+    let claims  = base64_decode(parts[0])
+    let sig     = parts[1]
+    let expected = hmac_sha256(server_secret, claims)
+    return constant_time_eq(sig, expected)
+}
+
+fn decode_token(token) {
+    let parts = token.split(".")
+    return base64_decode(parts[0])
+}
+
+let admin_token = generate_token("1001", "admin")
+let user_token  = generate_token("1002", "user")
+
+print("Admin token : " + admin_token)
+print("User token  : " + user_token)
+print("")
+print("Verify admin token  : " + str(verify_token(admin_token)))
+print("Verify user token   : " + str(verify_token(user_token)))
+print("")
+print("Admin claims : " + decode_token(admin_token))
+print("User claims  : " + decode_token(user_token))
+
+// Tamper with the token
+let tampered_token = base64_encode("uid=1002&role=admin&nonce=hacked") + "." + "fakesignaturexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+print("\nTampered token verify: " + str(verify_token(tampered_token)))
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 16 — CTF TOOLKIT
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 16 — CTF TOOLKIT")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+// XOR brute-force single-byte key finder
+// Given ciphertext encrypted with XOR key, find the key by checking
+// which decryption produces the most readable ASCII text.
+
+fn xor_single_byte(data, key_byte) {
+    let result = ""
+    let j = 0
+    while j < len(data) {
+        result += chr(ord(data[j]) ^ key_byte)
+        j += 1
+    }
+    return result
+}
+
+fn score_english(text) {
+    let common = "etaoinshrdlu ETAOINSHRDLU"
+    let score  = 0
+    let j = 0
+    while j < len(text) {
+        let c = ord(text[j])
+        // printable ASCII bonus
+        if c >= 32 and c <= 126 {
+            score += 1
+        }
+        // common letter bonus
+        let k = 0
+        while k < len(common) {
+            if text[j] == common[k] {
+                score += 3
+            }
+            k += 1
+        }
+        j += 1
+    }
+    return score
+}
+
+fn xor_brute_single(ciphertext_hex) {
+    let ct      = from_hex(ciphertext_hex)
+    let best_key   = 0
+    let best_score = -1
+    let best_plain = ""
+    let key = 0
+    while key < 256 {
+        let attempt = xor_single_byte(ct, key)
+        let s       = score_english(attempt)
+        if s > best_score {
+            best_score = s
+            best_key   = key
+            best_plain = attempt
+        }
+        key += 1
+    }
+    return best_key
+}
+
+// Create a challenge: XOR encrypt a message with key 0x42
+let ctf_msg    = "The flag is: QUANTUM{xor_is_easy_to_break}"
+let ctf_key    = 0x42
+let ctf_ct     = xor_single_byte(ctf_msg, ctf_key)
+let ctf_ct_hex = to_hex(ctf_ct)
+
+print("CTF Challenge:")
+print("  Ciphertext (hex) : " + ctf_ct_hex)
+
+let found_key = xor_brute_single(ctf_ct_hex)
+let found_ct  = from_hex(ctf_ct_hex)
+let decrypted_flag = xor_single_byte(found_ct, found_key)
+
+print("  Brute-forced key : 0x" + to_hex(chr(found_key)))
+print("  Recovered flag   : " + decrypted_flag)
+
+// Frequency analysis hint
+fn char_frequency(text) {
+    let counts = {}
+    let j = 0
+    while j < len(text) {
+        let c = text[j]
+        if has(counts, c) {
+            counts[c] = counts[c] + 1
+        } else {
+            counts[c] = 1
+        }
+        j += 1
+    }
+    return counts
+}
+
+print("\nBase64 decode a typical CTF encoded string:")
+let ctf_b64 = "UVVBTVRVTXTJBGFZC2ljX2I2NF9jaGFsbGVuZ2V9"
+let ctf_decoded = base64_decode(ctf_b64)
+print("  Encoded  : " + ctf_b64)
+print("  Decoded  : " + ctf_decoded)
+
+
+// ════════════════════════════════════════════════════════════
+//  SECTION 17 — DATA INTEGRITY
+// ════════════════════════════════════════════════════════════
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("  SECTION 17 — DATA INTEGRITY")
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+// Simulate a file integrity checker using SHA-256
+
+fn compute_checksum(data) {
+    return sha256(data)
+}
+
+fn verify_integrity(data, expected_checksum) {
+    let actual = compute_checksum(data)
+    return constant_time_eq(actual, expected_checksum)
+}
+
+let file_content  = "This is the content of an important config file.\nversion=1.1\nmode=secure\n"
+let checksum      = compute_checksum(file_content)
+
+print("File content     : " + file_content)
+print("SHA-256 checksum : " + checksum)
+print("Integrity OK     : " + str(verify_integrity(file_content, checksum)))
+
+// Simulate tampering
+let tampered_file = "This is the content of an important config file.\nversion=1.1\nmode=HACKED\n"
+print("\nAfter tampering  :")
+print("Tampered content : " + tampered_file)
+print("Integrity OK     : " + str(verify_integrity(tampered_file, checksum)))
+
+// HMAC-protected manifest (stronger than plain hash — prevents length extension attacks)
+let manifest_key  = secure_random_hex(32)
+let manifest_data = file_content
+let manifest_mac  = hmac_sha256(manifest_key, manifest_data)
+
+print("\nHMAC-protected manifest:")
+print("MAC : " + manifest_mac)
+print("Verify original : " + str(constant_time_eq(manifest_mac, hmac_sha256(manifest_key, manifest_data))))
+print("Verify tampered : " + str(constant_time_eq(manifest_mac, hmac_sha256(manifest_key, tampered_file))))
+
+
+// ════════════════════════════════════════════════════════════
+//  DONE
+// ════════════════════════════════════════════════════════════
+
+print("\n╔══════════════════════════════════════════════════════╗")
+print("║  All sections complete. Quantum CyberSec Suite done. ║")
+print("╚══════════════════════════════════════════════════════╝")

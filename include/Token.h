@@ -56,13 +56,6 @@ enum class TokenType
     TYPE_SHORT,
     TYPE_UNSIGNED,
 
-    // Cybersecurity reserved keywords (future)
-    SCAN,
-    PAYLOAD,
-    ENCRYPT,
-    DECRYPT,
-    HASH,
-
     // Operators
     PLUS,
     MINUS,
@@ -71,10 +64,10 @@ enum class TokenType
     FLOOR_DIV, // // integer division (Python)
     PERCENT,
     POWER,
-    EQ,         // ==
-    NEQ,        // !=
-    STRICT_EQ,  // ===
-    STRICT_NEQ, // !==
+    EQ,            // ==
+    NEQ,           // !=
+    STRICT_EQ,     // ===
+    STRICT_NEQ,    // !==
     NULL_COALESCE, // ??
     LT,
     GT,
