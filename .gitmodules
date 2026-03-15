@@ -18,5 +18,7 @@
 	path = extensions
 	url = https://github.com/SENODROOM/QLang-DesginDocs.git
 	branch = main
-
-
+[submodule "design"]
+	path = docs/design
+	url = https://github.com/SENODROOM/QLang-DesginDocs.git
+	branch = main
