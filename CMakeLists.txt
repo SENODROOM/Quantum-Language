@@ -12,22 +12,35 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Collect every .cpp under src/ automatically.
-# This means dropping new files into src/ is enough — no CMakeLists edit needed.
-file(GLOB_RECURSE QUANTUM_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+# ── Shared sources (Lexer, Parser, Value, TypeChecker, etc.) ──────────────────
+file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
-# Exclude the old tree-walk entry point if it still exists alongside the new one.
-# (Both main.cpp and main_vm.cpp define main(); only one can be in the build.)
-list(FILTER QUANTUM_SOURCES EXCLUDE REGEX ".*main_vm\\.cpp$")
-list(FILTER QUANTUM_SOURCES EXCLUDE REGEX ".*Interpreter\\.cpp$")
+# Remove all entry-point files from the shared pool
+list(FILTER ALL_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
+list(FILTER ALL_SOURCES EXCLUDE REGEX ".*main_vm\\.cpp$")
+list(FILTER ALL_SOURCES EXCLUDE REGEX ".*quantum_main\\.cpp$")
+list(FILTER ALL_SOURCES EXCLUDE REGEX ".*Interpreter\\.cpp$")
 
-add_executable(quantum ${QUANTUM_SOURCES})
+# ── qrun: bytecode VM interpreter ─────────────────────────────────────────────
+# Usage:  qrun file.sa     (interpreted mode, REPL, debugging)
+add_executable(qrun
+    ${ALL_SOURCES}
+    src/main.cpp
+)
+if(WIN32)
+    target_link_libraries(qrun advapi32)
+endif()
 
+# ── quantum: native compiler ──────────────────────────────────────────────────
+# Usage:  quantum file.sa  (compile to native executable)
+add_executable(quantum
+    ${ALL_SOURCES}
+    src/quantum_main.cpp
+)
 if(WIN32)
     target_link_libraries(quantum advapi32)
 endif()
 
-message(STATUS "Quantum v2.0.0 — Bytecode VM")
-message(STATUS "  Sources : ${QUANTUM_SOURCES}")
-message(STATUS "  Binary  : quantum")
-message(STATUS "  Usage   : quantum <file.sa>")
+message(STATUS "Quantum v2.0.0")
+message(STATUS "  qrun    — Bytecode VM interpreter  (qrun file.sa)")
+message(STATUS "  quantum — Native compiler           (quantum file.sa)")
