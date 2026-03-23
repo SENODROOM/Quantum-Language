@@ -2,8 +2,8 @@
   Quantum Language — Test Results
 ================================================================================
   Directory : C:\Programming\Quantum Language\examples
-  Total     : 259
-  Passed    : 259
+  Total     : 256
+  Passed    : 256
   Failed    : 0
 ================================================================================
 
