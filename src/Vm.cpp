@@ -57,7 +57,7 @@ void VM::run(std::shared_ptr<Chunk> chunk)
 
     // Create a top-level closure and push it to stack as a dummy callee
     auto closure = std::make_shared<Closure>(chunk);
-    push(QuantumValue(closure)); 
+    push(QuantumValue(closure));
     frames_.push_back({closure, 0, 1}); // locals start at stack index 1
     runFrame(0);
 }
@@ -334,7 +334,6 @@ void VM::callValue(QuantumValue callee, int argCount, int line)
     throw TypeError("Cannot call value of type " + callee.typeName(), line);
 }
 
-
 void VM::callClosure(std::shared_ptr<Closure> closure, int argCount, int line)
 {
     auto &ch = *closure->chunk;
@@ -510,10 +509,14 @@ void VM::runFrame(size_t stopDepth)
         for (const auto &v : stack_)
         {
             std::cout << "[ ";
-            if (v.isString()) std::cout << "\"" << v.asString() << "\"";
-            else if (v.isNative()) std::cout << "<native " << v.asNative()->name << ">";
-            else if (v.isFunction()) std::cout << "<fn>";
-            else std::cout << v.toString();
+            if (v.isString())
+                std::cout << "\"" << v.asString() << "\"";
+            else if (v.isNative())
+                std::cout << "<native " << v.asNative()->name << ">";
+            else if (v.isFunction())
+                std::cout << "<fn>";
+            else
+                std::cout << v.toString();
             std::cout << " ]";
         }
         std::cout << "\n";
@@ -691,7 +694,7 @@ void VM::runFrame(size_t stopDepth)
             QuantumValue top = pop();
             if (!top.isFunction())
                 throw RuntimeError("Expected closure template", line);
-            
+
             auto tpl = top.asFunction();
             auto closure = std::make_shared<Closure>(tpl->chunk);
 
@@ -740,8 +743,14 @@ void VM::runFrame(size_t stopDepth)
                 {
                     push(callee.asNative()->fn(args));
                 }
-                catch (QuantumError &) { throw; }
-                catch (std::exception &e) { throw RuntimeError(e.what(), line); }
+                catch (QuantumError &)
+                {
+                    throw;
+                }
+                catch (std::exception &e)
+                {
+                    throw RuntimeError(e.what(), line);
+                }
                 break;
             }
 
@@ -800,7 +809,7 @@ void VM::runFrame(size_t stopDepth)
                 {
                 }
             }
-            
+
             if (callee.isBoundMethod())
             {
                 auto bm = callee.asBoundMethod();
@@ -808,7 +817,7 @@ void VM::runFrame(size_t stopDepth)
                 callClosure(bm->method, argCount + 1, line);
                 break;
             }
-            
+
             if (callee.isFunction())
             {
                 callClosure(callee.asFunction(), argCount, line);
@@ -1011,6 +1020,18 @@ void VM::runFrame(size_t stopDepth)
                 }
             }
 
+            // Dict: check stored keys first (enables console.log, module objects, etc.)
+            if (obj.isDict())
+            {
+                auto &d = *obj.asDict();
+                auto it = d.find(name);
+                if (it != d.end())
+                {
+                    push(it->second);
+                    break;
+                }
+            }
+
             // Built-in method (array/string/dict methods)
             {
                 auto native = std::make_shared<QuantumNative>();
@@ -1181,7 +1202,8 @@ void VM::runFrame(size_t stopDepth)
                         break;
                     }
                 }
-                if (!initFound) k = k->base.get();
+                if (!initFound)
+                    k = k->base.get();
             }
 
             if (!initFound)
@@ -1206,15 +1228,18 @@ void VM::runFrame(size_t stopDepth)
                 throw RuntimeError("super: class has no base class", line);
 
             std::string lookupMethod = method;
-            if (method == "__init__") lookupMethod = "init";
-            else if (method == "__str__" || method == "toString") lookupMethod = "__str__";
+            if (method == "__init__")
+                lookupMethod = "init";
+            else if (method == "__str__" || method == "toString")
+                lookupMethod = "__str__";
 
             auto *k = base.get();
             bool superFound = false;
             while (k && !superFound)
             {
                 auto it = k->methods.find(lookupMethod);
-                if (it == k->methods.end()) it = k->methods.find(method);
+                if (it == k->methods.end())
+                    it = k->methods.find(method);
                 if (it != k->methods.end())
                 {
                     auto bm = std::make_shared<QuantumBoundMethod>();
@@ -1639,6 +1664,60 @@ void VM::registerNatives()
     globals->define("false", QuantumValue(false));
     globals->define("nil", QuantumValue());
     globals->define("None", QuantumValue());
+
+    // ── console object (JavaScript compatibility) ─────────────────────────
+    // console.log, console.error, console.warn, console.info
+    auto consolePrint = [](const std::string &prefix)
+    {
+        return [prefix](std::vector<QuantumValue> args) -> QuantumValue
+        {
+            if (!prefix.empty())
+                std::cerr << prefix;
+            for (size_t i = 0; i < args.size(); i++)
+            {
+                if (i)
+                    std::cout << " ";
+                std::cout << args[i].toString();
+            }
+            std::cout << "\n";
+            std::cout.flush();
+            return QuantumValue();
+        };
+    };
+
+    auto consoleDict = std::make_shared<Dict>();
+
+    auto makeConsoleMethod = [&](const std::string &name, const std::string &prefix)
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = "console." + name;
+        nat->fn = consolePrint(prefix);
+        (*consoleDict)[name] = QuantumValue(nat);
+    };
+
+    makeConsoleMethod("log", "");
+    makeConsoleMethod("info", "");
+    makeConsoleMethod("warn", "[warn] ");
+    makeConsoleMethod("error", "[error] ");
+
+    // console.assert(condition, ...msg)
+    {
+        auto nat = std::make_shared<QuantumNative>();
+        nat->name = "console.assert";
+        nat->fn = [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+            if (args.empty() || args[0].isTruthy())
+                return QuantumValue();
+            std::cerr << "[AssertionError]";
+            for (size_t i = 1; i < args.size(); i++)
+                std::cerr << " " << args[i].toString();
+            std::cerr << "\n";
+            return QuantumValue();
+        };
+        (*consoleDict)["assert"] = QuantumValue(nat);
+    }
+
+    globals->define("console", QuantumValue(consoleDict));
 }
 
 // ─── Array methods ────────────────────────────────────────────────────────────
