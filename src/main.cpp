@@ -192,6 +192,7 @@ static int checkFile(const std::string &path)
         catch (const StaticTypeError &e) {
             std::cerr << path << ":" << e.line << ":1: warning: " << e.what() << "\n";
         }
+        std::cout << Colors::GREEN << "[OK] " << Colors::RESET << path << "\n";
         return 0;
     } catch (const ParseError &e) {
         std::cerr << path << ":" << e.line << ":" << e.col << ": error: " << e.what() << "\n";
@@ -319,6 +320,8 @@ static void printHelp(const char *prog)
 }
 
 // ─── findStubPath ─────────────────────────────────────────────────────────────
+// Searches for quantum_stub.exe next to quantum.exe (or in build/ subdirs).
+// All messages go to stdout so the user always sees them.
 
 static std::string findStubPath(const std::string &quantumExePath)
 {
@@ -331,67 +334,66 @@ static std::string findStubPath(const std::string &quantumExePath)
         base / "build" / "Debug"   / "quantum_stub.exe",
     };
 
-    std::cerr << "[DIAG] Searching for quantum_stub.exe:\n";
     for (auto &p : candidates) {
-        bool found = fs::exists(p);
-        std::cerr << "[DIAG]   " << p.string() << (found ? "  <-- FOUND" : "") << "\n";
-        if (found) return p.string();
+        if (fs::exists(p)) return p.string();
     }
+
+    // Nothing found — tell the user exactly where we looked
+    std::cout << Colors::RED << "[Error] " << Colors::RESET
+              << "quantum_stub.exe not found. Searched:\n";
+    for (auto &p : candidates)
+        std::cout << "  " << p.string() << "\n";
+    std::cout << "Run build.bat to rebuild all three binaries.\n";
     return "";
 }
 
 // ─── bundleAndRun ─────────────────────────────────────────────────────────────
+// Compiles .sa → bytecode, appends it to a copy of quantum_stub.exe,
+// writes <name>.exe next to the .sa file, then launches it and waits.
 
 static int bundleAndRun(const std::string &path, const std::string &exePath)
 {
-    std::cerr << "[DIAG] bundleAndRun entered\n";
-    std::cerr << "[DIAG] exePath  = " << exePath << "\n";
-    std::cerr << "[DIAG] src path = " << path << "\n";
-
     // 1. Read source
     std::ifstream src(path);
     if (!src.is_open()) {
-        std::cerr << Colors::RED << "[Error] " << Colors::RESET << "Cannot open: " << path << "\n";
+        std::cout << Colors::RED << "[Error] " << Colors::RESET
+                  << "Cannot open: " << path << "\n";
+        std::cout.flush();
         return 1;
     }
     std::ostringstream ss; ss << src.rdbuf();
-    std::cerr << "[DIAG] source read: " << ss.str().size() << " bytes\n";
 
     // 2. Compile
     std::shared_ptr<Chunk> chunk;
     try {
         chunk = compileSource(ss.str(), path, false);
-        std::cerr << "[DIAG] compile OK\n";
     }
     catch (const ParseError &e) {
-        std::cerr << Colors::RED << Colors::BOLD << "\n  X ParseError" << Colors::RESET
+        std::cout << Colors::RED << Colors::BOLD << "\n  X ParseError" << Colors::RESET
                   << " in " << path << " at line " << e.line << ":" << e.col
                   << "\n    " << e.what() << "\n\n";
+        std::cout.flush();
         return 1;
     } catch (const std::exception &e) {
-        std::cerr << Colors::RED << "[Compile Error] " << Colors::RESET << e.what() << "\n";
+        std::cout << Colors::RED << "[Compile Error] " << Colors::RESET << e.what() << "\n";
+        std::cout.flush();
         return 1;
     }
 
-    // 3. Serialize
+    // 3. Serialize bytecode
     auto payload = Serializer::serialize(chunk);
     uint32_t payloadSize = (uint32_t)payload.size();
-    std::cerr << "[DIAG] serialized: " << payloadSize << " bytes\n";
 
-    // 4. Find stub
+    // 4. Find quantum_stub.exe (the template runtime)
     std::string stub = findStubPath(exePath);
     if (stub.empty()) {
-        std::cerr << Colors::RED << "[Error] " << Colors::RESET
-                  << "quantum_stub.exe not found.\n"
-                  << "  Run build.bat — it produces quantum.exe, qrun.exe, quantum_stub.exe\n";
+        std::cout.flush();
         return 1;
     }
-    std::cerr << "[DIAG] stub found: " << stub << "\n";
 
-    // 5. Output path: hello.sa → hello.exe (same dir as .sa file)
+    // 5. Determine output path: hello.sa → hello.exe
     fs::path srcPath(path);
     std::string outName;
-    // If srcPath has no parent (relative filename), use current working directory
     if (srcPath.parent_path().empty())
         outName = (fs::current_path() / srcPath.stem()).string() + ".exe";
     else
@@ -405,24 +407,24 @@ static int bundleAndRun(const std::string &path, const std::string &exePath)
             outName = (fs::path(outName).parent_path() /
                        (fs::path(outName).stem().string() + "_out")).string() + ".exe";
     }
-    std::cerr << "[DIAG] output exe: " << outName << "\n";
 
-    // 6. Copy stub → output
+    // 6. Copy stub → output exe
     std::error_code copyErr;
     fs::copy_file(stub, outName, fs::copy_options::overwrite_existing, copyErr);
     if (copyErr) {
-        std::cerr << Colors::RED << "[Error] " << Colors::RESET
+        std::cout << Colors::RED << "[Error] " << Colors::RESET
                   << "Cannot create " << outName << ": " << copyErr.message() << "\n";
+        std::cout.flush();
         return 1;
     }
-    std::cerr << "[DIAG] stub copied to output OK\n";
 
-    // 7. Append: [payload] [payloadSize: uint32 LE] [magic: "QNTM_VM!" 8 bytes]
+    // 7. Append payload: [bytes] [size: uint32 LE] [magic: "QNTM_VM!" 8 bytes]
     {
         std::ofstream out(outName, std::ios::binary | std::ios::app);
         if (!out) {
-            std::cerr << Colors::RED << "[Error] " << Colors::RESET
+            std::cout << Colors::RED << "[Error] " << Colors::RESET
                       << "Cannot open " << outName << " for appending\n";
+            std::cout.flush();
             return 1;
         }
         out.write(reinterpret_cast<const char*>(payload.data()), payloadSize);
@@ -430,32 +432,31 @@ static int bundleAndRun(const std::string &path, const std::string &exePath)
         out.write("QNTM_VM!", 8);
         out.flush();
         if (!out) {
-            std::cerr << Colors::RED << "[Error] " << Colors::RESET
+            std::cout << Colors::RED << "[Error] " << Colors::RESET
                       << "Write failed on " << outName << "\n";
+            std::cout.flush();
             return 1;
         }
     }
-    std::cerr << "[DIAG] payload appended OK\n";
 
     std::cout << Colors::GREEN << "[Compiled] " << Colors::RESET
-              << path << " -> " << outName << " (" << payloadSize << " bytes)\n";
+              << path << "  ->  " << outName << "  (" << payloadSize << " bytes)\n";
     std::cout.flush();
 
-    // 8. Launch and wait
+    // 8. Launch the produced .exe and wait for it to finish
     std::cout << Colors::CYAN << "[Running]  " << Colors::RESET << outName << "\n\n";
     std::cout.flush();
 
     STARTUPINFOA si{}; si.cb = sizeof(si);
     PROCESS_INFORMATION pi{};
     std::string cmd = "\"" + outName + "\"";
-    std::cerr << "[DIAG] launching: " << cmd << "\n";
-    std::cerr.flush();
 
     if (!CreateProcessA(NULL, const_cast<char*>(cmd.c_str()),
                         NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-        std::cerr << Colors::RED << "[Error] " << Colors::RESET
-                  << "CreateProcess failed for " << outName
-                  << "  GetLastError=" << GetLastError() << "\n";
+        std::cout << Colors::RED << "[Error] " << Colors::RESET
+                  << "Could not launch " << outName
+                  << "  (Windows error " << GetLastError() << ")\n";
+        std::cout.flush();
         return 1;
     }
     WaitForSingleObject(pi.hProcess, INFINITE);
@@ -463,7 +464,6 @@ static int bundleAndRun(const std::string &path, const std::string &exePath)
     GetExitCodeProcess(pi.hProcess, &exitCode);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-    std::cerr << "[DIAG] child process exited, code=" << exitCode << "\n";
     return (int)exitCode;
 }
 
@@ -476,30 +476,13 @@ int main(int argc, char *argv[])
 
     std::string exePath = getExecutablePath();
 
-    // ── Always print which binary we are and what arguments we received ───────
-#if defined(QUANTUM_MODE_COMPILER)
-    std::cerr << "[DIAG] MODE: QUANTUM_MODE_COMPILER (quantum.exe)\n";
-#elif defined(QRUN_MODE)
-    std::cerr << "[DIAG] MODE: QRUN_MODE (qrun.exe)\n";
-#else
-    std::cerr << "[DIAG] MODE: STUB (quantum_stub.exe / hello.exe)\n";
-#endif
-    std::cerr << "[DIAG] exePath = " << exePath << "\n";
-    std::cerr << "[DIAG] argc    = " << argc << "\n";
-    for (int i = 0; i < argc; i++)
-        std::cerr << "[DIAG] argv[" << i << "] = " << argv[i] << "\n";
-    std::cerr.flush();
-
     // ══════════════════════════════════════════════════════════════
     //  STANDALONE BUNDLED EXE  (hello.exe etc.) — quantum_stub mode
     // ══════════════════════════════════════════════════════════════
 #if !defined(QRUN_MODE) && !defined(QUANTUM_MODE_COMPILER)
     {
-        std::cerr << "[DIAG] Checking for embedded bytecode in: " << exePath << "\n";
         auto embedded = loadEmbeddedBytecode(exePath);
         if (embedded) {
-            std::cerr << "[DIAG] Embedded bytecode found — running VM\n";
-            std::cerr.flush();
             try { VM vm; vm.run(embedded); return 0; }
             catch (const QuantumError &e) {
                 std::cerr << Colors::RED << "[" << e.kind << "] " << Colors::RESET << e.what() << "\n";
@@ -509,8 +492,8 @@ int main(int argc, char *argv[])
                 return 1;
             }
         }
-        std::cerr << "[DIAG] No embedded bytecode found — stub launched directly\n";
-        std::cerr << Colors::YELLOW
+        // No embedded bytecode — user ran quantum_stub.exe directly
+        std::cout << Colors::YELLOW
                   << "[quantum_stub] This is the Quantum standalone runtime.\n"
                   << "  Run:  quantum hello.sa   to compile hello.sa into hello.exe\n"
                   << Colors::RESET;

@@ -65,14 +65,12 @@ if errorlevel 1 (
 cd ..
 
 rem ── Copy all THREE binaries to the project root ───────────────────────────────
-rem    The .bat launchers (quantum.bat / qrun.bat) look HERE first, so these
-rem    root copies are always what gets executed by the user.
 copy /Y build\quantum.exe      quantum.exe      >nul
 copy /Y build\qrun.exe         qrun.exe         >nul
 copy /Y build\quantum_stub.exe quantum_stub.exe >nul
 
 echo.
-echo   Build successful!
+echo   Build successful
 echo.
 echo   Binaries copied to project root:
 echo     quantum.exe       ^<-- compiler + bundler
