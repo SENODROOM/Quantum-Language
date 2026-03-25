@@ -38,6 +38,7 @@ node_modules/*
 
 /commands.md
 test_results.txt
+/test_results.txt
 /Quantum Language.txt
 /.txtconfig
 /.txtignore

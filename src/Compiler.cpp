@@ -79,36 +79,40 @@ void Compiler::declareLocal(const std::string &name, int)
 
 void Compiler::emitLoad(const std::string &name, int line)
 {
-    int local = resolveLocal(current_, name);
+    // "this" is an alias for "self" (slot 0 in all methods)
+    const std::string &resolved = (name == "this") ? std::string("self") : name;
+    int local = resolveLocal(current_, resolved);
     if (local != -1)
     {
         emit(Op::LOAD_LOCAL, local, line);
         return;
     }
-    int uv = resolveUpvalue(current_, name);
+    int uv = resolveUpvalue(current_, resolved);
     if (uv != -1)
     {
         emit(Op::LOAD_UPVALUE, uv, line);
         return;
     }
-    emit(Op::LOAD_GLOBAL, addStr(name), line);
+    emit(Op::LOAD_GLOBAL, addStr(resolved), line);
 }
 
 void Compiler::emitStore(const std::string &name, int line)
 {
-    int local = resolveLocal(current_, name);
+    // "this" is an alias for "self" (slot 0 in all methods)
+    const std::string &resolved = (name == "this") ? std::string("self") : name;
+    int local = resolveLocal(current_, resolved);
     if (local != -1)
     {
         emit(Op::STORE_LOCAL, local, line);
         return;
     }
-    int uv = resolveUpvalue(current_, name);
+    int uv = resolveUpvalue(current_, resolved);
     if (uv != -1)
     {
         emit(Op::STORE_UPVALUE, uv, line);
         return;
     }
-    emit(Op::STORE_GLOBAL, addStr(name), line);
+    emit(Op::STORE_GLOBAL, addStr(resolved), line);
 }
 
 void Compiler::beginLoop(int startIp)
@@ -261,7 +265,21 @@ void Compiler::compileClassDecl(ClassDecl &s, int line)
         if (!method->is<FunctionDecl>())
             continue;
         auto &fd = method->as<FunctionDecl>();
-        auto fnChunk = compileFunction(fd.name, fd.params, fd.paramIsRef, fd.defaultArgs, fd.body.get(), method->line);
+
+        // Prepend "self" as slot 0 so the instance is always at the first local.
+        // The VM calls methods with the instance as the first argument (argCount+1).
+        // "this" references are resolved to "self" by emitLoad/emitStore.
+        std::vector<std::string> methodParams;
+        std::vector<bool> methodRefs;
+        methodParams.push_back("self");
+        methodRefs.push_back(false);
+        for (size_t i = 0; i < fd.params.size(); ++i)
+        {
+            methodParams.push_back(fd.params[i]);
+            methodRefs.push_back(i < fd.paramIsRef.size() ? fd.paramIsRef[i] : false);
+        }
+
+        auto fnChunk = compileFunction(fd.name, methodParams, methodRefs, fd.defaultArgs, fd.body.get(), method->line);
         auto closureTpl = std::make_shared<Closure>(fnChunk);
         emit(Op::LOAD_CONST, addConst(QuantumValue(closureTpl)), method->line);
         emit(Op::MAKE_FUNCTION, 0, method->line);

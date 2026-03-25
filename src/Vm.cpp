@@ -578,14 +578,68 @@ void VM::runFrame(size_t stopDepth)
             }
             catch (NameError &)
             {
-                push(QuantumValue());
-            } // return nil for missing
+                // Implicit self: if slot 0 of this frame is an instance,
+                // try to read the field from it (C++ class bare-name access)
+                bool found = false;
+                if (frame.stackBase < stack_.size())
+                {
+                    QuantumValue &slot0 = stack_[frame.stackBase];
+                    if (slot0.isInstance())
+                    {
+                        auto inst = slot0.asInstance();
+                        auto fit = inst->fields.find(name);
+                        if (fit != inst->fields.end())
+                        {
+                            push(fit->second);
+                            found = true;
+                        }
+                        else
+                        {
+                            // Check class methods/static fields
+                            auto *k = inst->klass.get();
+                            while (k && !found)
+                            {
+                                auto mit = k->methods.find(name);
+                                if (mit != k->methods.end())
+                                {
+                                    auto bm = std::make_shared<QuantumBoundMethod>();
+                                    bm->method = mit->second;
+                                    bm->self = slot0;
+                                    push(QuantumValue(bm));
+                                    found = true;
+                                }
+                                else
+                                {
+                                    auto sit = k->staticFields.find(name);
+                                    if (sit != k->staticFields.end())
+                                    {
+                                        push(sit->second);
+                                        found = true;
+                                    }
+                                }
+                                if (!found)
+                                    k = k->base.get();
+                            }
+                        }
+                    }
+                }
+                if (!found)
+                    push(QuantumValue()); // return nil for missing
+            }
             break;
         }
         case Op::STORE_GLOBAL:
         {
             const std::string &name = consts[instr.operand].asString();
-            if (globals->has(name))
+            // Implicit self: if slot 0 of this frame is an instance and
+            // the name is not a known global, store as an instance field
+            if (!globals->has(name) &&
+                frame.stackBase < stack_.size() &&
+                stack_[frame.stackBase].isInstance())
+            {
+                stack_[frame.stackBase].asInstance()->setField(name, peek(0));
+            }
+            else if (globals->has(name))
                 globals->set(name, peek(0));
             else
                 globals->define(name, peek(0));
@@ -1726,6 +1780,19 @@ void VM::registerNatives()
     reg("isinstance", [](std::vector<QuantumValue> args) -> QuantumValue
         {
         if(args.size()<2) throw RuntimeError("isinstance() requires 2 args");
+        // If second arg is a class object, walk the instance's class hierarchy
+        if(args[1].isClass())
+        {
+            if(!args[0].isInstance()) return QuantumValue(false);
+            auto targetKlass = args[1].asClass();
+            auto *k = args[0].asInstance()->klass.get();
+            while(k)
+            {
+                if(k == targetKlass.get()) return QuantumValue(true);
+                k = k->base.get();
+            }
+            return QuantumValue(false);
+        }
         std::string t;
         if(args[1].isString()) t=args[1].asString();
         else t=args[1].typeName();
@@ -1736,11 +1803,74 @@ void VM::registerNatives()
             if(s=="list"||s=="array") return args[0].isArray();
             if(s=="dict") return args[0].isDict();
             if(s=="NoneType"||s=="nil") return args[0].isNil();
+            // Also try matching against instance class name hierarchy
+            if(args[0].isInstance()) {
+                auto *k = args[0].asInstance()->klass.get();
+                while(k) {
+                    if(k->name == s) return true;
+                    k = k->base.get();
+                }
+                return false;
+            }
             return args[0].typeName()==s;
         };
         return QuantumValue(matches(t)); });
 
     // ── List-comp push helper ─────────────────────────────────────────────
+    // ── classname / type inspection ───────────────────────────────────────
+    reg("classname", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if(args.empty()) throw RuntimeError("classname() requires 1 argument");
+        if(args[0].isInstance()) return QuantumValue(args[0].asInstance()->klass->name);
+        if(args[0].isClass())    return QuantumValue(args[0].asClass()->name);
+        return QuantumValue(args[0].typeName()); });
+
+    // ── Number theory ─────────────────────────────────────────────────────
+    reg("is_prime", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if(args.empty()) throw RuntimeError("is_prime() requires 1 argument");
+        long long n = (long long)args[0].asNumber();
+        if(n < 2) return QuantumValue(false);
+        if(n == 2) return QuantumValue(true);
+        if(n % 2 == 0) return QuantumValue(false);
+        for(long long i = 3; i * i <= n; i += 2)
+            if(n % i == 0) return QuantumValue(false);
+        return QuantumValue(true); });
+
+    reg("gcd", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if(args.size() < 2) throw RuntimeError("gcd() requires 2 arguments");
+        long long a = std::abs((long long)args[0].asNumber());
+        long long b = std::abs((long long)args[1].asNumber());
+        while(b) { long long t = b; b = a % b; a = t; }
+        return QuantumValue((double)a); });
+
+    reg("lcm", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if(args.size() < 2) throw RuntimeError("lcm() requires 2 arguments");
+        long long a = std::abs((long long)args[0].asNumber());
+        long long b = std::abs((long long)args[1].asNumber());
+        if(a == 0 || b == 0) return QuantumValue(0.0);
+        long long g = a; long long tb = b;
+        while(tb) { long long t = tb; tb = g % tb; g = t; }
+        return QuantumValue((double)(a / g * b)); });
+
+    reg("mod_pow", [](std::vector<QuantumValue> args) -> QuantumValue
+        {
+        if(args.size() < 3) throw RuntimeError("mod_pow() requires 3 arguments (base, exp, mod)");
+        long long base = (long long)args[0].asNumber();
+        long long exp  = (long long)args[1].asNumber();
+        long long mod  = (long long)args[2].asNumber();
+        if(mod == 1) return QuantumValue(0.0);
+        long long result = 1;
+        base %= mod;
+        while(exp > 0) {
+            if(exp % 2 == 1) result = result * base % mod;
+            exp /= 2;
+            base = base * base % mod;
+        }
+        return QuantumValue((double)result); });
+
     // __listcomp_push__(arr, val) — push val onto arr, return arr
     reg("__listcomp_push__", [](std::vector<QuantumValue> args) -> QuantumValue
         {
@@ -1794,6 +1924,149 @@ void VM::registerNatives()
     globals->define("false", QuantumValue(false));
     globals->define("nil", QuantumValue());
     globals->define("None", QuantumValue());
+
+    // ── Math object (JavaScript/Python-style Math.xxx) ────────────────────
+    {
+        auto mathDict = std::make_shared<Dict>();
+        auto mathReg = [&](const std::string &name, QuantumNativeFunc fn)
+        {
+            auto nat = std::make_shared<QuantumNative>();
+            nat->name = "Math." + name;
+            nat->fn = std::move(fn);
+            (*mathDict)[name] = QuantumValue(nat);
+        };
+        mathReg("abs", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::abs(toNum2(a[0], "Math.abs"))); });
+        mathReg("sqrt", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::sqrt(toNum2(a[0], "Math.sqrt"))); });
+        mathReg("floor", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::floor(toNum2(a[0], "Math.floor"))); });
+        mathReg("ceil", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::ceil(toNum2(a[0], "Math.ceil"))); });
+        mathReg("round", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::round(toNum2(a[0], "Math.round"))); });
+        mathReg("pow", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::pow(toNum2(a[0], "Math.pow"), toNum2(a[1], "Math.pow"))); });
+        mathReg("log", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::log(toNum2(a[0], "Math.log"))); });
+        mathReg("log2", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::log2(toNum2(a[0], "Math.log2"))); });
+        mathReg("log10", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::log10(toNum2(a[0], "Math.log10"))); });
+        mathReg("sin", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::sin(toNum2(a[0], "Math.sin"))); });
+        mathReg("cos", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::cos(toNum2(a[0], "Math.cos"))); });
+        mathReg("tan", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::tan(toNum2(a[0], "Math.tan"))); });
+        mathReg("asin", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::asin(toNum2(a[0], "Math.asin"))); });
+        mathReg("acos", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::acos(toNum2(a[0], "Math.acos"))); });
+        mathReg("atan", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::atan(toNum2(a[0], "Math.atan"))); });
+        mathReg("atan2", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::atan2(toNum2(a[0], "Math.atan2"), toNum2(a[1], "Math.atan2"))); });
+        mathReg("hypot", [](std::vector<QuantumValue> a)
+                {
+            double sum = 0;
+            for (auto &v : a) { double x = toNum2(v,"Math.hypot"); sum += x*x; }
+            return QuantumValue(std::sqrt(sum)); });
+        mathReg("clamp", [](std::vector<QuantumValue> a)
+                {
+            if (a.size() < 3) throw RuntimeError("Math.clamp requires 3 arguments");
+            double v   = toNum2(a[0],"Math.clamp");
+            double lo  = toNum2(a[1],"Math.clamp");
+            double hi  = toNum2(a[2],"Math.clamp");
+            return QuantumValue(std::max(lo, std::min(hi, v))); });
+        mathReg("min", [](std::vector<QuantumValue> a)
+                {
+            if (a.empty()) throw RuntimeError("Math.min expected args");
+            double m = toNum2(a[0],"Math.min");
+            for (size_t i=1;i<a.size();i++) m=std::min(m,toNum2(a[i],"Math.min"));
+            return QuantumValue(m); });
+        mathReg("max", [](std::vector<QuantumValue> a)
+                {
+            if (a.empty()) throw RuntimeError("Math.max expected args");
+            double m = toNum2(a[0],"Math.max");
+            for (size_t i=1;i<a.size();i++) m=std::max(m,toNum2(a[i],"Math.max"));
+            return QuantumValue(m); });
+        mathReg("sign", [](std::vector<QuantumValue> a)
+                {
+            double v = toNum2(a[0],"Math.sign");
+            return QuantumValue(v > 0 ? 1.0 : v < 0 ? -1.0 : 0.0); });
+        mathReg("trunc", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::trunc(toNum2(a[0], "Math.trunc"))); });
+        mathReg("exp", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::exp(toNum2(a[0], "Math.exp"))); });
+        mathReg("cbrt", [](std::vector<QuantumValue> a)
+                { return QuantumValue(std::cbrt(toNum2(a[0], "Math.cbrt"))); });
+        mathReg("random", [](std::vector<QuantumValue>)
+                {
+            static std::mt19937_64 rng(std::random_device{}());
+            std::uniform_real_distribution<double> dist(0.0,1.0);
+            return QuantumValue(dist(rng)); });
+        // Expose PI and E on the Math object too
+        (*mathDict)["PI"] = QuantumValue(M_PI);
+        (*mathDict)["E"] = QuantumValue(M_E);
+        globals->define("Math", QuantumValue(mathDict));
+    }
+
+    // ── Object utility (Object.keys, Object.values, Object.entries) ───────
+    {
+        auto objectDict = std::make_shared<Dict>();
+        auto objReg = [&](const std::string &name, QuantumNativeFunc fn)
+        {
+            auto nat = std::make_shared<QuantumNative>();
+            nat->name = "Object." + name;
+            nat->fn = std::move(fn);
+            (*objectDict)[name] = QuantumValue(nat);
+        };
+        objReg("keys", [](std::vector<QuantumValue> args) -> QuantumValue
+               {
+            if (args.empty()) throw RuntimeError("Object.keys() requires 1 argument");
+            auto result = std::make_shared<Array>();
+            if (args[0].isDict())
+                for (auto &[k, v] : *args[0].asDict())
+                    result->push_back(QuantumValue(k));
+            else if (args[0].isInstance())
+                for (auto &[k, v] : args[0].asInstance()->fields)
+                    result->push_back(QuantumValue(k));
+            return QuantumValue(result); });
+        objReg("values", [](std::vector<QuantumValue> args) -> QuantumValue
+               {
+            if (args.empty()) throw RuntimeError("Object.values() requires 1 argument");
+            auto result = std::make_shared<Array>();
+            if (args[0].isDict())
+                for (auto &[k, v] : *args[0].asDict())
+                    result->push_back(v);
+            else if (args[0].isInstance())
+                for (auto &[k, v] : args[0].asInstance()->fields)
+                    result->push_back(v);
+            return QuantumValue(result); });
+        objReg("entries", [](std::vector<QuantumValue> args) -> QuantumValue
+               {
+            if (args.empty()) throw RuntimeError("Object.entries() requires 1 argument");
+            auto result = std::make_shared<Array>();
+            if (args[0].isDict())
+                for (auto &[k, v] : *args[0].asDict())
+                {
+                    auto pair = std::make_shared<Array>();
+                    pair->push_back(QuantumValue(k));
+                    pair->push_back(v);
+                    result->push_back(QuantumValue(pair));
+                }
+            return QuantumValue(result); });
+        objReg("assign", [](std::vector<QuantumValue> args) -> QuantumValue
+               {
+            if (args.size() < 2 || !args[0].isDict()) return args.empty() ? QuantumValue() : args[0];
+            for (size_t i = 1; i < args.size(); ++i)
+                if (args[i].isDict())
+                    for (auto &[k, v] : *args[i].asDict())
+                        (*args[0].asDict())[k] = v;
+            return args[0]; });
+        globals->define("Object", QuantumValue(objectDict));
+    }
 
     // ── console object (JavaScript compatibility) ─────────────────────────
     // console.log, console.error, console.warn, console.info
@@ -2705,6 +2978,118 @@ QuantumValue VM::callArrayMethod(std::shared_ptr<Array> arr, const std::string &
                 arr->push_back(v);
         return QuantumValue();
     }
+
+    // ── Higher-order array methods: map, filter, reduce, forEach ──────────
+    // Helper: call a QuantumValue (closure, native, or bound method) with given args
+    auto callFn = [&](QuantumValue fn, std::vector<QuantumValue> fnArgs) -> QuantumValue
+    {
+        if (fn.isNative())
+            return fn.asNative()->fn(fnArgs);
+        if (fn.isFunction())
+        {
+            push(fn);
+            for (auto &a : fnArgs)
+                push(a);
+            callClosure(fn.asFunction(), (int)fnArgs.size(), 0);
+            size_t depth = frames_.size() - 1;
+            runFrame(depth);
+            return pop();
+        }
+        if (fn.isBoundMethod())
+        {
+            auto bm = fn.asBoundMethod();
+            std::vector<QuantumValue> allArgs = {bm->self};
+            for (auto &a : fnArgs)
+                allArgs.push_back(a);
+            push(bm->self);
+            for (auto &a : fnArgs)
+                push(a);
+            callClosure(bm->method, (int)allArgs.size(), 0);
+            size_t depth = frames_.size() - 1;
+            runFrame(depth);
+            return pop();
+        }
+        throw TypeError("map/filter/reduce: callback is not callable");
+    };
+
+    if (m == "map")
+    {
+        if (args.empty())
+            throw RuntimeError("map() requires a callback");
+        QuantumValue fn = args[0];
+        auto result = std::make_shared<Array>();
+        for (size_t i = 0; i < arr->size(); ++i)
+            result->push_back(callFn(fn, {(*arr)[i], QuantumValue((double)i)}));
+        return QuantumValue(result);
+    }
+    if (m == "filter")
+    {
+        if (args.empty())
+            throw RuntimeError("filter() requires a callback");
+        QuantumValue fn = args[0];
+        auto result = std::make_shared<Array>();
+        for (auto &v : *arr)
+            if (callFn(fn, {v}).isTruthy())
+                result->push_back(v);
+        return QuantumValue(result);
+    }
+    if (m == "reduce")
+    {
+        if (args.empty())
+            throw RuntimeError("reduce() requires a callback");
+        QuantumValue fn = args[0];
+        if (arr->empty())
+        {
+            if (args.size() > 1)
+                return args[1];
+            throw RuntimeError("reduce() on empty array with no initial value");
+        }
+        QuantumValue acc = args.size() > 1 ? args[1] : (*arr)[0];
+        size_t start = args.size() > 1 ? 0 : 1;
+        for (size_t i = start; i < arr->size(); ++i)
+            acc = callFn(fn, {acc, (*arr)[i], QuantumValue((double)i)});
+        return acc;
+    }
+    if (m == "forEach")
+    {
+        if (args.empty())
+            throw RuntimeError("forEach() requires a callback");
+        QuantumValue fn = args[0];
+        for (size_t i = 0; i < arr->size(); ++i)
+            callFn(fn, {(*arr)[i], QuantumValue((double)i)});
+        return QuantumValue();
+    }
+    if (m == "find")
+    {
+        if (args.empty())
+            throw RuntimeError("find() requires a callback");
+        QuantumValue fn = args[0];
+        for (auto &v : *arr)
+            if (callFn(fn, {v}).isTruthy())
+                return v;
+        return QuantumValue();
+    }
+    if (m == "every")
+    {
+        if (args.empty())
+            throw RuntimeError("every() requires a callback");
+        QuantumValue fn = args[0];
+        for (auto &v : *arr)
+            if (!callFn(fn, {v}).isTruthy())
+                return QuantumValue(false);
+        return QuantumValue(true);
+    }
+    if (m == "some")
+    {
+        if (args.empty())
+            throw RuntimeError("some() requires a callback");
+        QuantumValue fn = args[0];
+        for (auto &v : *arr)
+            if (callFn(fn, {v}).isTruthy())
+                return QuantumValue(true);
+        return QuantumValue(false);
+    }
+
     throw TypeError("Array has no method '" + m + "'");
 }
 
