@@ -1,5 +1,5 @@
 let num1 = 234;
-let num2s = 234;
+let num2 = 234;
 if(num1>100){
     print(num1);
 }
